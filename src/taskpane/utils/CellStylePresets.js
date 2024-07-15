@@ -1,12 +1,12 @@
 const CELL_STYLE_PRESETS = [
   {
-    num: "프리셋1",
+    name: "프리셋1",
   },
   {
-    num: "프리셋2",
+    name: "프리셋2",
   },
   {
-    num: "프리셋3",
+    name: "프리셋3",
   },
 ];
 
