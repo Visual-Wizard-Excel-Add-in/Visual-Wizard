@@ -4,6 +4,10 @@ import {
   createLightTheme,
   createDarkTheme,
 } from "@fluentui/react-components";
+import {
+  iconFilledClassName,
+  iconRegularClassName,
+} from "@fluentui/react-icons";
 
 const useStyles = makeStyles({
   root: {
@@ -35,8 +39,28 @@ const useStyles = makeStyles({
     color: tokens.colorNeutralForeground4,
   },
   border: {
-    margin: "0.5rem 0",
+    margin: "0.3rem 0",
+    borderBlockWidth: "1px",
     borderBlockColor: tokens.colorNeutralBackground3Pressed,
+  },
+  buttons: {
+    color: tokens.colorNeutralForeground4,
+    ":hover": {
+      borderRadius: tokens.borderRadiusMedium,
+      backgroundColor: tokens.colorNeutralBackground5Hover,
+    },
+    ":active": {
+      [`& .${iconFilledClassName}`]: {
+        display: "block",
+      },
+      [`& .${iconRegularClassName}`]: {
+        display: "none",
+      },
+    },
+  },
+  macroKey: {
+    margin: "0px",
+    width: "3rem",
   },
 });
 
