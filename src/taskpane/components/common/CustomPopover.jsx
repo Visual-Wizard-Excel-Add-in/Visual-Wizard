@@ -6,12 +6,12 @@ import {
 
 function CustomPopover({ position, PopoverContents, triggerContents }) {
   return (
-    <Popover positioning={position}>
+    <Popover withArrow="true" positioning={position}>
       <PopoverTrigger disableButtonEnhancement>
         {triggerContents}
       </PopoverTrigger>
 
-      <PopoverSurface tabIndex={-1} className="whitespace-pre-wrap">
+      <PopoverSurface tabIndex={-1} className="whitespace-pre-wrap max-w-48">
         {PopoverContents}
       </PopoverSurface>
     </Popover>

@@ -1,10 +1,8 @@
 import { Button } from "@fluentui/react-components";
 
-import { useStyles } from "../../utils/style";
 import CustomPopover from "../common/CustomPopover";
 
 function FormulaOrder({ currentFormula }) {
-  const styles = useStyles();
   function trigger(text) {
     return <Button>{text}</Button>;
   }
@@ -18,7 +16,7 @@ function FormulaOrder({ currentFormula }) {
           <div key={{ func } + { index }} className="mb-2">
             <span>{index + 1}. </span>
             <CustomPopover
-              position="below"
+              position="after"
               triggerContents={trigger(func)}
               PopoverContents={description}
             />
