@@ -11,7 +11,7 @@ function Share() {
     },
   ];
 
-  function handToggle(event, data) {
+  function handleToggle(event, data) {
     setOpenTab(data.openItems);
   }
 
@@ -23,7 +23,7 @@ function Share() {
           order={String(index + 1)}
           featureName={feature.name}
           openTab={openTab}
-          handToggle={handToggle}
+          handToggle={handleToggle}
           featureContents={feature.component}
         />
       ))}
