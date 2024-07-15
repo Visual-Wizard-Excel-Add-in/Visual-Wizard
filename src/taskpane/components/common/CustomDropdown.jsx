@@ -4,7 +4,7 @@ function CustomDropdown({ options, placeholder }) {
   const selectId = useId();
 
   return (
-    <Dropdown id={selectId} className="w-24 min-w-0" placeholder={placeholder}>
+    <Dropdown id={selectId} className="w-32 min-w-0" placeholder={placeholder}>
       {options.map((option, index) => (
         <Option key={{ option } + { index }} className="!w-24">
           {option.name}

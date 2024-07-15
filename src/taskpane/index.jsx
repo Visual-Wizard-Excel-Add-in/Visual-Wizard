@@ -12,7 +12,7 @@ const rootElement = document.getElementById("root");
 const root = rootElement ? createRoot(rootElement) : undefined;
 
 const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
-const theme = prefersDarkScheme.matches ? lightTheme : lightTheme;
+const theme = prefersDarkScheme.matches ? darkTheme : lightTheme;
 
 const globalStyles = `
   .fui-AccordionHeader__button {
