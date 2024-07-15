@@ -1,4 +1,4 @@
-import { Select, useId } from "@fluentui/react-components";
+import { Dropdown, Option, useId } from "@fluentui/react-components";
 import { useStyles } from "../../utils/style";
 import CELL_STYLE_PRESETS from "../../utils/CellStylePresets";
 import { SaveIcon, EditIcon } from "../../utils/icons";
@@ -11,11 +11,13 @@ function CellStyle() {
     <div className="flex items-center justify-between space-x-5">
       <span>서식 프리셋</span>
       <div className="flex items-center space-x-2">
-        <Select id={selectId} className="w-24">
+        <Dropdown id={selectId} className="w-24 min-w-0" placeholder="프리셋">
           {CELL_STYLE_PRESETS.map((preset) => (
-            <option key={preset.num}>{preset.num}</option>
+            <Option key={preset.num} className="!w-24">
+              {preset.num}
+            </Option>
           ))}
-        </Select>
+        </Dropdown>
         <button className={styles.buttons} aria-label="save">
           <EditIcon />
         </button>

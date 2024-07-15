@@ -20,6 +20,18 @@ const globalStyles = `
     height: 25px !important;
     line-height: 25px !important;
   }
+  .fui-Listbox {
+    min-width: 0% !important;
+    width: 6.5rem !important;
+  }
+  .fui-Dropdown {
+    min-width: 0% !important;
+    width: 6rem !important;
+  }
+  #fui-r1 {
+    min-width: 0% !important;
+    width: 6rem !important;
+  }
 `;
 
 const styleSheet = document.createElement("style");
