@@ -5,20 +5,21 @@ import { useStyles } from "../utils/style";
 
 function Header() {
   const styles = useStyles();
-  const { category, setCategory } = useStore();
+  const { setCategory, setOpenTab } = useStore();
 
   function selectCategory(event, data) {
     setCategory(data.value);
+    setOpenTab([]);
   }
 
   return (
     <div className={styles.list}>
       <TabList
-        defaultSelectedValue="Fomula"
+        defaultSelectedValue="Formula"
         appearance="subtle"
         onTabSelect={selectCategory}
       >
-        <Tab value="Fomula" className="h-6">
+        <Tab value="Formula" className="h-6">
           수식
         </Tab>
         <Tab value="Style" className="h-6">

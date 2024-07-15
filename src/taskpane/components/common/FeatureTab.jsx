@@ -19,7 +19,7 @@ function FeatureTab({
   const styles = useStyles();
 
   function accordionBackgroundColor() {
-    if (openTab.includes(order)) {
+    if (openTab && openTab.includes(order)) {
       return styles.openedAccordion;
     }
     return styles.accordion;
