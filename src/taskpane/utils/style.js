@@ -16,6 +16,28 @@ const useStyles = makeStyles({
     flexDirection: "column",
     justifyContent: "flex-start",
   },
+  accordion: {
+    backgroundColor: tokens.colorNeutralBackground3,
+    border: "1px solid #AAAAAA",
+  },
+  openedAccordion: {
+    backgroundColor: tokens.colorNeutralBackground3Pressed,
+    border: "1px solid #AAAAAA",
+  },
+  card: {
+    borderRadius: "0%",
+    boxShadow: "0",
+  },
+  margin0: {
+    margin: "0%",
+  },
+  blurText: {
+    color: tokens.colorNeutralForeground4,
+  },
+  border: {
+    margin: "0.5rem 0",
+    borderBlockColor: tokens.colorNeutralBackground3Pressed,
+  },
 });
 
 const excelTheme = {
