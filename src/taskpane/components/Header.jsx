@@ -18,11 +18,21 @@ function Header() {
         appearance="subtle"
         onTabSelect={selectCategory}
       >
-        <Tab value="Fomula">수식</Tab>
-        <Tab value="Style">서식</Tab>
-        <Tab value="Macro">매크로</Tab>
-        <Tab value="Validate">유효성</Tab>
-        <Tab value="Share">공유하기</Tab>
+        <Tab value="Fomula" className="h-6">
+          수식
+        </Tab>
+        <Tab value="Style" className="h-6">
+          서식
+        </Tab>
+        <Tab value="Macro" className="h-6">
+          매크로
+        </Tab>
+        <Tab value="Validate" className="h-6">
+          유효성
+        </Tab>
+        <Tab value="Share" className="h-6">
+          공유하기
+        </Tab>
       </TabList>
     </div>
   );
