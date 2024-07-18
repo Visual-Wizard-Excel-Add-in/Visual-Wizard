@@ -56,6 +56,10 @@ module.exports = {
     "no-param-reassign": 0,
     "global-require": 0,
     "no-underscore-dangle": "off",
+    "no-restricted-syntax": "off",
+    "no-cond-assign": "off",
+    "no-use-before-define": "off",
+    "no-await-in-loop": "off",
   },
   settings: {
     react: {
