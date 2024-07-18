@@ -1,6 +1,6 @@
 import { useStyles } from "../../utils/style";
 import { SaveIcon, EditIcon } from "../../utils/icons";
-import CHART_STYLE_PRESETS from "../../utils/CellStylePresets";
+import CHART_STYLE_PRESETS from "../../Presets/CellStylePresets";
 import CustomDropdown from "../common/CustomDropdown";
 
 function ChartStyle() {

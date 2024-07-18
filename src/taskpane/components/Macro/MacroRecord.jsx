@@ -1,7 +1,7 @@
 import { useStyles } from "../../utils/style";
 import useStore from "../../utils/store";
 import { SaveIcon, EditIcon, RecordStart, RecordStop } from "../../utils/icons";
-import MACRO_PRESETS from "../../utils/MacroPreset";
+import MACRO_PRESETS from "../../Presets/MacroPreset";
 import CustomDropdown from "../common/CustomDropdown";
 
 function MacroRecord() {

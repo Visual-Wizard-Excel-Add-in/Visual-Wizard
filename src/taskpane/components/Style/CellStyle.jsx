@@ -1,6 +1,6 @@
 import { useStyles } from "../../utils/style";
 import { SaveIcon, EditIcon } from "../../utils/icons";
-import CELL_STYLE_PRESETS from "../../utils/CellStylePresets";
+import CELL_STYLE_PRESETS from "../../Presets/CellStylePresets";
 import CustomDropdown from "../common/CustomDropdown";
 
 function CellStyle() {

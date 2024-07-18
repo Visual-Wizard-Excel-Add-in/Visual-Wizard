@@ -1,12 +1,11 @@
 import "core-js/stable";
 import "regenerator-runtime/runtime";
-import React from "react";
 import { FluentProvider } from "@fluentui/react-components";
 import { createRoot } from "react-dom/client";
-import "./index.css";
 
 import App from "./components/App";
 import { lightTheme, darkTheme } from "./utils/style";
+import "./index.css";
 
 const rootElement = document.getElementById("root");
 const root = rootElement ? createRoot(rootElement) : undefined;

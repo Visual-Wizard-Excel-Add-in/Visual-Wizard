@@ -2,7 +2,7 @@ import { Button, Input } from "@fluentui/react-components";
 
 import { useStyles } from "../../utils/style";
 import { SaveIcon, EditIcon } from "../../utils/icons";
-import MACRO_PRESETS from "../../utils/MacroPreset";
+import MACRO_PRESETS from "../../Presets/MacroPreset";
 import CustomDropdown from "../common/CustomDropdown";
 
 function MacroSetting() {
