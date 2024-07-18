@@ -1,15 +1,17 @@
 import { Button } from "@fluentui/react-components";
+import useStore from "../../utils/store";
 
 import CustomPopover from "../common/CustomPopover";
 
-function FormulaOrder({ currentFormula }) {
+function FormulaOrder() {
   function trigger(text) {
     return <Button>{text}</Button>;
   }
+  const { cellFormulas } = useStore();
 
   return (
     <div>
-      {currentFormula.map((formula, index) => {
+      {cellFormulas.map((formula, index) => {
         const func = Object.keys(formula)[0];
         const description = formula[func];
         return (
