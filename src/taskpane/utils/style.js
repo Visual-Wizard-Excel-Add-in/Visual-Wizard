@@ -62,6 +62,9 @@ const useStyles = makeStyles({
     margin: "0px",
     width: "3rem",
   },
+  fontBolder: {
+    fontWeight: "bolder",
+  },
 });
 
 const excelTheme = {
