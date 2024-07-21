@@ -30,7 +30,7 @@ function MacroSetting() {
             icon={
               <img
                 className="border-2 border-slate-300"
-                src="../../../../assets/macroButton.png"
+                src="src/taskPane/assets/macroButton.png"
                 alt="macro button"
               />
             }
@@ -40,7 +40,7 @@ function MacroSetting() {
             icon={
               <img
                 className="border-2 border-slate-300"
-                src="../../../../assets/roterShartButton.png"
+                src="src/taskPane/assets/roterShartButton.png"
                 alt="macro button"
               />
             }

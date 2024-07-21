@@ -8,17 +8,14 @@ import Macro from "./Macro/Macro";
 import Validate from "./Validate/Validate";
 import Share from "./Share/Share";
 import { useStyles } from "../utils/style";
-import { registerSelectionChange, getCellValue } from "../utils/funcUtils";
+import {
+  registerSelectionChange,
+  getCellValue,
+} from "../utils/cellCommonUtils";
 
 function App() {
   const styles = useStyles();
-  const {
-    category,
-    setCellArguments,
-    setCellAddress,
-    setCellValue,
-    setCellFormulas,
-  } = useStore();
+  const { category, activeSheetName, sheetId, setSheetId } = useStore();
 
   const categories = {
     Formula: <Formula />,
@@ -30,19 +27,36 @@ function App() {
   const CurrentCategory = categories[category] || null;
 
   useEffect(() => {
-    async function registerChange() {
-      await registerSelectionChange(() =>
-        getCellValue(
-          setCellArguments,
-          setCellAddress,
-          setCellValue,
-          setCellFormulas,
-        ),
-      );
-    }
-
-    registerChange();
+    handleSheetChange();
   }, []);
+
+  async function handleSheetChange() {
+    await Excel.run(async (context) => {
+      const { workbook } = context;
+
+      workbook.worksheets.onActivated.add(async () => {
+        await activeSheetName(sheetId);
+        await registerSelectionChange(sheetId, getCellValue);
+      });
+
+      workbook.worksheets.onActivated.add(async (event) => {
+        const newSheetId = event.worksheetId;
+        if (newSheetId !== sheetId) {
+          setSheetId(newSheetId);
+          await registerSelectionChange(newSheetId, getCellValue);
+        }
+      });
+
+      const initialSheet = workbook.worksheets.getActiveWorksheet();
+      initialSheet.load("id");
+      await context.sync();
+      const initialSheetId = initialSheet.id;
+      if (initialSheetId !== sheetId) {
+        setSheetId(initialSheetId);
+        await registerSelectionChange(initialSheetId, getCellValue);
+      }
+    });
+  }
 
   return (
     <div className={styles.root}>
