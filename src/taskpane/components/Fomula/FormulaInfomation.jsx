@@ -6,11 +6,11 @@ import { useStyles } from "../../utils/style";
 
 function FormulaInformation() {
   const styles = useStyles();
-  const { cellFormulas } = useStore();
+  const { cellFunctions } = useStore();
 
   return (
     <div>
-      {cellFormulas.map((formula) => {
+      {cellFunctions.map((formula) => {
         return (
           <div key={formula}>
             <p className="font-bold">{formula}</p>
@@ -21,7 +21,7 @@ function FormulaInformation() {
           </div>
         );
       })}
-      {cellFormulas.length !== 0 ? (
+      {cellFunctions.length !== 0 ? (
         <p className={styles.blurText}>
           자세한 설명은&nbsp;
           <Link
@@ -34,7 +34,7 @@ function FormulaInformation() {
           을 참고해 주세요.
         </p>
       ) : (
-        "수식이 아닙니다."
+        "수식이 입력된 셀을 선택해주세요."
       )}
     </div>
   );
