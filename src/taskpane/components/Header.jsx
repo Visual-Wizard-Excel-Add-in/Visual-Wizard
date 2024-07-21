@@ -13,7 +13,7 @@ function Header() {
   }
 
   return (
-    <div className={styles.list}>
+    <div className={`sticky top-0 z-10 ${styles.list}`}>
       <TabList
         defaultSelectedValue="Formula"
         appearance="subtle"
