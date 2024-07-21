@@ -15,10 +15,11 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground6,
   },
   list: {
-    alignItems: "flex-start",
     display: "flex",
+    alignItems: "flex-start",
     flexDirection: "column",
     justifyContent: "flex-start",
+    backgroundColor: tokens.colorNeutralBackground6,
   },
   accordion: {
     backgroundColor: tokens.colorNeutralBackground3,
