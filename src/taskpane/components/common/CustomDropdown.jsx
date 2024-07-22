@@ -1,12 +1,23 @@
 import { Dropdown, Option, useId } from "@fluentui/react-components";
 
-function CustomDropdown({ options, placeholder }) {
+function CustomDropdown({ handleValue, options, placeholder, selectedValue }) {
   const selectId = useId();
 
+  function handleChange(event, value) {
+    event.stopPropagation();
+
+    handleValue(value.optionText);
+  }
+
   return (
-    <Dropdown id={selectId} className="w-32 min-w-0" placeholder={placeholder}>
-      {options.map((option, index) => (
-        <Option key={{ option } + { index }} className="!w-24">
+    <Dropdown
+      id={selectId}
+      placeholder={placeholder}
+      onOptionSelect={handleChange}
+      value={selectedValue}
+    >
+      {options.map((option) => (
+        <Option key={option.value} value={option.value} className="!w-24">
           {option.name}
         </Option>
       ))}
