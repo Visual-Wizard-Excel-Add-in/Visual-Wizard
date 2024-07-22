@@ -14,6 +14,9 @@ const useStore = create((set) => ({
   setIsCellHighlighting: () =>
     set((state) => ({ isCellHighlighting: !state.isCellHighlighting })),
 
+  selectedStylePreset: "",
+  setSelectedStylePreset: (preset) => set({ selectedStylePreset: preset }),
+
   sheetId: "",
   setSheetId: (selectSheet) => set({ sheetName: selectSheet }),
 
