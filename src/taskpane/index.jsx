@@ -15,27 +15,28 @@ const theme = prefersDarkScheme.matches ? darkTheme : lightTheme;
 
 const globalStyles = `
   .fui-AccordionHeader__button {
-    min-height: 25px !important;
     height: 25px !important;
+    min-height: 25px !important;
     line-height: 25px !important;
   }
   .fui-Listbox {
-    min-width: 0% !important;
     width: 6.5rem !important;
+    min-width: 0% !important;
   }
   .fui-Dropdown {
+    width: 6.5rem !important;
     min-width: 0% !important;
-    width: 6rem !important;
   }
   #fui-r1 {
-    min-width: 0% !important;
     width: 6rem !important;
+    min-width: 0% !important;
   }
 `;
 
 const styleSheet = document.createElement("style");
 styleSheet.type = "text/css";
 styleSheet.innerText = globalStyles;
+
 document.head.appendChild(styleSheet);
 
 Office.onReady((info) => {
