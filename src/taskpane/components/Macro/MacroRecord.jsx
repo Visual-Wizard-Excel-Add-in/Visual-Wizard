@@ -1,6 +1,12 @@
 import { useStyles } from "../../utils/style";
 import useStore from "../../utils/store";
-import { SaveIcon, EditIcon, RecordStart, RecordStop } from "../../utils/icons";
+import {
+  SaveIcon,
+  DeleteIcon,
+  RecordStart,
+  RecordStop,
+  PlusIcon,
+} from "../../utils/icons";
 import MACRO_PRESETS from "../../Presets/MacroPreset";
 import CustomDropdown from "../common/CustomDropdown";
 
@@ -15,13 +21,15 @@ function MacroRecord() {
   return (
     <>
       <div className="flex items-center justify-between space-x-5">
-        <span>매크로</span>
         <div className="flex items-center space-x-2">
-          <CustomDropdown options={MACRO_PRESETS} placeholder="매크로" />
-          <button className={styles.buttons} aria-label="save">
-            <EditIcon />
+          <button className={styles.buttons} aria-label="plus">
+            <PlusIcon />
           </button>
-          <button className={styles.buttons} aria-label="edit">
+          <CustomDropdown options={MACRO_PRESETS} placeholder="매크로" />
+          <button className={styles.buttons} aria-label="delete">
+            <DeleteIcon />
+          </button>
+          <button className={styles.buttons} aria-label="save">
             <SaveIcon />
           </button>
         </div>
@@ -31,7 +39,7 @@ function MacroRecord() {
         <button
           onClick={controlRecoding}
           className={styles.buttons}
-          aria-label="edit"
+          aria-label="record"
         >
           {isRecording ? <RecordStop /> : <RecordStart color="red" />}
         </button>
