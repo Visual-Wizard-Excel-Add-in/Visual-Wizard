@@ -1,4 +1,4 @@
-import { extractArgsAddress } from "./cellCommonUtils";
+import { extractArgsAddress, updateState } from "./cellCommonUtils";
 
 async function storeCellStyle(
   context,
@@ -189,6 +189,16 @@ function convertAddressToA1(originalAddress, startRow, startColumn) {
 
 async function saveCellStylePreset(styleName) {
   try {
+    if (styleName === "") {
+      const warningMessage = {
+        type: "warning",
+        title: "접근 오류",
+        body: "프리셋을 정확하게 선택해주세요",
+      };
+      updateState("setMessagiList", warningMessage);
+      return;
+    }
+
     await Excel.run(async (context) => {
       let cellStylePreset =
         Office.context.document.settings.get("cellStylePreset");
