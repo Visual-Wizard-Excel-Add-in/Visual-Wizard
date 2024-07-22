@@ -17,6 +17,16 @@ const useStore = create((set) => ({
   selectedStylePreset: "",
   setSelectedStylePreset: (preset) => set({ selectedStylePreset: preset }),
 
+  messageList: [],
+  setMessagiList: (message) =>
+    set((state) => ({
+      messageList: [...state.messageList, { id: Date.now(), message }],
+    })),
+  removeMessage: (id) =>
+    set((state) => ({
+      messageList: state.messageList.filter((message) => message.id !== id),
+    })),
+
   sheetId: "",
   setSheetId: (selectSheet) => set({ sheetName: selectSheet }),
 

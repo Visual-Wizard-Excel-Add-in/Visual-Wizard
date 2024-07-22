@@ -12,6 +12,7 @@ import {
   registerSelectionChange,
   getCellValue,
 } from "../utils/cellCommonUtils";
+import CustomMessageBar from "./common/CustomMessageBar";
 
 function App() {
   const styles = useStyles();
@@ -62,6 +63,7 @@ function App() {
     <div className={styles.root}>
       <Header />
       {CurrentCategory || <div />}
+      <CustomMessageBar />
     </div>
   );
 }
