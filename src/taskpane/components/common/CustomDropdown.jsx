@@ -17,7 +17,7 @@ function CustomDropdown({ handleValue, options, placeholder, selectedValue }) {
       value={selectedValue}
     >
       {options.map((option) => (
-        <Option key={option.value} value={option.value} className="!w-24">
+        <Option key={option.value} value={option.value} className="!w-32">
           {option.name}
         </Option>
       ))}

@@ -66,6 +66,16 @@ const useStyles = makeStyles({
   fontBolder: {
     fontWeight: "bolder",
   },
+  messageBarGroup: {
+    padding: tokens.spacingHorizontalMNudge,
+    display: "flex",
+    flexDirection: "column",
+    marginTop: "10px",
+    gap: "10px",
+
+    height: "300px",
+    overflow: "auto",
+  },
 });
 
 const excelTheme = {
