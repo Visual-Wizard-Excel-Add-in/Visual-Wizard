@@ -94,6 +94,7 @@ async function getCellValue() {
     throw new Error(e.message);
   }
 }
+
 async function getTargetCellValue(targetCell) {
   return Excel.run(async (context) => {
     const parts = targetCell.split("!");
@@ -115,8 +116,8 @@ async function getTargetCellValue(targetCell) {
       return null;
     }
 
-    let targetCellValue = cell.values[0][0];
     const numberFormat = cell.numberFormat[0][0];
+    let targetCellValue = cell.values[0][0];
 
     if (numberFormat && numberFormat.includes("yy") && targetCellValue !== "") {
       targetCellValue = new Date(
@@ -242,6 +243,44 @@ async function activeSheetId(sheetId) {
   });
 }
 
+async function addPreset(presetCategory, presetName) {
+  await Excel.run(async () => {
+    let savePreset = Office.context.document.settings.get(presetCategory);
+
+    if (!savePreset) {
+      savePreset = {};
+    } else {
+      savePreset = JSON.parse(savePreset);
+    }
+
+    savePreset[presetName] = {};
+
+    Office.context.document.settings.set(
+      presetCategory,
+      JSON.stringify(savePreset),
+    );
+    await Office.context.document.settings.saveAsync();
+  });
+}
+
+async function deletePreset(presetCategory, presetName) {
+  await Excel.run(async () => {
+    let currentPresets = Office.context.document.settings.get(presetCategory);
+
+    if (currentPresets) {
+      currentPresets = JSON.parse(currentPresets);
+
+      delete currentPresets[presetName];
+
+      Office.context.document.settings.set(
+        presetCategory,
+        JSON.stringify(currentPresets),
+      );
+      await Office.context.document.settings.saveAsync();
+    }
+  });
+}
+
 export {
   registerSelectionChange,
   getCellValue,
@@ -252,4 +291,6 @@ export {
   getCellsInRange,
   nextColumn,
   activeSheetId,
+  addPreset,
+  deletePreset,
 };
