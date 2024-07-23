@@ -11,6 +11,7 @@ class ProgressGraph {
     if (!this.nodes.has(key)) {
       this.nodes.set(key, new ProgressGraphNode(node));
     }
+
     return this.nodes.get(key);
   }
 

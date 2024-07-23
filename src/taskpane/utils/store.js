@@ -18,7 +18,7 @@ const useStore = create((set) => ({
   setSelectedStylePreset: (preset) => set({ selectedStylePreset: preset }),
 
   messageList: [],
-  setMessagiList: (message) =>
+  setMessageList: (message) =>
     set((state) => ({
       messageList: [...state.messageList, { id: Date.now(), message }],
     })),
