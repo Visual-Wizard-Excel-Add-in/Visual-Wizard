@@ -1,6 +1,6 @@
 import useStore from "./store";
 
-function updateCell(setStateFunc, newValue) {
+function updateState(setStateFunc, newValue) {
   useStore.getState()[setStateFunc](newValue);
 }
 
@@ -82,11 +82,11 @@ async function getCellValue() {
         ).toLocaleDateString();
       }
 
-      updateCell("setCellAddress", selectedCellAddress);
-      updateCell("setCellValue", selectedCellValue);
-      updateCell("setCellFormula", range.formulas[0][0]);
-      updateCell("setCellFunctions", formulaFunctions);
-      updateCell("setCellArguments", formulaArgs);
+      updateState("setCellAddress", selectedCellAddress);
+      updateState("setCellValue", selectedCellValue);
+      updateState("setCellFormula", range.formulas[0][0]);
+      updateState("setCellFunctions", formulaFunctions);
+      updateState("setCellArguments", formulaArgs);
 
       await context.sync();
     });
@@ -237,7 +237,7 @@ async function activeSheetId(sheetId) {
     const activatedSheetId = activeSheet.name;
 
     if (activatedSheetId !== sheetId) {
-      updateCell("setSheetName", activatedSheetId);
+      updateState("setSheetName", activatedSheetId);
       await registerSelectionChange(context, activatedSheetId, getCellValue);
     }
   });
@@ -284,7 +284,7 @@ async function deletePreset(presetCategory, presetName) {
 export {
   registerSelectionChange,
   getCellValue,
-  updateCell,
+  updateState,
   splitCellAddress,
   extractAddresses,
   extractArgsAddress,
