@@ -27,7 +27,7 @@ function ChartStyle() {
 
   async function loadPresets() {
     return Excel.run(async () => {
-      let presets = Office.context.document.settings.get("chartStylePreset");
+      let presets = Office.context.document.settings.get("chartStylePresets");
 
       if (!presets) {
         presets = {};
@@ -41,7 +41,7 @@ function ChartStyle() {
 
   async function newPreset() {
     await addPreset(
-      "chartStylePreset",
+      "chartStylePresets",
       `차트 서식${chartStylePresets.length + 1}`,
     );
 
@@ -55,7 +55,7 @@ function ChartStyle() {
       return;
     }
 
-    await deletePreset("chartStylePreset", selectedChartPreset);
+    await deletePreset("chartStylePresets", selectedChartPreset);
 
     const savedPresets = await loadPresets();
 

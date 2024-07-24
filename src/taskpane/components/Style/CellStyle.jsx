@@ -32,7 +32,7 @@ function CellStyle() {
 
   async function loadPresets() {
     return Excel.run(async () => {
-      let presets = Office.context.document.settings.get("cellStylePreset");
+      let presets = Office.context.document.settings.get("cellStylePresets");
 
       if (!presets) {
         presets = {};
@@ -45,7 +45,10 @@ function CellStyle() {
   }
 
   async function newPreset() {
-    await addPreset("cellStylePreset", `셀 서식${cellStylePresets.length + 1}`);
+    await addPreset(
+      "cellStylePresets",
+      `셀 서식${cellStylePresets.length + 1}`,
+    );
 
     const savedPresets = await loadPresets();
 
@@ -57,7 +60,7 @@ function CellStyle() {
       return;
     }
 
-    await deletePreset("cellStylePreset", selectedStylePreset);
+    await deletePreset("cellStylePresets", selectedStylePreset);
 
     const savedPresets = await loadPresets();
 
