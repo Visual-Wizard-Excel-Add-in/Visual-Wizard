@@ -72,8 +72,6 @@ const useStyles = makeStyles({
     flexDirection: "column",
     marginTop: "10px",
     gap: "10px",
-
-    height: "300px",
     overflow: "auto",
   },
 });
