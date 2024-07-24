@@ -281,6 +281,41 @@ async function deletePreset(presetCategory, presetName) {
   });
 }
 
+async function getLastCellAddress() {
+  return Excel.run(async (context) => {
+    const sheet = context.workbook.worksheets.getActiveWorksheet();
+    const usedRange = sheet.getUsedRange();
+
+    usedRange.load(["values"]);
+    await context.sync();
+
+    let lastRowIndex = -1;
+    let lastColIndex = -1;
+
+    usedRange.values.forEach((row, rowIndex) => {
+      row.forEach((value, colIndex) => {
+        if (value !== null && value !== "") {
+          if (rowIndex > lastRowIndex) lastRowIndex = rowIndex;
+          if (colIndex > lastColIndex) lastColIndex = colIndex;
+        }
+      });
+    });
+
+    if (lastRowIndex === -1 || lastColIndex === -1) {
+      return null; // 시트가 비어있음
+    }
+
+    // 마지막 셀의 주소를 가져옵니다.
+    const lastCell = usedRange.getCell(lastRowIndex, lastColIndex);
+    lastCell.load("address");
+    await context.sync();
+
+    const lastCellAddress = lastCell.address.split("!")[1];
+
+    return lastCellAddress;
+  });
+}
+
 export {
   registerSelectionChange,
   getCellValue,
@@ -293,4 +328,5 @@ export {
   activeSheetId,
   addPreset,
   deletePreset,
+  getLastCellAddress,
 };
