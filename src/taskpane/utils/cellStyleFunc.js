@@ -90,6 +90,66 @@ async function applyCellStyle(
   }
 }
 
+async function detectErrorCell(isCellHighlighting) {
+  await Excel.run(async (context) => {
+    const sheet = context.workbook.worksheets.getActiveWorksheet();
+    const range = sheet.getUsedRange();
+
+    range.load("values, address");
+    await context.sync();
+
+    const errorCells = [];
+    const allCellStyles =
+      Office.context.document.settings.get("allCellStyles") || {};
+
+    if (range.values) {
+      range.values.forEach((row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
+          if (
+            cell === "#DIV/0!" ||
+            cell === "#N/A" ||
+            cell === "#VALUE!" ||
+            cell === "#REF!" ||
+            cell === "#NAME?" ||
+            cell === "#NUM!"
+          ) {
+            const cellRange = range.getCell(rowIndex, colIndex);
+
+            errorCells.push(cellRange);
+          }
+        });
+      });
+    }
+
+    await Promise.all(
+      errorCells.map(async (cell) => {
+        if (isCellHighlighting) {
+          await storeCellStyle(context, cell, allCellStyles, true);
+
+          cell.format.fill.color = "red";
+
+          const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
+
+          for (const edge of edges) {
+            const border = cell.format.borders.getItem(edge);
+
+            border.color = "green";
+            border.style = Excel.BorderLineStyle.continuous;
+            border.weight = Excel.BorderWeight.thick;
+          }
+        } else {
+          await applyCellStyle(context, cell, allCellStyles, false);
+        }
+      }),
+    );
+
+    await context.sync();
+
+    Office.context.document.settings.set("allCellStyles", allCellStyles);
+    await Office.context.document.settings.saveAsync();
+  });
+}
+
 async function highlightingCell(isCellHighlighting, argCells, resultCell) {
   return Excel.run(async (context) => {
     const worksheet = context.workbook.worksheets.getActiveWorksheet();
@@ -204,17 +264,17 @@ async function saveCellStylePreset(styleName) {
     }
 
     await Excel.run(async (context) => {
-      let cellStylePreset =
-        Office.context.document.settings.get("cellStylePreset");
+      let cellStylePresets =
+        Office.context.document.settings.get("cellStylePresets");
 
-      if (!cellStylePreset) {
-        cellStylePreset = {};
+      if (!cellStylePresets) {
+        cellStylePresets = {};
       } else {
-        cellStylePreset = JSON.parse(cellStylePreset);
+        cellStylePresets = JSON.parse(cellStylePresets);
       }
 
-      if (cellStylePreset[styleName]) {
-        delete cellStylePreset[styleName];
+      if (cellStylePresets[styleName]) {
+        delete cellStylePresets[styleName];
       }
 
       const range = context.workbook.getSelectedRange();
@@ -337,11 +397,11 @@ async function saveCellStylePreset(styleName) {
         }
       }
 
-      cellStylePreset[styleName] = cellStyles;
+      cellStylePresets[styleName] = cellStyles;
 
       Office.context.document.settings.set(
-        "cellStylePreset",
-        JSON.stringify(cellStylePreset),
+        "cellStylePresets",
+        JSON.stringify(cellStylePresets),
       );
       await Office.context.document.settings.saveAsync((asyncResult) => {
         if (asyncResult.status === Office.AsyncResultStatus.Succeded) {
@@ -376,15 +436,15 @@ async function loadCellStylePreset(styleName) {
       range.load(["address", "rowCount", "columnCount"]);
       await context.sync();
 
-      let cellStylePreset =
-        Office.context.document.settings.get("cellStylePreset");
+      let cellStylePresets =
+        Office.context.document.settings.get("cellStylePresets");
 
-      if (!cellStylePreset) {
+      if (!cellStylePresets) {
         return;
       }
 
-      cellStylePreset = JSON.parse(cellStylePreset);
-      const savedCellStyles = cellStylePreset[styleName];
+      cellStylePresets = JSON.parse(cellStylePresets);
+      const savedCellStyles = cellStylePresets[styleName];
 
       if (!savedCellStyles) {
         return;
@@ -511,13 +571,13 @@ async function saveChartStylePreset(styleName) {
     }
 
     await Excel.run(async (context) => {
-      let chartStylePreset =
+      let chartStylePresets =
         Office.context.document.settings.get("chartStylePresets");
 
-      if (!chartStylePreset) {
-        chartStylePreset = {};
+      if (!chartStylePresets) {
+        chartStylePresets = {};
       } else {
-        chartStylePreset = JSON.parse(chartStylePreset);
+        chartStylePresets = JSON.parse(chartStylePresets);
       }
 
       const selectedChart = context.workbook.getActiveChart();
@@ -608,7 +668,6 @@ async function saveChartStylePreset(styleName) {
         case Excel.ChartType.xyscatterLinesNoMarkers:
         case Excel.ChartType.xyscatterSmooth:
         case Excel.ChartType.xyscatterSmoothNoMarkers:
-          // X축과 Y축이 모두 값 축임
           propertiesToLoad.push(
             "axes/valueAxis/format/line",
             "axes/valueAxis/format/font",
@@ -821,11 +880,11 @@ async function saveChartStylePreset(styleName) {
         }
       }
 
-      chartStylePreset[styleName] = chartStyle;
+      chartStylePresets[styleName] = chartStyle;
 
       Office.context.document.settings.set(
         "chartStylePresets",
-        JSON.stringify(chartStylePreset),
+        JSON.stringify(chartStylePresets),
       );
 
       Office.context.document.settings.saveAsync();
@@ -1180,4 +1239,5 @@ export {
   loadCellStylePreset,
   saveChartStylePreset,
   loadChartStylePreset,
+  detectErrorCell,
 };
