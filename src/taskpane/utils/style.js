@@ -22,12 +22,18 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground6,
   },
   accordion: {
-    backgroundColor: tokens.colorNeutralBackground3,
+    backgroundColor: tokens.colorNeutralStroke1,
     border: "1px solid #AAAAAA",
+    ":hover": {
+      backgroundColor: tokens.colorNeutralStroke1Hover,
+    },
   },
   openedAccordion: {
-    backgroundColor: tokens.colorNeutralBackground3Pressed,
+    backgroundColor: tokens.colorNeutralStroke1Selected,
     border: "1px solid #AAAAAA",
+    ":hover": {
+      backgroundColor: tokens.colorNeutralStroke1Hover,
+    },
   },
   card: {
     borderRadius: "0%",
@@ -42,7 +48,7 @@ const useStyles = makeStyles({
   border: {
     margin: "0.3rem 0",
     borderBlockWidth: "1px",
-    borderBlockColor: tokens.colorNeutralBackground3Pressed,
+    borderBlockColor: tokens.colorNeutralForeground4,
   },
   buttons: {
     color: tokens.colorNeutralForeground4,
@@ -73,6 +79,12 @@ const useStyles = makeStyles({
     marginTop: "10px",
     gap: "10px",
     overflow: "auto",
+  },
+  optionBox: {
+    whiteSpace: "nowrap",
+    overflowX: "hidden",
+    textOverflow: "ellipsis",
+    width: "100%",
   },
 });
 
