@@ -52,6 +52,10 @@ const useStore = create((set) => ({
   cellArguments: [],
   setCellArguments: (selectedCellArguments) =>
     set({ cellArguments: selectedCellArguments }),
+
+  selectMacroPreset: "",
+  setSelectMacroPreset: (selectedMacroPreset) =>
+    set({ selectMacroPreset: selectedMacroPreset }),
 }));
 
 export default useStore;
