@@ -74,5 +74,6 @@ module.exports = {
     OneNote: "readonly",
     PowerPoint: "readonly",
     Outlook: "readonly",
+    OfficeRuntime: "readonly",
   },
 };
