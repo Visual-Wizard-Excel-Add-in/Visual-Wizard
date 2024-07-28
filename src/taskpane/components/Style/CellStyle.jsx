@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { Button } from "@fluentui/react-components";
 
-import { useStyles } from "../../utils/style";
 import useStore from "../../utils/store";
+import { useStyles } from "../../utils/style";
+import CustomDropdown from "../common/CustomDropdown";
 import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
 import {
   saveCellStylePreset,
   loadCellStylePreset,
 } from "../../utils/cellStyleFunc";
 import { addPreset, deletePreset } from "../../utils/cellCommonUtils";
-import CustomDropdown from "../common/CustomDropdown";
 
 function CellStyle() {
   const styles = useStyles();
@@ -31,28 +31,38 @@ function CellStyle() {
   }, []);
 
   async function loadPresets() {
-    return Excel.run(async () => {
-      let presets = Office.context.document.settings.get("cellStylePresets");
+    let presets = await OfficeRuntime.storage.getItem("cellStylePresets");
 
-      if (!presets) {
-        presets = {};
-      } else {
-        presets = JSON.parse(presets);
-      }
+    if (!presets) {
+      presets = {};
+    } else {
+      presets = JSON.parse(presets);
+    }
 
-      return presets;
-    });
+    return presets;
   }
 
   async function newPreset() {
-    await addPreset(
-      "cellStylePresets",
-      `셀 서식${cellStylePresets.length + 1}`,
-    );
+    let lastPresetNum = 0;
+
+    if (cellStylePresets.length > 0) {
+      lastPresetNum = Number(
+        cellStylePresets[cellStylePresets.length - 1].split("식")[1],
+      );
+    }
+
+    if (cellStylePresets.includes("셀 서식1")) {
+      await addPreset("cellStylePresets", `셀 서식${lastPresetNum + 1}`);
+    } else {
+      await addPreset("cellStylePresets", "셀 서식1");
+    }
 
     const savedPresets = await loadPresets();
+    const sortedPresets = Object.keys(savedPresets).sort((a, b) =>
+      a.localeCompare(b),
+    );
 
-    setCellStylePresets(Object.keys(savedPresets));
+    setCellStylePresets(sortedPresets);
   }
 
   async function handleDeletePreset() {
@@ -69,50 +79,52 @@ function CellStyle() {
   }
 
   return (
-    <>
-      <div className="flex items-center justify-between space-x-5">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={newPreset}
-            className={styles.buttons}
-            aria-label="plus"
-          >
-            <PlusIcon />
-          </button>
-          <CustomDropdown
-            handleValue={(value) => setSelectedStylePreset(value)}
-            options={cellStylePresets.map((preset) => ({
-              name: preset,
-              value: preset,
-            }))}
-            placeholder="프리셋"
-            selectedValue={selectedStylePreset}
-          />
-          <button
-            className={styles.buttons}
-            onClick={handleDeletePreset}
-            aria-label="delete"
-          >
-            <DeleteIcon />
-          </button>
-          <button
-            onClick={() => saveCellStylePreset(selectedStylePreset)}
-            className={styles.buttons}
-            aria-label="save"
-          >
-            <SaveIcon />
-          </button>
-        </div>
+    <div className="flex items-center justify-between space-x-5">
+      <div className="flex items-center w-8/12 space-x-2">
+        <button
+          onClick={newPreset}
+          className={styles.buttons}
+          aria-label="plus"
+        >
+          <PlusIcon />
+        </button>
+        <CustomDropdown
+          handleValue={(value) => setSelectedStylePreset(value)}
+          options={cellStylePresets.map((preset) => ({
+            name: preset,
+            value: preset,
+          }))}
+          placeholder="프리셋"
+          selectedValue={selectedStylePreset}
+        />
+        <button
+          className={styles.buttons}
+          onClick={handleDeletePreset}
+          aria-label="delete"
+        >
+          <DeleteIcon />
+        </button>
+        <button
+          onClick={() =>
+            saveCellStylePreset("cellStylePresets", selectedStylePreset)
+          }
+          className={styles.buttons}
+          aria-label="save"
+        >
+          <SaveIcon />
+        </button>
       </div>
       <Button
         as="button"
         className="self-center w-7"
-        onClick={() => loadCellStylePreset(selectedStylePreset)}
+        onClick={() =>
+          loadCellStylePreset("cellStylePresets", selectedStylePreset)
+        }
         size="small"
       >
         적용
       </Button>
-    </>
+    </div>
   );
 }
 
