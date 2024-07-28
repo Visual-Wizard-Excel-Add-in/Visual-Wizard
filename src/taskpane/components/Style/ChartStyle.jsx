@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@fluentui/react-components";
 
 import { useStyles } from "../../utils/style";
-import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
 import CustomDropdown from "../common/CustomDropdown";
+import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
 import { addPreset, deletePreset } from "../../utils/cellCommonUtils";
 import {
   saveChartStylePreset,
@@ -26,17 +26,15 @@ function ChartStyle() {
   }, []);
 
   async function loadPresets() {
-    return Excel.run(async () => {
-      let presets = Office.context.document.settings.get("chartStylePresets");
+    let presets = await OfficeRuntime.storage.getItem("chartStylePresets");
 
-      if (!presets) {
-        presets = {};
-      } else {
-        presets = JSON.parse(presets);
-      }
+    if (!presets) {
+      presets = {};
+    } else {
+      presets = JSON.parse(presets);
+    }
 
-      return presets;
-    });
+    return presets;
   }
 
   async function newPreset() {
@@ -64,50 +62,52 @@ function ChartStyle() {
   }
 
   return (
-    <>
-      <div className="flex items-center justify-between space-x-5">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={newPreset}
-            className={styles.buttons}
-            aria-label="plus"
-          >
-            <PlusIcon />
-          </button>
-          <CustomDropdown
-            handleValue={(value) => setSelectedChartPreset(value)}
-            options={chartStylePresets.map((preset) => ({
-              name: preset,
-              value: preset,
-            }))}
-            placeholder="프리셋"
-            selectedValue={selectedChartPreset}
-          />
-          <button
-            onClick={handleDeletePreset}
-            className={styles.buttons}
-            aria-label="delete"
-          >
-            <DeleteIcon />
-          </button>
-          <button
-            onClick={() => saveChartStylePreset(selectedChartPreset)}
-            className={styles.buttons}
-            aria-label="save"
-          >
-            <SaveIcon />
-          </button>
-        </div>
+    <div className="flex items-center justify-between space-x-5">
+      <div className="flex items-center w-8/12 space-x-2">
+        <button
+          onClick={newPreset}
+          className={styles.buttons}
+          aria-label="plus"
+        >
+          <PlusIcon />
+        </button>
+        <CustomDropdown
+          handleValue={(value) => setSelectedChartPreset(value)}
+          options={chartStylePresets.map((preset) => ({
+            name: preset,
+            value: preset,
+          }))}
+          placeholder="프리셋"
+          selectedValue={selectedChartPreset}
+        />
+        <button
+          onClick={handleDeletePreset}
+          className={styles.buttons}
+          aria-label="delete"
+        >
+          <DeleteIcon />
+        </button>
+        <button
+          onClick={() =>
+            saveChartStylePreset("chartStylePresets", selectedChartPreset)
+          }
+          className={styles.buttons}
+          aria-label="save"
+        >
+          <SaveIcon />
+        </button>
       </div>
       <Button
         as="button"
         className="self-center w-7"
-        onClick={() => loadChartStylePreset(selectedChartPreset)}
+        onClick={() =>
+          loadChartStylePreset("chartStylePresets", selectedChartPreset)
+        }
         size="small"
       >
         적용
       </Button>
-    </>
+    </div>
   );
 }
 
