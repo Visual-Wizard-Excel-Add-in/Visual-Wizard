@@ -50,8 +50,11 @@ function App() {
 
       const initialSheet = workbook.worksheets.getActiveWorksheet();
       initialSheet.load("id");
+
       await context.sync();
+
       const initialSheetId = initialSheet.id;
+
       if (initialSheetId !== sheetId) {
         setSheetId(initialSheetId);
         await registerSelectionChange(initialSheetId, getCellValue);
@@ -62,7 +65,7 @@ function App() {
   return (
     <div className={styles.root}>
       <Header />
-      {CurrentCategory || <div />}
+      {CurrentCategory || ""}
       <CustomMessageBar />
     </div>
   );
