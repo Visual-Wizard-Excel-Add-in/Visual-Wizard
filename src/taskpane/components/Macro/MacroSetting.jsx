@@ -1,68 +1,228 @@
+import React, { useState, useEffect } from "react";
 import { Button, Input } from "@fluentui/react-components";
 
+import useStore from "../../utils/store";
 import { useStyles } from "../../utils/style";
-import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
-import MACRO_PRESETS from "../../Presets/MacroPreset";
 import CustomDropdown from "../common/CustomDropdown";
+import chartTypeList from "../../utils/chartTypeList";
+import {
+  getChartTypeInKorean,
+  getChartTypeInEnglish,
+} from "../../utils/cellCommonUtils";
 
 function MacroSetting() {
+  const { selectMacroPreset } = useStore();
+  const [storedMacro, setStoredMacro] = useState([]);
+  const [modifiedActions, setModifiedActions] = useState({});
+  const [selectChartType, setSelectChartType] = useState("");
   const styles = useStyles();
+
+  useEffect(() => {
+    async function fetchMacroPresets() {
+      const data = await OfficeRuntime.storage.getItem("allMacroPresets");
+
+      if (data) {
+        const parsedData = JSON.parse(data);
+
+        setStoredMacro(parsedData[selectMacroPreset].actions || []);
+      } else {
+        setStoredMacro([]);
+      }
+    }
+
+    fetchMacroPresets();
+  }, [selectMacroPreset]);
+
+  function getMergedRange(action) {
+    let mergedRange = "";
+
+    if (action.dataRange[0].includes(":")) {
+      mergedRange = `${action.dataRange[0].split(":")[0]}:${action.dataRange[action.dataRange.length - 1].split(":")[1]}`;
+    } else {
+      mergedRange = `${action.dataRange[0]}:${action.dataRange[action.dataRange.length - 1]}`;
+    }
+
+    return mergedRange;
+  }
+
+  function eachAction(action, index) {
+    let actionContent = null;
+
+    switch (action.type) {
+      case "WorksheetChanged":
+        actionContent = (
+          <div key={`sheetChanged-${action.address}-${index}`} className="mb-3">
+            <p className="mb-2 text-base font-bold">
+              {index + 1}. 셀 내용 변경
+            </p>
+            <p>
+              셀 주소:&nbsp;
+              <Input
+                onChange={(e) => handleChange(index, "address", e.target.value)}
+                placeholder={`${action.address ? action.address : ""}`}
+              />
+            </p>
+            <p>
+              입력값:&nbsp;&nbsp;
+              <Input
+                onChange={(e) =>
+                  handleChange(index, "details.value", e.target.value)
+                }
+                placeholder={`현재값: ${action.details.value ? action.details.value : ""}`}
+              />
+            </p>
+          </div>
+        );
+        break;
+
+      case "WorksheetFormatChanged":
+        actionContent = (
+          <span
+            key={`sheetFormatChanged-${action.address}-${index}`}
+            className="text-base font-bold"
+          >
+            {index + 1}. 셀 서식 변경
+          </span>
+        );
+        break;
+
+      case "TableChanged":
+        actionContent = (
+          <span
+            key={`tableChanged-${action.tableId}-${index}`}
+            className="text-base font-bold"
+          >
+            {index + 1}. 테이블 변경
+          </span>
+        );
+        break;
+
+      case "ChartAdded":
+        actionContent = (
+          <div key={`chartAdded-${action.chartId}-${index}`}>
+            <p className="mb-2 text-base font-bold">{index + 1}. 차트 추가</p>
+            <div>
+              차트 타입:&nbsp;{" "}
+              <CustomDropdown
+                handleValue={(value) => {
+                  setSelectChartType(value);
+                  handleChange(
+                    index,
+                    "chartType",
+                    getChartTypeInEnglish(value),
+                  );
+                }}
+                options={chartTypeList.map((chartType) => ({
+                  name: chartType.name,
+                  value: chartType.value,
+                  label: chartType.label,
+                }))}
+                placeholder={getChartTypeInKorean(action.chartType)}
+                selectedValue={selectChartType}
+              />
+            </div>
+            <div className="my-2">
+              데이터 범위:&nbsp;
+              <Input
+                onChange={(e) =>
+                  handleChange(index, "dataRange", e.target.value)
+                }
+                placeholder={`현재값: ${getMergedRange(action)}`}
+              />
+            </div>
+          </div>
+        );
+        break;
+
+      case "TableAdded":
+        actionContent = (
+          <div key={`TableAdded-${action.tableId}-${index}`}>
+            <div className="mb-2 text-base font-bold">{index + 1}. 표 추가</div>
+            <div className="my-2">
+              데이터 범위:&nbsp;
+              <Input
+                onChange={(e) => handleChange(index, "address", e.target.value)}
+                placeholder={action.address}
+              />
+            </div>
+          </div>
+        );
+        break;
+
+      default:
+        return "지원하지 않는 형식의 기록입니다.";
+    }
+
+    return (
+      <div>
+        {actionContent}
+        <hr className={styles.border} />
+      </div>
+    );
+  }
+
+  function handleChange(index, fieldPath, value) {
+    setModifiedActions((prev) => {
+      const [mainField, subField] = fieldPath.split(".");
+      const updatedAction = {
+        ...prev[index],
+        [mainField]: { ...prev[index]?.[mainField] },
+      };
+
+      if (subField) {
+        updatedAction[mainField][subField] = value;
+      } else {
+        updatedAction[mainField] = value;
+      }
+
+      return {
+        ...prev,
+        [index]: updatedAction,
+      };
+    });
+  }
+
+  async function applyChanges() {
+    const updatedActions = storedMacro.map((action, index) => {
+      const modifiedAction = modifiedActions[index] || {};
+
+      return {
+        ...action,
+        ...modifiedAction,
+        details: {
+          ...action.details,
+          ...modifiedAction.details,
+        },
+      };
+    });
+
+    setStoredMacro(updatedActions);
+
+    let allMacroPresets =
+      await OfficeRuntime.storage.getItem("allMacroPresets");
+    allMacroPresets = allMacroPresets ? JSON.parse(allMacroPresets) : {};
+
+    if (!allMacroPresets[selectMacroPreset]) {
+      allMacroPresets[selectMacroPreset] = { actions: [] };
+    }
+
+    allMacroPresets[selectMacroPreset].actions = updatedActions;
+
+    await OfficeRuntime.storage.setItem(
+      "allMacroPresets",
+      JSON.stringify(allMacroPresets),
+    );
+  }
 
   return (
     <>
-      <div className="flex items-center justify-between space-x-5">
-        <div className="flex items-center space-x-2">
-          <button className={styles.buttons} aria-label="plus">
-            <PlusIcon />
-          </button>
-          <CustomDropdown options={MACRO_PRESETS} placeholder="매크로" />
-          <button className={styles.buttons} aria-label="delete">
-            <DeleteIcon />
-          </button>
-          <button className={styles.buttons} aria-label="save">
-            <SaveIcon />
-          </button>
-        </div>
+      <div className="flex justify-between">
+        선택한 프리셋: {selectMacroPreset}
+        <Button as="button" onClick={applyChanges} size="small">
+          변경사항 적용
+        </Button>
       </div>
-      <div className="flex items-center justify-between space-x-5">
-        <span>버튼 생성</span>
-        <div className="space-x-2">
-          <Button
-            size="small"
-            icon={
-              <img
-                className="border-2 border-slate-300"
-                src="src/taskPane/assets/macroButton.png"
-                alt="macro button"
-              />
-            }
-          />
-          <Button
-            size="small"
-            icon={
-              <img
-                className="border-2 border-slate-300"
-                src="src/taskPane/assets/roterShartButton.png"
-                alt="macro button"
-              />
-            }
-          />
-        </div>
-      </div>
-      <div className="flex items-center justify-between space-x-5">
-        <span>버튼 매크로 할당</span>
-        <Button size="small">적용</Button>
-      </div>
-      <div className="flex items-center justify-between space-x-5">
-        <span>바로가기 키</span>
-        <div className="flex items-center">
-          <span className={styles.blurText}>option+cmd+</span>
-          <Input className={styles.macroKey} placeholder="key" />
-          <button className={`${styles.buttons} ml-2`} aria-label="save">
-            <SaveIcon />
-          </button>
-        </div>
-      </div>
+      {storedMacro.map((action, index) => eachAction(action, index))}
     </>
   );
 }
