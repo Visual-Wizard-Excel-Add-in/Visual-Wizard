@@ -8,6 +8,7 @@ import {
   MessageBarGroup,
   Button,
 } from "@fluentui/react-components";
+
 import useStore from "../../utils/store";
 import { useStyles } from "../../utils/style";
 
@@ -20,7 +21,7 @@ function CustomMessageBar() {
     let removeTimer;
 
     messageList.forEach((message) => {
-      removeTimer = setTimeout(() => removeMessage(message.id), 2000);
+      removeTimer = setTimeout(() => removeMessage(message.id), 2500);
     });
 
     return () => clearTimeout(removeTimer);
