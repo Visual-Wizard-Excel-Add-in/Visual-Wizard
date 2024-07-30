@@ -16,7 +16,8 @@ import CustomMessageBar from "./common/CustomMessageBar";
 
 function App() {
   const styles = useStyles();
-  const { category, activeSheetName, sheetId, setSheetId } = useStore();
+  const { category, activeSheetName, sheetId, setSheetId, messageList } =
+    useStore();
 
   const categories = {
     Formula: <Formula />,
@@ -65,8 +66,8 @@ function App() {
   return (
     <div className={styles.root}>
       <Header />
+      {messageList.length !== 0 && <CustomMessageBar />}
       {CurrentCategory || ""}
-      <CustomMessageBar />
     </div>
   );
 }
