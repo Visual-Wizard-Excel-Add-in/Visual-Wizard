@@ -9,6 +9,16 @@ let formatChangedHandler;
 let actions = [];
 
 async function manageRecording(isRecording, presetName) {
+  if (presetName === "") {
+    const warningMessage = {
+      type: "warning",
+      title: "접근 오류: ",
+      body: `프리셋을 선택해주세요!`,
+    };
+
+    updateState("setMessageList", warningMessage);
+  }
+
   await Excel.run(async (context) => {
     const sheet = context.workbook.worksheets.getActiveWorksheet();
     const newTables = context.workbook.tables;
