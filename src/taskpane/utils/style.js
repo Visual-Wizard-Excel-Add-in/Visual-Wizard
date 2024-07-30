@@ -22,17 +22,19 @@ const useStyles = makeStyles({
     backgroundColor: tokens.colorNeutralBackground6,
   },
   accordion: {
-    backgroundColor: tokens.colorNeutralStroke1,
-    border: "1px solid #AAAAAA",
+    backgroundColor: tokens.colorNeutralBackground3,
+    borderRadius: "0",
+    border: "0.5px solid #AAAAAA",
     ":hover": {
-      backgroundColor: tokens.colorNeutralStroke1Hover,
+      backgroundColor: tokens.colorNeutralBackground3Hover,
     },
   },
   openedAccordion: {
-    backgroundColor: tokens.colorNeutralStroke1Selected,
+    backgroundColor: tokens.colorNeutralBackground3Selected,
     border: "1px solid #AAAAAA",
+    borderRadius: "0",
     ":hover": {
-      backgroundColor: tokens.colorNeutralStroke1Hover,
+      backgroundColor: tokens.colorNeutralBackground3Hover,
     },
   },
   card: {
@@ -73,8 +75,11 @@ const useStyles = makeStyles({
     fontWeight: "bolder",
   },
   messageBarGroup: {
-    padding: tokens.spacingHorizontalMNudge,
+    position: "absolute",
     display: "flex",
+    width: "100%",
+    zIndex: "2",
+    padding: tokens.spacingHorizontalMNudge,
     flexDirection: "column",
     marginTop: "10px",
     gap: "10px",
