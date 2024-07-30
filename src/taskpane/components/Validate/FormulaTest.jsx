@@ -1,25 +1,90 @@
-import { Button, Field, Textarea } from "@fluentui/react-components";
+import { useState, useEffect } from "react";
+import { Button, Input, Divider } from "@fluentui/react-components";
 
-import { useStyles } from "../../utils/style";
+import useStore from "../../utils/store";
+import {
+  extractAddresses,
+  evaluateTestFormula,
+} from "../../utils/cellCommonUtils";
+import {
+  groupCellsIntoRanges,
+  parseFormulaSteps,
+} from "../../utils/cellFormulaFunc";
 
 function FormulaTest() {
-  const selectedCellFormula = "SUM(A1, B1)";
-  const styles = useStyles();
-  const testResult = 15;
+  const [args, setArgs] = useState([]);
+  const [inputValues, setInputValues] = useState({});
+  const [testResult, setTestResult] = useState(null);
+  const { cellFormula, cellValue, cellArguments } = useStore();
+
+  useEffect(() => {
+    const fetchArgs = async () => {
+      if (cellFormula) {
+        const formulaSteps = await parseFormulaSteps();
+        const allArgs = formulaSteps.flatMap((step) => {
+          const addresses = extractAddresses(step.address);
+
+          return groupCellsIntoRanges(addresses);
+        });
+        const uniqueArgs = [...new Set(allArgs)];
+
+        setArgs(uniqueArgs);
+      } else {
+        setArgs([]);
+      }
+    };
+
+    fetchArgs();
+    setTestResult(null);
+  }, [cellFormula]);
+
+  function handleInputChange(arg, value) {
+    setInputValues((prevState) => ({ ...prevState, [arg]: value }));
+  }
+
+  async function handleExecute() {
+    let newFormula = cellFormula;
+
+    Object.entries(inputValues).forEach(([arg, value]) => {
+      newFormula = newFormula.replace(arg, value);
+    });
+
+    const result = await evaluateTestFormula(newFormula);
+
+    setTestResult(result);
+  }
 
   return (
     <div>
-      <p>
-        선택한 셀의 수식:&nbsp;
-        <span className="font-bold">{selectedCellFormula}</span>
-      </p>
-      <Field label="테스트 인수">
-        <Textarea className="h-40" />
-      </Field>
-      <div className="flex justify-center mt-2">
-        <Button size="small">실행</Button>
+      <div>
+        <p>선택한 셀의 수식: </p>
+        <span className="inline font-bold break-words whitespace-pre-wrap">
+          {cellFormula}
+        </span>
+        <p className="mt-2">
+          현재 결과:&nbsp;
+          <span className="font-bold">{cellValue}</span>
+        </p>
       </div>
-      <hr className={styles.border} />
+      <Divider className="my-2" appearance="strong" />
+      {args.map((arg, index) => (
+        <p key={arg} className="mb-2">
+          {index + 1}. 인자:
+          {cellArguments?.find((detailArg) => detailArg.includes(arg)) || arg}
+          <br />
+          <Input
+            className="mt-1"
+            onChange={(e) => handleInputChange(arg, e.target.value)}
+            placeholder="변경할 값이나 셀 주소"
+          />
+        </p>
+      ))}
+      <div className="flex justify-center mt-2">
+        <Button onClick={handleExecute} size="small">
+          실행
+        </Button>
+      </div>
+      <Divider className="my-2" appearance="strong" />
       <p className="text-xl font-bold">테스트 결과: {testResult}</p>
     </div>
   );
