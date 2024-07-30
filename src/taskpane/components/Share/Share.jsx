@@ -1,6 +1,6 @@
 import useStore from "../../utils/store";
 import FeatureTab from "../common/FeatureTab";
-import Mail from "./Mail";
+import Mail from "./EmailSending";
 
 function Share() {
   const { openTab, setOpenTab } = useStore();
