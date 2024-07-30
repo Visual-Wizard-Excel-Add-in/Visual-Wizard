@@ -1,13 +1,13 @@
 import useStore from "../../utils/store";
 import FeatureTab from "../common/FeatureTab";
-import Mail from "./EmailSending";
+import Extraction from "./Extraction";
 
 function Share() {
   const { openTab, setOpenTab } = useStore();
   const features = [
     {
-      name: "메일 전송",
-      component: Mail,
+      name: "추출하기",
+      component: Extraction,
     },
   ];
 
