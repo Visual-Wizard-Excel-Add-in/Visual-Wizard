@@ -137,8 +137,9 @@ async function getTargetCellValue(targetCell) {
 
 async function extractArgsFromFormula(formula) {
   const argSet = new Set();
-  const argCellRegex = /((?:[^!]+!)?\$?[A-Z]+\$?[0-9]+(:\$?[A-Z]+\$?[0-9]+)?)/g;
-  const promises = [];
+  const argCellRegex =
+    /([A-Z]+[0-9]+|\$?[A-Z]+\$?[0-9]+(:\$?[A-Z]+\$?[0-9]+)?)/g;
+  const results = [];
   const matches = formula.match(argCellRegex);
 
   if (matches) {
@@ -149,24 +150,22 @@ async function extractArgsFromFormula(formula) {
 
         for (const cell of cellsInRange) {
           if (!argSet.has(cell)) {
-            argSet.add(cell);
-
             const value = await getTargetCellValue(cell);
 
-            promises.push(`${cell}(${value})`);
+            argSet.add(cell);
+            results.push(`${cell}(${value})`);
           }
         }
       } else if (!argSet.has(matchedArg)) {
-        argSet.add(matchedArg);
-
         const value = await getTargetCellValue(matchedArg);
 
-        promises.push(`${matchedArg}(${value})`);
+        argSet.add(matchedArg);
+        results.push(`${matchedArg}(${value})`);
       }
     }
   }
 
-  return Promise.all(promises);
+  return results;
 }
 
 function extractFunctionsFromFormula(formula) {
@@ -824,6 +823,69 @@ function getChartTypeInEnglish(chartTypeKorean) {
   }
 }
 
+async function evaluateTestFormula(newFormula) {
+  try {
+    let testResult = "";
+
+    await Excel.run(async (context) => {
+      const { workbook } = context;
+      const originSheet = workbook.worksheets.getActiveWorksheet();
+
+      try {
+        workbook.worksheets.getItem("TestSheet").delete();
+        await context.sync();
+      } catch (error) {
+        if (error.code !== Excel.ErrorCodes.itemNotFound) {
+          throw error;
+        }
+      }
+
+      originSheet.load("name");
+      await context.sync();
+
+      const originSheetName = originSheet.name;
+      const testSheet = workbook.worksheets.add("TestSheet");
+      const sheetRefFormula = newFormula
+        .split(",")
+        .map((segment) => {
+          return segment.replace(
+            /((?:[^!]+!)?\$?[A-Z]+\$?\d+(?::\$?[A-Z]+\$?\d+)?)/g,
+            (match) => {
+              if (match.includes("!")) {
+                return match;
+              }
+              return `${originSheetName}!${match}`;
+            },
+          );
+        })
+        .join(",");
+
+      const formulaRange = testSheet.getRange("A1");
+
+      formulaRange.formulas = [[sheetRefFormula]];
+      formulaRange.load("values");
+      await context.sync();
+
+      [[testResult]] = formulaRange.values;
+
+      testSheet.delete();
+      await context.sync();
+    });
+
+    return testResult;
+  } catch (e) {
+    const warningMessage = {
+      type: "warning",
+      title: "에러 발생: ",
+      body: `테스트를 진행 중 에러가 발생했습니다.${e.message}`,
+    };
+
+    updateState("setMessageList", warningMessage);
+
+    return null;
+  }
+}
+
 export {
   registerSelectionChange,
   getCellValue,
@@ -839,4 +901,7 @@ export {
   getLastCellAddress,
   getChartTypeInKorean,
   getChartTypeInEnglish,
+  extractArgsFromFormula,
+  extractFunctionsFromFormula,
+  evaluateTestFormula,
 };
