@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Button, Input } from "@fluentui/react-components";
+import { Button, Input, Divider } from "@fluentui/react-components";
 
 import useStore from "../../utils/store";
-import { useStyles } from "../../utils/style";
 import CustomDropdown from "../common/CustomDropdown";
 import chartTypeList from "../../utils/chartTypeList";
 import {
@@ -15,7 +14,6 @@ function MacroSetting() {
   const [storedMacro, setStoredMacro] = useState([]);
   const [modifiedActions, setModifiedActions] = useState({});
   const [selectChartType, setSelectChartType] = useState("");
-  const styles = useStyles();
 
   useEffect(() => {
     async function fetchMacroPresets() {
@@ -52,7 +50,7 @@ function MacroSetting() {
       case "WorksheetChanged":
         actionContent = (
           <div key={`sheetChanged-${action.address}-${index}`} className="mb-3">
-            <p className="mb-2 text-base font-bold">
+            <p className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
               {index + 1}. 셀 내용 변경
             </p>
             <p>
@@ -79,7 +77,7 @@ function MacroSetting() {
         actionContent = (
           <span
             key={`sheetFormatChanged-${action.address}-${index}`}
-            className="text-base font-bold"
+            className="text-base font-bold bg-green-500 bg-opacity-20"
           >
             {index + 1}. 셀 서식 변경
           </span>
@@ -90,7 +88,7 @@ function MacroSetting() {
         actionContent = (
           <span
             key={`tableChanged-${action.tableId}-${index}`}
-            className="text-base font-bold"
+            className="text-base font-bold bg-green-500 bg-opacity-20"
           >
             {index + 1}. 테이블 변경
           </span>
@@ -100,7 +98,9 @@ function MacroSetting() {
       case "ChartAdded":
         actionContent = (
           <div key={`chartAdded-${action.chartId}-${index}`}>
-            <p className="mb-2 text-base font-bold">{index + 1}. 차트 추가</p>
+            <p className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
+              {index + 1}. 차트 추가
+            </p>
             <div>
               차트 타입:&nbsp;{" "}
               <CustomDropdown
@@ -137,7 +137,9 @@ function MacroSetting() {
       case "TableAdded":
         actionContent = (
           <div key={`TableAdded-${action.tableId}-${index}`}>
-            <div className="mb-2 text-base font-bold">{index + 1}. 표 추가</div>
+            <div className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
+              {index + 1}. 표 추가
+            </div>
             <div className="my-2">
               데이터 범위:&nbsp;
               <Input
@@ -156,7 +158,7 @@ function MacroSetting() {
     return (
       <div>
         {actionContent}
-        <hr className={styles.border} />
+        <Divider className="my-2" appearance="strong" />
       </div>
     );
   }

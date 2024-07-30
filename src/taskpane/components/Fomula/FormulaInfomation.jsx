@@ -1,4 +1,4 @@
-import { Link } from "@fluentui/react-components";
+import { Link, Divider } from "@fluentui/react-components";
 
 import FORMULA_EXPLANATION from "../../utils/formulaExplanation";
 import useStore from "../../utils/store";
@@ -17,7 +17,7 @@ function FormulaInformation() {
             <span className="whitespace-pre-wrap">
               : {FORMULA_EXPLANATION[formula]}
             </span>
-            <hr className={styles.border} />
+            <Divider className="my-2" appearance="strong" />
           </div>
         );
       })}
