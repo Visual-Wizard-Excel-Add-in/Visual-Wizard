@@ -62,7 +62,7 @@ function MacroRecord() {
   }
 
   function controlMacroRecording() {
-    if (setSelectMacroPreset === "") {
+    if (selectMacroPreset === "") {
       updateState("setMessageList", {
         type: "warning",
         title: "접근 오류:",
