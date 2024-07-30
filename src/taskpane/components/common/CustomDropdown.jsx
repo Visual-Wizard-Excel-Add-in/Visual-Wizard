@@ -1,9 +1,4 @@
-import {
-  Dropdown,
-  Option,
-  OptionGroup,
-  useId,
-} from "@fluentui/react-components";
+import { Dropdown, Option, OptionGroup } from "@fluentui/react-components";
 import { useStyles } from "../../utils/style";
 
 function CustomDropdown({
