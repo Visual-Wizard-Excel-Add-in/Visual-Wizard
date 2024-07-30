@@ -13,6 +13,7 @@ async function storeCellStyle(cellAddress, allPresets, isCellHighlighting) {
 
     cell.load([
       "address",
+      "numberFormat",
       "format/font",
       "format/verticalAlignment",
       "format/horizontalAlignment",
@@ -37,6 +38,7 @@ async function storeCellStyle(cellAddress, allPresets, isCellHighlighting) {
     const cellStyle = {
       color: cell.format.fill.color,
       borders: {},
+      numberFormat: cell.numberFormat,
       font: {
         bold: cell.format.font.bold,
         color: cell.format.font.color,
@@ -122,7 +124,7 @@ async function applyCellStyle(
         if (cellStyle.font.tintAndShade) {
           cell.format.font.tintAndShade = cellStyle.font.tintAndShade;
         }
-
+        cell.numberFormat = cellStyle.numberFormat;
         cell.format.font.size = cellStyle.font.size;
         cell.format.font.underline = cellStyle.font.underline;
         cell.format.horizontalAlignment = cellStyle.horizontalAlignment;
@@ -349,7 +351,7 @@ async function saveCellStylePreset(styleName) {
         for (let j = 0; j < columns; j += 1) {
           const cell = range.getCell(i, j);
 
-          cell.load("address");
+          cell.load(["address", "numberFormat", "numberFormatLocal"]);
           cell.format.load(["fill", "font", "borders", "protection"]);
           cell.format.fill.load("color");
           cell.format.font.load([
@@ -362,7 +364,6 @@ async function saveCellStylePreset(styleName) {
             "strikethrough",
           ]);
           cell.format.protection.load(["locked", "formulaHidden"]);
-          cell.load(["numberFormat"]);
 
           if (cell.format.alignment) {
             cell.format.alignment.load([
@@ -422,6 +423,7 @@ async function saveCellStylePreset(styleName) {
                 }
               : {},
             numberFormat: cell.numberFormat,
+            numberFormatLocal: cell.numberFormatLocal,
             borders: {},
             protection: {
               locked: cell.format.protection.locked,
@@ -596,6 +598,7 @@ async function loadCellStylePreset(styleName) {
 
         if (styles.numberFormat) {
           cell.numberFormat = styles.numberFormat;
+          cell.numberFormatLocal = styles.numberFormatLocal;
         }
       };
 
