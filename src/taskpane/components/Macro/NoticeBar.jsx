@@ -18,7 +18,7 @@ function NoticeBar({ setIsShowNoticeBar }) {
       <MessageBar intent="warning">
         <MessageBarBody>
           <MessageBarTitle>안내:</MessageBarTitle>
-          매크로 기록 가능 종류.
+          기록 가능 동작.
           <br />셀 입력, 셀 서식 변경, 차트 추가, 표 추가
         </MessageBarBody>
         <MessageBarActions
