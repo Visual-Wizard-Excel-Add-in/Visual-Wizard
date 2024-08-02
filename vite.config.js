@@ -5,7 +5,7 @@ import { createHtmlPlugin } from "vite-plugin-html";
 import path from "path";
 
 const urlDev = "https://localhost:3000/";
-const urlProd = "https://www.contoso.com/";
+const urlProd = "https://visual-wizard.netlify.app/";
 
 export default defineConfig(async ({ mode }) => {
   const dev = mode === "development";
