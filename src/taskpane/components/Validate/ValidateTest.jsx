@@ -18,9 +18,9 @@ function ValidateTest() {
     fetchLastCellAddress();
   }, [lastCell]);
 
-  function highlightError() {
-    detectErrorCell(isError);
-    setIsError(!isError);
+  async function highlightError() {
+    await detectErrorCell(isError);
+    setIsError((prev) => !prev);
   }
 
   return (
