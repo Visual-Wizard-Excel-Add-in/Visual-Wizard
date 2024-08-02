@@ -3,6 +3,7 @@ import { Switch } from "@fluentui/react-components";
 import useStore from "../../utils/store";
 import { highlightingCell } from "../../utils/cellStyleFunc";
 import { groupCellsIntoRanges } from "../../utils/cellFormulaFunc";
+import { extractAddresses } from "../../utils/cellCommonUtils";
 
 function FormulaAttribute() {
   const { cellArguments, cellAddress, cellValue, cellFunctions } = useStore();
@@ -10,11 +11,13 @@ function FormulaAttribute() {
   async function handleHighlighting() {
     useStore.setState((state) => {
       const newHighlightState = !state.isCellHighlighting;
+
       highlightingCell(
         newHighlightState,
-        state.cellArguments,
+        extractAddresses(state.cellFormula),
         state.cellAddress,
       );
+
       return { isCellHighlighting: newHighlightState };
     });
   }
