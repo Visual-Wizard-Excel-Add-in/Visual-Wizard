@@ -3,82 +3,94 @@ import { extractArgsAddress, updateState } from "./cellCommonUtils";
 async function storeCellStyle(cellAddress, allPresets, isCellHighlighting) {
   let cellStyleToReturn = null;
 
-  await Excel.run(async (context) => {
-    const sheet = context.workbook.worksheets.getActiveWorksheet();
-    const cell = sheet.getRange(cellAddress);
-    const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
+  try {
+    await Excel.run(async (context) => {
+      const sheet = context.workbook.worksheets.getActiveWorksheet();
+      const cell = sheet.getRange(cellAddress);
+      const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
 
-    const allSavedPresets = await OfficeRuntime.storage.getItem(allPresets);
-    const parsedPresets = allSavedPresets ? JSON.parse(allSavedPresets) : {};
+      const allSavedPresets = await OfficeRuntime.storage.getItem(allPresets);
+      const parsedPresets = allSavedPresets
+        ? { ...JSON.parse(allSavedPresets) }
+        : {};
 
-    cell.load([
-      "address",
-      "numberFormat",
-      "format/font",
-      "format/verticalAlignment",
-      "format/horizontalAlignment",
-      "format/fill",
-    ]);
-    await context.sync();
+      cell.load([
+        "address",
+        "numberFormat",
+        "format/font",
+        "format/verticalAlignment",
+        "format/horizontalAlignment",
+        "format/fill",
+      ]);
+      await context.sync();
 
-    if (parsedPresets[cellAddress] && !isCellHighlighting) {
-      return;
-    }
+      if (parsedPresets[cellAddress] && !isCellHighlighting) {
+        return;
+      }
 
-    const borders = {};
+      const borders = {};
 
-    for (const edge of edges) {
-      borders[edge] = cell.format.borders.getItem(edge);
+      for (const edge of edges) {
+        borders[edge] = cell.format.borders.getItem(edge);
 
-      borders[edge].load(["color", "style", "weight"]);
-    }
+        borders[edge].load(["color", "style", "weight"]);
+      }
 
-    await context.sync();
+      await context.sync();
 
-    const cellStyle = {
-      color: cell.format.fill.color,
-      borders: {},
-      numberFormat: cell.numberFormat,
-      font: {
-        bold: cell.format.font.bold,
-        color: cell.format.font.color,
-        italic: cell.format.font.italic,
-        size: cell.format.font.size,
-        underline: cell.format.font.underline,
-        tintAndShade: cell.format.font.tintAndShade,
-      },
-      horizontalAlignment: cell.format.horizontalAlignment,
-      verticalAlignment: cell.format.verticalAlignment,
-    };
-
-    for (const edge of edges) {
-      const border = borders[edge];
-
-      cellStyle.borders[edge] = {
-        color: border.color,
-        style: border.style,
-        weight: border.weight,
+      const cellStyle = {
+        color: cell.format.fill.color,
+        borders: {},
+        numberFormat: cell.numberFormat,
+        font: {
+          bold: cell.format.font.bold,
+          color: cell.format.font.color,
+          italic: cell.format.font.italic,
+          size: cell.format.font.size,
+          underline: cell.format.font.underline,
+          tintAndShade: cell.format.font.tintAndShade,
+        },
+        horizontalAlignment: cell.format.horizontalAlignment,
+        verticalAlignment: cell.format.verticalAlignment,
       };
-    }
 
-    if (!parsedPresets[cellAddress] && isCellHighlighting) {
-      parsedPresets[cellAddress] = cellStyle;
-    }
+      for (const edge of edges) {
+        const border = borders[edge];
+
+        cellStyle.borders[edge] = {
+          color: border.color,
+          style: border.style,
+          weight: border.weight,
+        };
+      }
+
+      if (!parsedPresets[cellAddress] && isCellHighlighting) {
+        parsedPresets[cellAddress] = cellStyle;
+      }
+
+      if (allPresets === "allMacroPresets") {
+        cellStyleToReturn = cellStyle;
+      } else {
+        await OfficeRuntime.storage.setItem(
+          allPresets,
+          JSON.stringify(parsedPresets),
+        );
+      }
+    });
 
     if (allPresets === "allMacroPresets") {
-      cellStyleToReturn = cellStyle;
-    } else {
-      await OfficeRuntime.storage.setItem(
-        allPresets,
-        JSON.stringify(parsedPresets),
-      );
+      return cellStyleToReturn;
     }
-  });
+  } catch (e) {
+    const warningMessage = {
+      type: "warning",
+      title: "저장 실패: ",
+      body: `기존 셀 서식을 저장하는데 실패했습니다. ${e.message}`,
+    };
 
-  if (allPresets === "allMacroPresets") {
-    return cellStyleToReturn;
+    updateState("setMessageList", warningMessage);
+    throw new Error(e.message, e.stack);
   }
-
   return null;
 }
 
@@ -140,7 +152,15 @@ async function applyCellStyle(
               border.style = borderStyle.style;
               border.weight = borderStyle.weight;
             } else {
-              border.style = Excel.BorderLineStyle.continuous;
+              const infoMessage = {
+                type: "info",
+                title: "빈 테두리 서식: ",
+                body: "빈 테두리 서식은 기본 회색 테두리로 복원됩니다.",
+              };
+
+              updateState("setMessageList", infoMessage);
+
+              border.style = Excel.BorderLineStyle.none;
               border.color = "#d6d6d6";
               border.weight = "thin";
             }
@@ -154,7 +174,7 @@ async function applyCellStyle(
 
           await OfficeRuntime.storage.setItem(
             allPresets,
-            JSON.stringify(allPresets),
+            JSON.stringify(parsedPresets),
           );
         }
       }
@@ -173,8 +193,6 @@ async function detectErrorCell(isCellHighlighting) {
     await context.sync();
 
     const errorCells = [];
-    const allCellStyles =
-      JSON.parse(await OfficeRuntime.storage.getItem("allCellStyles")) || {};
 
     if (range.values) {
       range.values.forEach((row, rowIndex) => {
@@ -197,10 +215,13 @@ async function detectErrorCell(isCellHighlighting) {
 
     await Promise.all(
       errorCells.map(async (cell) => {
+        cell.load("address");
+        await context.sync();
+
         const cellAddress = cell.address;
 
         if (isCellHighlighting) {
-          await storeCellStyle(cellAddress, allCellStyles, true);
+          await storeCellStyle(cellAddress, "allCellStyles", true);
 
           cell.format.fill.color = "red";
 
@@ -220,11 +241,6 @@ async function detectErrorCell(isCellHighlighting) {
     );
 
     await context.sync();
-
-    await OfficeRuntime.storage.setItem(
-      "allCellStyles",
-      JSON.stringify(allCellStyles),
-    );
   });
 }
 
@@ -232,23 +248,14 @@ async function highlightingCell(isCellHighlighting, argCells, resultCell) {
   return Excel.run(async (context) => {
     const worksheet = context.workbook.worksheets.getActiveWorksheet();
     const resultCellRange = worksheet.getRange(resultCell);
-    const allCellStyles =
-      JSON.parse(await OfficeRuntime.storage.getItem("allCellStyles")) || {};
 
-    context.trackedObjects.add(resultCellRange);
-    await storeCellStyle(resultCellRange, allCellStyles, isCellHighlighting);
+    await storeCellStyle(resultCell, "allCellStyles", isCellHighlighting);
 
     const argsCellAddresses = argCells.map(extractArgsAddress).filter(Boolean);
 
     for (const argcell of argsCellAddresses) {
-      const argcellsRange = worksheet.getRange(argcell);
-
-      context.trackedObjects.add(argcellsRange);
-      await storeCellStyle(argcellsRange, allCellStyles, isCellHighlighting);
-      context.trackedObjects.remove(argcellsRange);
+      await storeCellStyle(argcell, "allCellStyles", isCellHighlighting);
     }
-
-    await context.sync();
 
     if (isCellHighlighting) {
       resultCellRange.format.fill.color = "#3d33ff";
@@ -258,12 +265,8 @@ async function highlightingCell(isCellHighlighting, argCells, resultCell) {
       await applyCellStyle(resultCell, "allCellStyles", isCellHighlighting);
     }
 
-    context.trackedObjects.remove(resultCellRange);
-
     for (const argcell of argsCellAddresses) {
       const argcellsRange = worksheet.getRange(argcell);
-
-      context.trackedObjects.add(argcellsRange);
 
       if (isCellHighlighting) {
         argcellsRange.format.fill.color = "#28f925";
@@ -272,8 +275,6 @@ async function highlightingCell(isCellHighlighting, argCells, resultCell) {
       } else {
         await applyCellStyle(argcell, "allCellStyles", isCellHighlighting);
       }
-
-      context.trackedObjects.remove(argcellsRange);
     }
 
     await context.sync();
@@ -965,8 +966,9 @@ async function saveChartStylePreset(targetPreset, styleName) {
     updateState("setMessageList", {
       type: "error",
       title: "오류 발생",
-      body: `차트 서식 프리셋을 저장하는 중 오류가 발생했습니다.`,
+      body: `차트 서식 프리셋을 저장하는 중 오류가 발생했습니다. ${error.message}`,
     });
+    throw new Error(error.message, error.stack);
   }
 }
 

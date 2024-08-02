@@ -44,6 +44,8 @@ function extractArgsAddress(cellArgument) {
 }
 
 async function getCellValue() {
+  updateState("setCellFunctions", "");
+
   try {
     await Excel.run(async (context) => {
       const range = context.workbook.getSelectedRange();
