@@ -46,13 +46,6 @@ export default defineConfig(async ({ mode }) => {
               },
             },
           },
-          {
-            filename: "commands.html",
-            template: "src/commands/commands.html",
-            injectOptions: {
-              injectScripts: ["/commands.js"],
-            },
-          },
         ],
       }),
 
@@ -86,7 +79,6 @@ export default defineConfig(async ({ mode }) => {
         input: {
           index: path.resolve(__dirname, "src/index.html"),
           taskpane: path.resolve(__dirname, "src/taskpane/index.jsx"),
-          commands: path.resolve(__dirname, "src/commands/commands.js"),
         },
         output: {
           entryFileNames: "[name].js",
