@@ -35,7 +35,7 @@ function FormulaOrder() {
       const func = step.functionName;
       const description = <FormulaOrderDescription step={step} />;
       return (
-        <div key={`${step.address}-${step.condition}}`}>
+        <div key={`${step.address}-${step.functionName}}`}>
           <span>{index + 1}. </span>
           <CustomPopover
             position="after"
