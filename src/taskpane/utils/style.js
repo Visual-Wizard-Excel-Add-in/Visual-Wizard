@@ -16,9 +16,9 @@ const useStyles = makeStyles({
   },
   list: {
     display: "flex",
-    alignItems: "flex-start",
+    alignItems: "center",
     flexDirection: "column",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     backgroundColor: tokens.colorNeutralBackground6,
   },
   accordion: {
