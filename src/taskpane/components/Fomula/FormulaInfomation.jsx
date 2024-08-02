@@ -10,17 +10,18 @@ function FormulaInformation() {
 
   return (
     <div>
-      {cellFunctions.map((formula) => {
-        return (
-          <div key={formula}>
-            <p className="font-bold">{formula}</p>
-            <span className="whitespace-pre-wrap">
-              : {FORMULA_EXPLANATION[formula]}
-            </span>
-            <Divider className="my-2" appearance="strong" />
-          </div>
-        );
-      })}
+      {cellFunctions.length !== 0 &&
+        cellFunctions.map((formula) => {
+          return (
+            <div key={formula}>
+              <p className="font-bold">{formula}</p>
+              <span className="whitespace-pre-wrap">
+                : {FORMULA_EXPLANATION[formula]}
+              </span>
+              <Divider className="my-2" appearance="strong" />
+            </div>
+          );
+        })}
       {cellFunctions.length !== 0 ? (
         <p className={styles.blurText}>
           자세한 설명은&nbsp;
