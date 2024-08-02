@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import { createHtmlPlugin } from "vite-plugin-html";
-import { getHttpsServerOptions } from "office-addin-dev-certs";
 import path from "path";
 
 const urlDev = "https://localhost:3000/";
@@ -10,7 +9,15 @@ const urlProd = "https://www.contoso.com/";
 
 export default defineConfig(async ({ mode }) => {
   const dev = mode === "development";
-  const httpsOptions = await getHttpsServerOptions();
+  const isNetlify = process.env.VITE_NETLIFY === "true";
+
+  let httpsOptions;
+  if (!isNetlify) {
+    const { getHttpsServerOptions: getLocalHttpsOptions } = await import(
+      "office-addin-dev-certs"
+    );
+    httpsOptions = await getLocalHttpsOptions();
+  }
 
   return {
     plugins: [
@@ -95,7 +102,7 @@ export default defineConfig(async ({ mode }) => {
     },
 
     server: {
-      https: httpsOptions,
+      https: isNetlify ? false : httpsOptions,
       port: 3000,
       headers: {
         "Access-Control-Allow-Origin": "*",
