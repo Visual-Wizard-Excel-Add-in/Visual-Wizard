@@ -18,15 +18,15 @@
       window.$RefreshReg$ = () => {};
       window.$RefreshSig$ = () => (type) => type;
       window.__vite_plugin_react_preamble_installed__ = true;
-    </script>
 
-    <script
-      type="module"
-      src="https://visual-wizard.netlify.app/@vite/client"
-    ></script>
-    <script
-      type="module"
-      src="https://visual-wizard.netlify.app/src/taskpane/index.jsx"
-    ></script>
+      const isNetlify = import.meta.env.VITE_NETLIFY;
+      const baseUrl =
+        isNetlify === "true"
+          ? "https://visual-wizard.netlify.app"
+          : "https://localhost:3000";
+
+      import(`${baseUrl}/@vite/client`);
+      import(`${baseUrl}/src/taskpane/index.jsx`);
+    </script>
   </body>
 </html>

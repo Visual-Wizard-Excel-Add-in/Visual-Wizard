@@ -16,11 +16,16 @@
       This add-in will not run in your version of Office. Please upgrade either
       to perpetual Office 2021 (or later) or to a Microsoft 365 account.
     </div>
-    <script
-      type="module"
-      src="https://visual-wizard.netlify.app/src/taskpane/index.jsx"
-    ></script>
-    <script>
+    <script type="module">
+      const isNetlify = import.meta.env.VITE_NETLIFY;
+      console.log(isNetlify);
+      const baseUrl =
+        isNetlify === "true"
+          ? "https://visual-wizard.netlify.app"
+          : "https://localhost:3000";
+
+      import(`${baseUrl}/src/taskpane/index.jsx`);
+
       if (
         navigator.userAgent.indexOf("Trident") !== -1 ||
         navigator.userAgent.indexOf("Edge") !== -1
