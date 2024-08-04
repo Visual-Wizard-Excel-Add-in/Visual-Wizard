@@ -3,7 +3,7 @@ import { updateState } from "./cellCommonUtils";
 async function executeFunction(selectedOption) {
   try {
     Excel.run(async (context) => {
-      const sheetName = "SelctExtract1";
+      const sheetName = "SelectExtract";
       let sheet = context.workbook.worksheets.getItemOrNullObject(sheetName);
 
       await context.sync();
