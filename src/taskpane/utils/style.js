@@ -77,13 +77,12 @@ const useStyles = makeStyles({
   messageBarGroup: {
     position: "absolute",
     display: "flex",
-    width: "100%",
+    width: "90%",
     zIndex: "2",
-    padding: tokens.spacingHorizontalMNudge,
+    marginTop: "0.5rem",
     flexDirection: "column",
-    marginTop: "10px",
-    gap: "10px",
     overflow: "auto",
+    justifyItems: "center",
   },
   optionBox: {
     whiteSpace: "nowrap",
