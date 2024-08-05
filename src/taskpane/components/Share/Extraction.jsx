@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Button, Divider } from "@fluentui/react-components";
+
 import CustomDropdown from "../common/CustomDropdown";
 import executeFunction from "../../utils/extractFileFunc";
+import ShareNoticeBar from "./ShareNoticeBar";
 
 function Extraction() {
   const [dataLocation, setDataLocation] = useState("선택 영역");
   const [isLoading, setIsLoading] = useState(false);
+  const [isShowNoticeBar, setIsShowNoticeBar] = useState(true);
 
   const dataLocationOptions = [
     { name: "선택 영역", value: "selectRange" },
@@ -20,7 +23,10 @@ function Extraction() {
 
   return (
     <>
-      <div className="flex items-center justify-between space-x-5">
+      <div className="flex justify-between space-x-5">
+        {isShowNoticeBar && (
+          <ShareNoticeBar setIsShowNoticeBar={setIsShowNoticeBar} />
+        )}
         <p>저장할 자료 위치</p>
         <CustomDropdown
           options={dataLocationOptions}

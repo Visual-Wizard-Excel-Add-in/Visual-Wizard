@@ -4,21 +4,40 @@ async function executeFunction(selectedOption) {
   try {
     Excel.run(async (context) => {
       const sheetName = "SelectExtract";
+      const completeSheetName = "TriggerComplete";
       let sheet = context.workbook.worksheets.getItemOrNullObject(sheetName);
+      let completeSheet =
+        context.workbook.worksheets.getItemOrNullObject(completeSheetName);
 
       await context.sync();
 
-      sheet.delete();
-      await context.sync();
+      if (!sheet.isNullObject) {
+        sheet.delete();
+        await context.sync();
+      }
 
       sheet = context.workbook.worksheets.add(sheetName);
       await context.sync();
 
-      sheet.getRange("A1").values = [[`${selectedOption}`]];
+      const targetRange = sheet.getRange("A1");
       await context.sync();
 
-      sheet.delete();
+      targetRange.values = [[`${selectedOption}`]];
       await context.sync();
+
+      if (!completeSheet.isNullObject) {
+        sheet.delete();
+        await context.sync();
+      }
+
+      completeSheet = context.workbook.worksheets.add(completeSheetName);
+      await context.sync();
+
+      setTimeout(async () => {
+        sheet.delete();
+        completeSheet.delete();
+        await context.sync();
+      }, 1000);
     });
   } catch (error) {
     updateState("setMessageList", {
