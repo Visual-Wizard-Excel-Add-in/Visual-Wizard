@@ -4,7 +4,7 @@ import useStore from "../../utils/store";
 import FeatureTab from "../common/FeatureTab";
 import MacroRecord from "./MacroRecord";
 import MacroSetting from "./MacroSetting";
-import NoticeBar from "./NoticeBar";
+import MacroNoticeBar from "./MacroNoticeBar";
 
 function Macro() {
   const { openTab, setOpenTab } = useStore();
@@ -38,7 +38,11 @@ function Macro() {
           />
         ))}
       </div>
-      {isShowNoticeBar && <NoticeBar setIsShowNoticeBar={setIsShowNoticeBar} />}
+      <div className="flex justify-center">
+        {isShowNoticeBar && (
+          <MacroNoticeBar setIsShowNoticeBar={setIsShowNoticeBar} />
+        )}
+      </div>
     </>
   );
 }
