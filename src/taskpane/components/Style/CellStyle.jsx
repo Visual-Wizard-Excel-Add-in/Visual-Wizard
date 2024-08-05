@@ -105,9 +105,7 @@ function CellStyle() {
           <DeleteIcon />
         </button>
         <button
-          onClick={() =>
-            saveCellStylePreset("cellStylePresets", selectedStylePreset)
-          }
+          onClick={() => saveCellStylePreset(selectedStylePreset)}
           className={styles.buttons}
           aria-label="save"
         >
@@ -117,9 +115,7 @@ function CellStyle() {
       <Button
         as="button"
         className="self-center w-7"
-        onClick={() =>
-          loadCellStylePreset("cellStylePresets", selectedStylePreset)
-        }
+        onClick={() => loadCellStylePreset(selectedStylePreset)}
         size="small"
       >
         적용
