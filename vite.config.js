@@ -53,7 +53,7 @@ export default defineConfig(async ({ mode }) => {
 
       viteStaticCopy({
         targets: [
-          { src: "assets/*", dest: "assets" },
+          { src: "src/taskpane/assets/*", dest: "assets" },
           {
             src: "manifest*.xml",
             dest: "",
