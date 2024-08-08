@@ -203,7 +203,8 @@ async function detectErrorCell(isCellHighlighting) {
             cell === "#VALUE!" ||
             cell === "#REF!" ||
             cell === "#NAME?" ||
-            cell === "#NUM!"
+            cell === "#NUM!" ||
+            cell === "#NULL!"
           ) {
             const cellRange = range.getCell(rowIndex, colIndex);
 
@@ -213,34 +214,37 @@ async function detectErrorCell(isCellHighlighting) {
       });
     }
 
-    await Promise.all(
-      errorCells.map(async (cell) => {
-        cell.load("address");
-        await context.sync();
-
-        const cellAddress = cell.address;
-
-        if (isCellHighlighting) {
-          await storeCellStyle(cellAddress, "allCellStyles", true);
-
-          cell.format.fill.color = "red";
-
-          const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
-
-          for (const edge of edges) {
-            const border = cell.format.borders.getItem(edge);
-
-            border.color = "green";
-            border.style = Excel.BorderLineStyle.continuous;
-            border.weight = Excel.BorderWeight.thick;
-          }
-        } else {
-          await applyCellStyle(cellAddress, "allCellStyles", false);
-        }
-      }),
-    );
-
+    errorCells.forEach(async (cell) => cell.load("address"));
     await context.sync();
+
+    for (const cell of errorCells) {
+      const cellAddress = cell.address;
+
+      if (isCellHighlighting) {
+        await storeCellStyle(cellAddress, "allCellStyles", true);
+      } else {
+        await applyCellStyle(cellAddress, "allCellStyles", false);
+      }
+
+      await context.sync();
+    }
+
+    for (const cell of errorCells) {
+      if (isCellHighlighting) {
+        cell.format.fill.color = "red";
+
+        const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
+
+        edges.forEach((edge) => {
+          const border = cell.format.borders.getItem(edge);
+          border.color = "green";
+          border.style = Excel.BorderLineStyle.continuous;
+          border.weight = Excel.BorderWeight.thick;
+        });
+      }
+
+      await context.sync();
+    }
   });
 }
 
@@ -353,8 +357,18 @@ async function saveCellStylePreset(styleName) {
           const cell = range.getCell(i, j);
 
           cell.load(["address", "numberFormat", "numberFormatLocal"]);
-          cell.format.load(["fill", "font", "borders", "protection"]);
-          cell.format.fill.load("color");
+          cell.format.load([
+            "fill/color",
+            "font",
+            "borders",
+            "protection",
+            "horizontalAlignment",
+            "verticalAlignment",
+            "wrapText",
+            "indentLevel",
+            "readingOrder",
+            "textOrientation",
+          ]);
           cell.format.font.load([
             "name",
             "size",
@@ -365,16 +379,6 @@ async function saveCellStylePreset(styleName) {
             "strikethrough",
           ]);
           cell.format.protection.load(["locked", "formulaHidden"]);
-
-          if (cell.format.alignment) {
-            cell.format.alignment.load([
-              "horizontal",
-              "vertical",
-              "wrapText",
-              "indentLevel",
-              "readingOrder",
-            ]);
-          }
 
           const borderEdges = [
             "EdgeTop",
@@ -414,15 +418,14 @@ async function saveCellStylePreset(styleName) {
             fill: {
               color: cell.format.fill.color,
             },
-            alignment: cell.format.alignment
-              ? {
-                  horizontal: cell.format.alignment.horizontal,
-                  vertical: cell.format.alignment.vertical,
-                  wrapText: cell.format.alignment.wrapText,
-                  indentLevel: cell.format.alignment.indentLevel,
-                  readingOrder: cell.format.alignment.readingOrder,
-                }
-              : {},
+            alignment: {
+              horizontalAlignment: cell.format.horizontalAlignment,
+              verticalAlignment: cell.format.verticalAlignment,
+              wrapText: cell.format.wrapText,
+              indentLevel: cell.format.indentLevel,
+              readingOrder: cell.format.readingOrder,
+              textOrientation: cell.format.textOrientation,
+            },
             numberFormat: cell.numberFormat,
             numberFormatLocal: cell.numberFormatLocal,
             borders: {},
@@ -571,17 +574,17 @@ async function loadCellStylePreset(styleName) {
 
         if (styles.alignment) {
           const alignmentProperties = [
-            "horizontal",
-            "vertical",
+            "horizontalAlignment",
+            "verticalAlignment",
             "wrapText",
-            "shrinkToFit",
             "indentLevel",
             "readingOrder",
+            "textOrientation",
           ];
 
           alignmentProperties.forEach((prop) => {
             if (styles.alignment[prop] !== undefined) {
-              cell.format.alignment[prop] = styles.alignment[prop];
+              cell.format[prop] = styles.alignment[prop];
             }
           });
         }
