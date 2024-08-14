@@ -9,6 +9,7 @@ import Validate from "./Validate/Validate";
 import Share from "./Share/Share";
 import { useStyles } from "../utils/style";
 import {
+  activeSheetId,
   registerSelectionChange,
   getCellValue,
 } from "../utils/cellCommonUtils";
@@ -16,8 +17,7 @@ import CustomMessageBar from "./common/CustomMessageBar";
 
 function App() {
   const styles = useStyles();
-  const { category, activeSheetName, sheetId, setSheetId, messageList } =
-    useStore();
+  const { category, sheetId, setSheetId, messageList } = useStore();
 
   const categories = {
     Formula: <Formula />,
@@ -37,12 +37,14 @@ function App() {
       const { workbook } = context;
 
       workbook.worksheets.onActivated.add(async () => {
-        await activeSheetName(sheetId);
+        await activeSheetId(sheetId);
         await registerSelectionChange(sheetId, getCellValue);
       });
 
       workbook.worksheets.onActivated.add(async (event) => {
         const newSheetId = event.worksheetId;
+
+        console.log(newSheetId);
         if (newSheetId !== sheetId) {
           setSheetId(newSheetId);
           await registerSelectionChange(newSheetId, getCellValue);

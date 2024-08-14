@@ -11,12 +11,12 @@ function FormulaInformation() {
   return (
     <div>
       {cellFunctions.length !== 0 &&
-        cellFunctions.map((formula) => {
+        cellFunctions.map((func) => {
           return (
-            <div key={formula}>
-              <p className="font-bold">{formula}</p>
+            <div key={func}>
+              <p className="font-bold">{func}</p>
               <span className="whitespace-pre-wrap">
-                : {FORMULA_EXPLANATION[formula]}
+                : {FORMULA_EXPLANATION[func]}
               </span>
               <Divider className="my-2" appearance="strong" />
             </div>

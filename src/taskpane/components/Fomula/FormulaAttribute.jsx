@@ -6,32 +6,39 @@ import { groupCellsIntoRanges } from "../../utils/cellFormulaFunc";
 import { extractAddresses } from "../../utils/cellCommonUtils";
 
 function FormulaAttribute() {
-  const { cellArguments, cellAddress, cellValue, cellFunctions } = useStore();
+  const {
+    isCellHighlighting,
+    setIsCellHighlighting,
+    cellFormula,
+    cellArguments,
+    cellAddress,
+    cellValue,
+    cellFunctions,
+  } = useStore();
 
   async function handleHighlighting() {
-    useStore.setState((state) => {
-      const newHighlightState = !state.isCellHighlighting;
+    const newHighlightState = !isCellHighlighting;
 
-      highlightingCell(
-        newHighlightState,
-        extractAddresses(state.cellFormula),
-        state.cellAddress,
-      );
+    highlightingCell(
+      newHighlightState,
+      extractAddresses(cellFormula),
+      cellAddress,
+    );
 
-      return { isCellHighlighting: newHighlightState };
-    });
+    setIsCellHighlighting(newHighlightState);
   }
 
-  const groupedCellArguments = groupCellsIntoRanges(
-    cellArguments.map((arg) => arg.split("(")[0]),
-  );
+  const groupedCellArguments =
+    groupCellsIntoRanges(cellArguments.map((arg) => arg.split("(")[0])) || [];
 
   const formattedCellArguments = groupedCellArguments
     .map((arg) => {
       const matchingArg = cellArguments.find((ca) => ca.startsWith(arg));
+
       if (matchingArg && !arg.includes(":")) {
         return `${arg}(${matchingArg.split("(")[1]}`;
       }
+
       return arg;
     })
     .join(", ");
