@@ -65,6 +65,12 @@ module.exports = {
     react: {
       version: "detect",
     },
+    "import/resolver": {
+      node: {
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
+        paths: ["src"],
+      },
+    },
   },
   globals: {
     ...globals.browser,

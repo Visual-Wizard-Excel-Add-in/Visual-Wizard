@@ -100,5 +100,11 @@ export default defineConfig(async ({ mode }) => {
         "Access-Control-Allow-Origin": "*",
       },
     },
+
+    test: {
+      environment: "jsdom",
+      setupFiles: "./src/setupTests.js",
+      globals: true,
+    },
   };
 });
