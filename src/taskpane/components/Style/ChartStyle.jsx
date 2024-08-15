@@ -38,14 +38,27 @@ function ChartStyle() {
   }
 
   async function newPreset() {
-    await addPreset(
-      "chartStylePresets",
-      `차트 서식${chartStylePresets.length + 1}`,
-    );
+    let lastPresetNum = 0;
+
+    if (chartStylePresets.length > 0) {
+      lastPresetNum = Number(
+        chartStylePresets[chartStylePresets.length - 1].split("식")[1],
+      );
+    }
+
+    let newPresetName = "차트 서식1";
+
+    if (chartStylePresets.includes("차트 서식1")) {
+      newPresetName = `차트 서식${lastPresetNum + 1}`;
+    }
+
+    await addPreset("chartStylePresets", newPresetName);
 
     const savedPresets = await loadPresets();
 
     setChartStylePresets(Object.keys(savedPresets));
+
+    setSelectedChartPreset(newPresetName);
   }
 
   async function handleDeletePreset() {
