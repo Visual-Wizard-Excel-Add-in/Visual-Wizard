@@ -14,12 +14,13 @@ function FormulaOrder() {
       if (cellFormula) {
         try {
           const result = await parseFormulaSteps();
-          useStore.getState().setFormulaSteps(result);
+
+          setFormulaSteps(result);
         } catch (error) {
           setFormulaSteps([]);
         }
       } else {
-        useStore.getState().setFormulaSteps([]);
+        setFormulaSteps([]);
       }
     }
 

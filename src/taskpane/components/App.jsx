@@ -44,22 +44,23 @@ function App() {
       workbook.worksheets.onActivated.add(async (event) => {
         const newSheetId = event.worksheetId;
 
-        console.log(newSheetId);
         if (newSheetId !== sheetId) {
           setSheetId(newSheetId);
+
           await registerSelectionChange(newSheetId, getCellValue);
         }
       });
 
       const initialSheet = workbook.worksheets.getActiveWorksheet();
-      initialSheet.load("id");
 
+      initialSheet.load("id");
       await context.sync();
 
       const initialSheetId = initialSheet.id;
 
       if (initialSheetId !== sheetId) {
         setSheetId(initialSheetId);
+
         await registerSelectionChange(initialSheetId, getCellValue);
       }
     });

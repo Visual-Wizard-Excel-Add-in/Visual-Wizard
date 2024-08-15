@@ -10,10 +10,11 @@ function FormulaOrderDescription({ step }) {
   const styles = useStyles();
 
   function truncateText(text, maxLength, isExpanded) {
-    if (text.length > maxLength && !isExpanded) {
-      return `${text.substring(0, maxLength)}...`;
+    if (!text || text.length <= maxLength || isExpanded) {
+      return text;
     }
-    return text;
+
+    return `${text.substring(0, maxLength)}...`;
   }
 
   const {
