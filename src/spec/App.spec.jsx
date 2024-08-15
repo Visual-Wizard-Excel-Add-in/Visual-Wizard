@@ -1,5 +1,4 @@
 import { render, screen, waitFor, act } from "@testing-library/react";
-import { describe, it, expect, beforeEach, vi } from "vitest";
 
 import App from "../taskpane/components/App";
 import useStore from "../taskpane/utils/store";
