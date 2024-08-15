@@ -51,11 +51,13 @@ function CellStyle() {
       );
     }
 
+    let newPresetName = "셀 서식1";
+
     if (cellStylePresets.includes("셀 서식1")) {
-      await addPreset("cellStylePresets", `셀 서식${lastPresetNum + 1}`);
-    } else {
-      await addPreset("cellStylePresets", "셀 서식1");
+      newPresetName = `셀 서식${lastPresetNum + 1}`;
     }
+
+    await addPreset("cellStylePresets", newPresetName);
 
     const savedPresets = await loadPresets();
     const sortedPresets = Object.keys(savedPresets).sort((a, b) =>
@@ -63,6 +65,8 @@ function CellStyle() {
     );
 
     setCellStylePresets(sortedPresets);
+
+    setSelectedStylePreset(newPresetName);
   }
 
   async function handleDeletePreset() {
