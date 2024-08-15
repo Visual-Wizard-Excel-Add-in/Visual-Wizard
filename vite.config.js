@@ -105,6 +105,14 @@ export default defineConfig(async ({ mode }) => {
       environment: "jsdom",
       setupFiles: "./src/setupTests.js",
       globals: true,
+      coverage: {
+        exclude: [
+          "postcss.config.js",
+          "tailwind.config.js",
+          "**/index.jsx",
+          ".eslintrc.cjs",
+        ],
+      },
     },
   };
 });

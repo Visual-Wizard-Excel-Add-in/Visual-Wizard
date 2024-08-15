@@ -16,7 +16,19 @@ function ValidateTest() {
     };
 
     fetchLastCellAddress();
-  }, [lastCell]);
+
+    Excel.run(async (context) => {
+      context.workbook.worksheets.onSelectionChanged.add(fetchLastCellAddress);
+      await context.sync();
+    });
+
+    return async () => {
+      await Excel.run(fetchLastCellAddress.context, async (context) => {
+        fetchLastCellAddress.remove();
+        await context.sync();
+      });
+    };
+  }, []);
 
   async function highlightError() {
     await detectErrorCell(isError);
