@@ -41,7 +41,6 @@ describe("FormulaTest", () => {
     });
 
     parseFormulaSteps.mockResolvedValue([{ address: "A1:B1" }]);
-
     extractAddresses.mockReturnValue(["A1", "B1"]);
     groupCellsIntoRanges.mockReturnValue(["A1:B1"]);
     evaluateTestFormula.mockResolvedValue("10");
