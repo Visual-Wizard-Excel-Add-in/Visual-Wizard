@@ -49,7 +49,10 @@ function MacroSetting() {
     switch (action.type) {
       case "WorksheetChanged":
         actionContent = (
-          <div key={`sheetChanged-${action.address}-${index}`} className="mb-3">
+          <div
+            key={`sheetChanged-${action.address}-${action.details.value}`}
+            className="mb-3"
+          >
             <p className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
               {index + 1}. 셀 내용 변경
             </p>
