@@ -901,6 +901,7 @@ export {
   addPreset,
   deletePreset,
   getLastCellAddress,
+  getTargetCellValue,
   getChartTypeInKorean,
   getChartTypeInEnglish,
   extractArgsFromFormula,
