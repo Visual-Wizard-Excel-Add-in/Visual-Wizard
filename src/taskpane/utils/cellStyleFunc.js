@@ -142,27 +142,29 @@ async function applyCellStyle(
         cell.format.horizontalAlignment = cellStyle.horizontalAlignment;
         cell.format.verticalAlignment = cellStyle.verticalAlignment;
 
-        for (const edge of edges) {
-          if (Object.prototype.hasOwnProperty.call(cellStyle.borders, edge)) {
-            const border = cell.format.borders.getItem(edge);
-            const borderStyle = cellStyle.borders[edge];
+        if (cellStyle.borders) {
+          for (const edge of edges) {
+            if (Object.prototype.hasOwnProperty.call(cellStyle.borders, edge)) {
+              const border = cell.format.borders.getItem(edge);
+              const borderStyle = cellStyle.borders[edge];
 
-            if (borderStyle.style !== "None") {
-              border.color = borderStyle.color;
-              border.style = borderStyle.style;
-              border.weight = borderStyle.weight;
-            } else {
-              const infoMessage = {
-                type: "info",
-                title: "빈 테두리 서식: ",
-                body: "빈 테두리 서식은 기본 회색 테두리로 복원됩니다.",
-              };
+              if (borderStyle.style !== "None") {
+                border.color = borderStyle.color;
+                border.style = borderStyle.style;
+                border.weight = borderStyle.weight;
+              } else {
+                const infoMessage = {
+                  type: "info",
+                  title: "빈 테두리 서식: ",
+                  body: "빈 테두리 서식은 기본 회색 테두리로 복원됩니다.",
+                };
 
-              updateState("setMessageList", infoMessage);
+                updateState("setMessageList", infoMessage);
 
-              border.style = Excel.BorderLineStyle.none;
-              border.color = "#d6d6d6";
-              border.weight = "thin";
+                border.style = Excel.BorderLineStyle.none;
+                border.color = "#d6d6d6";
+                border.weight = "thin";
+              }
             }
           }
         }
@@ -498,15 +500,11 @@ async function loadCellStylePreset(styleName) {
       let cellStylePresets =
         await OfficeRuntime.storage.getItem("cellStylePresets");
 
-      if (!cellStylePresets) {
-        return;
-      }
-
       cellStylePresets = JSON.parse(cellStylePresets);
       const savedCellStyles = cellStylePresets[styleName];
 
       if (!savedCellStyles) {
-        return;
+        throw new Error("Preset not found");
       }
 
       const rows = range.rowCount;
@@ -622,8 +620,8 @@ async function loadCellStylePreset(styleName) {
   } catch (error) {
     updateState("setMessageList", {
       type: "warning",
-      title: "저장 오류",
-      body: "프리셋을 저장에 실패하였습니다",
+      title: "로드 오류",
+      body: "프리셋을 불러오는데 실패하였습니다",
     });
   }
 }
@@ -1279,6 +1277,14 @@ async function applySeriesProperties(currentChart, chartStyle) {
       const series = currentChart.series.items[index];
 
       if (seriesStyle.format) {
+        if (seriesStyle.format.fill) {
+          if (seriesStyle.format.fill.color) {
+            series.format.fill.setSolidColor(seriesStyle.format.fill.color);
+          } else {
+            series.format.fill.clear();
+          }
+        }
+
         if (seriesStyle.format.line.style !== "None") {
           if (seriesStyle.format.line.color) {
             series.format.line.color = seriesStyle.format.line.color;
