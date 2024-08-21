@@ -1,7 +1,7 @@
-# <img src="https://github.com/user-attachments/assets/7310a6b4-0d8a-4b98-8b2a-d034050d1aec" width="32"/> Visual Wizard
+# <img alt="Visual Wizard logo 32x32" src="https://github.com/user-attachments/assets/7310a6b4-0d8a-4b98-8b2a-d034050d1aec" width="32"/> Visual Wizard
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/7310a6b4-0d8a-4b98-8b2a-d034050d1aec" width="150"/>
+  <img alt="Visual Wizard logo 150x150" src="https://github.com/user-attachments/assets/7310a6b4-0d8a-4b98-8b2a-d034050d1aec" width="150"/>
 
 <b>Visual Wizard</b>는 Excel 사용자들을 위해 개발한 간편한 Add-in으로서
 <br/>
@@ -108,7 +108,7 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
 <details>
   <summary>세부 일정</summary>
 
-  <table >
+  <table>
     <tr>
       <th>주차</th>
         <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;내용</th>
@@ -345,13 +345,13 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
   - Excel '홈 탭'의 가장 우측에서 접근이 가능합니다.
   
   <div align="center">
-    <img width="600" src="https://github.com/user-attachments/assets/0f87ad23-7071-43b3-8395-eed92b062181">
+    <img width="600" alt="excel home tab" src="https://github.com/user-attachments/assets/0f87ad23-7071-43b3-8395-eed92b062181">
   </div>
   
   - 클릭 시 Excel 화면 우측에 웹 기반 패널이 열립니다.
   
   <div align="center">
-    <img width="600" src="https://github.com/user-attachments/assets/fefc909c-0c24-4eed-9a7f-1c524da1e5f6">
+    <img width="600" alt="excel with add-in" src="https://github.com/user-attachments/assets/fefc909c-0c24-4eed-9a7f-1c524da1e5f6">
   </div>
   
   해당 사이드 패널은 웹 페이지 이므로 `JavaScript`, `HTML`, `CSS`를 통한 개발이 가능합니다.
@@ -373,10 +373,10 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
     <table>
       <tr>
         <td>
-          <img width="400" src="https://github.com/user-attachments/assets/a106ab89-f4da-4ba3-a9f9-0d74babaf1f5" />
+          <img width="400" alt="getSelectedCell(code)" src="https://github.com/user-attachments/assets/a106ab89-f4da-4ba3-a9f9-0d74babaf1f5" />
         </td>
         <td>
-          <img width="400" src="https://github.com/user-attachments/assets/d79e2b0c-8b7c-4495-a9a4-d99ae4d3969f" />
+<img width="400" alt="getSelectedCell(image)" src="https://github.com/user-attachments/assets/1ab4767b-9d3e-420e-9e00-86f132a23c4e">
         </td>
       </tr>
     </table>
@@ -390,10 +390,10 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
     <table>
       <tr>
         <td>
-          <img width="400" src="https://github.com/user-attachments/assets/922dded7-556f-4c3c-8905-1d077c8ea0fa" />
+          <img width="400" alt="changeA1(code)" src="https://github.com/user-attachments/assets/922dded7-556f-4c3c-8905-1d077c8ea0fa" />
         </td>
         <td>
-          <img width="400" src="https://github.com/user-attachments/assets/a56cb44c-9acc-412b-8349-8540d1817ef7" />
+          <img width="400" alt="changeA1(image)" src="https://github.com/user-attachments/assets/a56cb44c-9acc-412b-8349-8540d1817ef7" />
         </td>
       </tr>
     </table>
@@ -425,20 +425,20 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
   
   - 공식 문서에서 지원 속성 조회
     <div align="center">
-      <img width="600" src="https://github.com/user-attachments/assets/f31f1c73-e322-470e-9814-bfa1b85d2452">
+      <img width="600" alt="Office JS document" src="https://github.com/user-attachments/assets/f31f1c73-e322-470e-9814-bfa1b85d2452">
     </div>
   - 실제 속성 구조 확인
   
   <table>
     <tr>
       <td>
-        <img width = "600" src = "https://github.com/user-attachments/assets/bf936358-9059-4a38-a2d7-43b59abf2d62">
+        <img width = "600" alt="cell attribute dev console 1" src = "https://github.com/user-attachments/assets/bf936358-9059-4a38-a2d7-43b59abf2d62">
       </td>
       <td>
       ➡
       </td>
       <td>
-        <img width = "600" src = "https://github.com/user-attachments/assets/3c866e4b-51b1-4c54-b41b-a77c14a3e755">
+        <img width = "600" alt="cell attribute dev console 2" src = "https://github.com/user-attachments/assets/3c866e4b-51b1-4c54-b41b-a77c14a3e755">
       </td>
     </tr>
   </table>
@@ -450,10 +450,10 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
   <table>
     <tr>
       <td>
-        <img width="600" src = "https://github.com/user-attachments/assets/96f681f0-c00a-4869-a72e-f8337d8f277c">
+        <img width="600" alt="load cell (code)" src = "https://github.com/user-attachments/assets/96f681f0-c00a-4869-a72e-f8337d8f277c">
       </td>
       <td>
-        <img width="600" src = "https://github.com/user-attachments/assets/a52072b8-b7cc-4727-a616-1b7ae3ce8bd2">
+        <img width="600" alt="get borders (code)" src = "https://github.com/user-attachments/assets/a52072b8-b7cc-4727-a616-1b7ae3ce8bd2">
       </td>
     </tr>
   </table>
@@ -463,7 +463,7 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
   해당 서식 속성들을 효율적으로 관리하며, 사용자가 프리셋 단위로 저장하고 적용할 수 있도록 다음과 같은 자료구조를 구성했습니다.
   
   <div align="center">
-    <img width = "600" src = "https://github.com/user-attachments/assets/e499588b-e8b0-492b-9ea4-29f9f4b6ba91">
+    <img width = "600" alt = "data Structure"  src = "https://github.com/user-attachments/assets/e499588b-e8b0-492b-9ea4-29f9f4b6ba91">
   </div>
 </details>
 
@@ -480,10 +480,10 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
     <table>
       <tr>
         <td>
-          <img width="400" src="https://github.com/user-attachments/assets/ca856087-058a-4a7f-8c47-b27c7bbce517">
+          <img width="400" alt = "async/await code" src="https://github.com/user-attachments/assets/ca856087-058a-4a7f-8c47-b27c7bbce517">
         </td>
         <td>
-          <img width="400" src="https://github.com/user-attachments/assets/a1ae113d-f81a-48f0-848d-b0ba83f26ae5">
+          <img width="400" alt = "async/await image"src="https://github.com/user-attachments/assets/a1ae113d-f81a-48f0-848d-b0ba83f26ae5">
         </td>
       </td>
     </table>
@@ -559,7 +559,7 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
      정식적으로 호환되지 않는 두 기능이므로 다음과 같이 우회하는 방법을 사용했습니다.
   
   <div align="center">
-    <img width="300" src="https://github.com/user-attachments/assets/5386073b-2435-410f-9deb-e7d28c347c9b">
+    <img width="300" alt="excel with VBA" src="https://github.com/user-attachments/assets/5386073b-2435-410f-9deb-e7d28c347c9b">
   </div>
   
   또한, `VBA` 함수는 사용자가 직접 등록해야 하므로 사용자가 추출하기 기능을 사용하기 전에, 사용 방법 및 해당 `VBA` 추가 기능 등록 파일을 담은 Notion 사이트를 이용할 수 있도록 Message Box를 볼 수 있도록 했습니다.<br/>
@@ -568,10 +568,10 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
     <table>
       <tr>
         <td>
-          <img width="400" src="https://github.com/user-attachments/assets/a738f6fd-aa42-4e4d-b579-e0d385a43f16">
+          <img width="400" alt = "alert message box" src="https://github.com/user-attachments/assets/a738f6fd-aa42-4e4d-b579-e0d385a43f16">
         </td>
         <td>
-          <img width="400" src="https://github.com/user-attachments/assets/5519eb64-8953-4b57-bc59-8d9a825ba26f"><br/>
+          <img width="400" alt="how install vba" src="https://github.com/user-attachments/assets/5519eb64-8953-4b57-bc59-8d9a825ba26f"><br/>
           <a href="https://github.com/user-attachments/assets/5519eb64-8953-4b57-bc59-8d9a825ba26f">VBA 추가 안내서</a>
         </td>
       </tr>
