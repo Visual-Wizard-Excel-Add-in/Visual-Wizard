@@ -18,7 +18,7 @@
 <div align="center">
 
 [**Visual Wizard Repository**](https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard)
-| [**배포 대체 사용 설명서**](https://fair-gram-629.notion.site/95ba0f0286234a58a9a381b6940364a4?pvs=4)(MS Appsource 개인 배포 불가)
+| [**Local 사용 설명서**](https://fair-gram-629.notion.site/95ba0f0286234a58a9a381b6940364a4?pvs=4)(MS Appsource 개인 배포 불가)
 
 </div>
 
