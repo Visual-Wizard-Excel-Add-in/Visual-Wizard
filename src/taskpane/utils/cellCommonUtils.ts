@@ -1,10 +1,25 @@
 import useStore from "./store";
 
-function updateState(setStateFunc, newValue) {
-  useStore.getState()[setStateFunc](newValue);
+interface MessageType {
+  type: string;
+  title: string;
+  body: string;
 }
 
-function splitCellAddress(address) {
+function updateState(
+  setStateFunc: keyof ReturnType<typeof useStore.getState>,
+  newValue: string | number | boolean | string[] | MessageType | null,
+) {
+  const state = useStore.getState();
+
+  if (typeof state[setStateFunc] === "function") {
+    (state[setStateFunc] as (value: any) => void)(newValue);
+  } else {
+    console.error(`${setStateFunc} is not a function`);
+  }
+}
+
+function splitCellAddress(address: string): [string, number] {
   const match = address.match(/\$?([A-Z]+)\$?([0-9]+)/);
 
   if (!match) {
@@ -14,8 +29,8 @@ function splitCellAddress(address) {
   return [match[1], parseInt(match[2], 10)];
 }
 
-function extractAddresses(arg) {
-  const argAddresses = [];
+function extractAddresses(arg: string): string[] {
+  const argAddresses: string[] = [];
   const argRegex = /((?:[^!]+!)?\$?[A-Z]+\$?[0-9]+(?::\$?[A-Z]+\$?[0-9]+)?)/g;
   let match;
 
@@ -36,18 +51,18 @@ function extractAddresses(arg) {
   return argAddresses;
 }
 
-function extractArgsAddress(cellArgument) {
+function extractArgsAddress(cellArgument: string): string | null {
   const cleanedArgument = cellArgument.replace(/\$/g, "");
   const match = cleanedArgument.match(/([A-Z]+\d+)/);
 
   return match ? match[1] : null;
 }
 
-async function getCellValue() {
+async function getCellValue(): Promise<void> {
   updateState("setCellFunctions", "");
 
   try {
-    await Excel.run(async (context) => {
+    await Excel.run(async (context: Excel.RequestContext) => {
       const range = context.workbook.getSelectedRange();
 
       range.load([
@@ -60,9 +75,9 @@ async function getCellValue() {
       await context.sync();
 
       const selectedCellAddress = range.address;
-      const numberFormat = range.numberFormat[0][0];
-      let selectedCellValue = range.values[0][0];
-      let formula = range.formulas[0][0];
+      const numberFormat: string = range.numberFormat[0][0];
+      let selectedCellValue: string | number | null = range.values[0][0];
+      let formula: string = range.formulas[0][0];
 
       if (
         !range ||
@@ -81,9 +96,9 @@ async function getCellValue() {
       const formulaArgs = await extractArgsFromFormula(formula);
 
       if (
+        typeof selectedCellValue === "number" &&
         numberFormat &&
-        numberFormat.includes("yy") &&
-        selectedCellValue !== ""
+        numberFormat.includes("yy")
       ) {
         selectedCellValue = new Date(
           (selectedCellValue - 25569) * 86400 * 1000,
@@ -98,12 +113,16 @@ async function getCellValue() {
 
       await context.sync();
     });
-  } catch (e) {
-    throw new Error(e.message);
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      throw new Error(e.message);
+    }
   }
 }
 
-async function getTargetCellValue(targetCell) {
+async function getTargetCellValue(
+  targetCell: string,
+): Promise<string | number | null> {
   return Excel.run(async (context) => {
     const parts = targetCell.split("!");
     const sheetName = parts.length > 1 ? parts[0] : undefined;
@@ -124,10 +143,14 @@ async function getTargetCellValue(targetCell) {
       return null;
     }
 
-    const numberFormat = cell.numberFormat[0][0];
-    let targetCellValue = cell.values[0][0];
+    const numberFormat: string = cell.numberFormat[0][0];
+    let targetCellValue: string | number | null = cell.values[0][0];
 
-    if (numberFormat && numberFormat.includes("yy") && targetCellValue !== "") {
+    if (
+      numberFormat &&
+      numberFormat.includes("yy") &&
+      typeof targetCellValue === "number"
+    ) {
       targetCellValue = new Date(
         (targetCellValue - 25569) * 86400 * 1000,
       ).toLocaleDateString();
@@ -137,12 +160,12 @@ async function getTargetCellValue(targetCell) {
   });
 }
 
-async function extractArgsFromFormula(formula) {
-  const argSet = new Set();
+async function extractArgsFromFormula(formula: string): Promise<string[]> {
+  const argSet: Set<string> = new Set();
   const argCellRegex =
     /([A-Z]+[0-9]+|\$?[A-Z]+\$?[0-9]+(:\$?[A-Z]+\$?[0-9]+)?)/g;
-  const results = [];
-  const matches = formula.match(argCellRegex);
+  const results: string[] = [];
+  const matches: string[] | null = formula.match(argCellRegex);
 
   if (matches) {
     for (const matchedArg of matches) {
@@ -170,10 +193,10 @@ async function extractArgsFromFormula(formula) {
   return results;
 }
 
-function extractFunctionsFromFormula(formula) {
-  const functionNames = [];
+function extractFunctionsFromFormula(formula: string): string[] {
+  const functionNames: string[] = [];
   const regex = /([A-Z]+)\(/g;
-  let match;
+  let match: RegExpExecArray | null;
 
   while ((match = regex.exec(formula)) !== null) {
     if (!functionNames.includes(match[1])) {
@@ -184,13 +207,21 @@ function extractFunctionsFromFormula(formula) {
   return functionNames;
 }
 
-function getCellsInRange(startCell, endCell) {
-  const cells = [];
-  const startColumn = startCell.match(/[A-Z]+/)[0];
-  const startRow = parseInt(startCell.match(/[0-9]+/)[0], 10);
-  const endColumn = endCell.match(/[A-Z]+/)[0];
-  const endRow = parseInt(endCell.match(/[0-9]+/)[0], 10);
-  let currentColumn = startColumn;
+function getCellsInRange(startCell: string, endCell: string): string[] {
+  const cells: string[] = [];
+  const startColumn = startCell.match(/[A-Z]+/)?.[0] ?? null;
+  const startRow = parseInt(startCell.match(/[0-9]+/)?.[0] ?? "0", 10);
+  const endColumn = endCell.match(/[A-Z]+/)?.[0] ?? null;
+  const endRow = parseInt(endCell.match(/[0-9]+/)?.[0] ?? "0", 10);
+  let currentColumn = "";
+
+  if (typeof startColumn === "string") {
+    currentColumn = startColumn;
+  }
+
+  if (!startColumn || !startRow || !endColumn || !endRow) {
+    throw new Error("Invalid cell address format");
+  }
 
   while (currentColumn <= endColumn) {
     for (let row = startRow; row <= endRow; row += 1) {
@@ -207,7 +238,7 @@ function getCellsInRange(startCell, endCell) {
   return cells;
 }
 
-function nextColumn(col) {
+function nextColumn(col: string): string {
   if (col.length === 1) {
     return String.fromCharCode(col.charCodeAt(0) + 1);
   }
@@ -225,7 +256,10 @@ function nextColumn(col) {
   return restChars + lastChar;
 }
 
-async function registerSelectionChange(sheetId, func) {
+async function registerSelectionChange(
+  sheetId: string,
+  func: () => Promise<void>,
+) {
   await Excel.run(async (context) => {
     const { workbook } = context;
     const sheet = workbook.worksheets.getItem(sheetId);
@@ -235,7 +269,7 @@ async function registerSelectionChange(sheetId, func) {
   });
 }
 
-async function activeSheetId(sheetId) {
+async function activeSheetId(sheetId: string): Promise<void> {
   await Excel.run(async (context) => {
     const activeSheet = context.workbook.worksheets.getActiveWorksheet();
 
@@ -245,36 +279,48 @@ async function activeSheetId(sheetId) {
     const activatedSheetId = activeSheet.name;
 
     if (activatedSheetId !== sheetId) {
-      updateState("setSheetName", activatedSheetId);
-      await registerSelectionChange(context, activatedSheetId, getCellValue);
+      updateState("setSheetId", activatedSheetId);
+      await registerSelectionChange(activatedSheetId, getCellValue);
     }
   });
 }
 
-async function addPreset(presetCategory, presetName) {
-  let savePreset = await OfficeRuntime.storage.getItem(presetCategory);
+async function addPreset(
+  presetCategory: string,
+  presetName: string,
+): Promise<void> {
+  let savePreset: string | { [key: string]: unknown } | null =
+    await OfficeRuntime.storage.getItem(presetCategory);
 
   if (!savePreset) {
     savePreset = {};
-  } else {
+  } else if (typeof savePreset === "string") {
     savePreset = JSON.parse(savePreset);
   }
 
-  savePreset[presetName] = {};
+  if (typeof savePreset === "object" && savePreset !== null) {
+    savePreset[presetName] = {};
 
-  await OfficeRuntime.storage.setItem(
-    presetCategory,
-    JSON.stringify(savePreset),
-  );
+    await OfficeRuntime.storage.setItem(
+      presetCategory,
+      JSON.stringify(savePreset),
+    );
+  }
 }
 
-async function deletePreset(presetCategory, presetName) {
-  let currentPresets = await OfficeRuntime.storage.getItem(presetCategory);
+async function deletePreset(
+  presetCategory: string,
+  presetName: string,
+): Promise<void> {
+  let currentPresets: string | { [key: string]: unknown } =
+    await OfficeRuntime.storage.getItem(presetCategory);
 
-  if (currentPresets) {
+  if (currentPresets && typeof currentPresets === "string") {
     currentPresets = JSON.parse(currentPresets);
 
-    delete currentPresets[presetName];
+    if (typeof currentPresets === "object") {
+      delete currentPresets[presetName];
+    }
 
     await OfficeRuntime.storage.setItem(
       presetCategory,
@@ -283,7 +329,7 @@ async function deletePreset(presetCategory, presetName) {
   }
 }
 
-async function getLastCellAddress() {
+async function getLastCellAddress(): Promise<string | null> {
   return Excel.run(async (context) => {
     const sheet = context.workbook.worksheets.getActiveWorksheet();
     const usedRange = sheet.getUsedRange();
@@ -319,7 +365,7 @@ async function getLastCellAddress() {
   });
 }
 
-function getChartTypeInKorean(chartTypeEnglish) {
+function getChartTypeInKorean(chartTypeEnglish: string): string {
   switch (chartTypeEnglish) {
     case "Invalid":
       return "유효하지 않음";
@@ -572,7 +618,7 @@ function getChartTypeInKorean(chartTypeEnglish) {
   }
 }
 
-function getChartTypeInEnglish(chartTypeKorean) {
+function getChartTypeInEnglish(chartTypeKorean: string): string {
   switch (chartTypeKorean) {
     case "유효하지 않음":
       return "Invalid";
@@ -825,7 +871,7 @@ function getChartTypeInEnglish(chartTypeKorean) {
   }
 }
 
-async function evaluateTestFormula(newFormula) {
+async function evaluateTestFormula(newFormula: string) {
   try {
     let testResult = "";
 
@@ -836,55 +882,26 @@ async function evaluateTestFormula(newFormula) {
       try {
         workbook.worksheets.getItem("TestSheet").delete();
         await context.sync();
-      } catch (error) {
-        if (error.code !== Excel.ErrorCodes.itemNotFound) {
+      } catch (error: unknown) {
+        if (error instanceof Error) {
           throw error;
         }
       }
-
-      originSheet.load("name");
-      await context.sync();
-
-      const originSheetName = originSheet.name;
-      const testSheet = workbook.worksheets.add("TestSheet");
-      const sheetRefFormula = newFormula
-        .split(",")
-        .map((segment) => {
-          return segment.replace(
-            /((?:[^!]+!)?\$?[A-Z]+\$?\d+(?::\$?[A-Z]+\$?\d+)?)/g,
-            (match) => {
-              if (match.includes("!")) {
-                return match;
-              }
-              return `${originSheetName}!${match}`;
-            },
-          );
-        })
-        .join(",");
-
-      const formulaRange = testSheet.getRange("A1");
-
-      formulaRange.formulas = [[sheetRefFormula]];
-      formulaRange.load("values");
-      await context.sync();
-
-      [[testResult]] = formulaRange.values;
-
-      testSheet.delete();
-      await context.sync();
     });
 
     return testResult;
-  } catch (e) {
-    const warningMessage = {
-      type: "warning",
-      title: "에러 발생: ",
-      body: `테스트를 진행 중 에러가 발생했습니다.${e.message}`,
-    };
+  } catch (e: unknown) {
+    let warningMessage: MessageType = { type: "", title: "", body: "" };
+
+    if (e instanceof Error) {
+      warningMessage = {
+        type: "warning",
+        title: "에러 발생: ",
+        body: `테스트를 진행 중 에러가 발생했습니다.${e.message}`,
+      };
+    }
 
     updateState("setMessageList", warningMessage);
-
-    return null;
   }
 }
 
