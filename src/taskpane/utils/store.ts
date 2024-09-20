@@ -1,6 +1,51 @@
 import { create } from "zustand";
 
-const useStore = create((set) => ({
+interface StoreType {
+  category: string;
+  setCategory: (selectedCategory: string) => void;
+
+  openTab: string[];
+  setOpenTab: (openedTabs: string[]) => void;
+
+  isRecording: boolean;
+  setIsRecording: (recordState: boolean) => void;
+
+  isCellHighlighting: boolean;
+  setIsCellHighlighting: () => void;
+
+  selectedStylePreset: string;
+  setSelectedStylePreset: (preset: string) => void;
+
+  messageList: { id: number; message: string }[];
+  setMessageList: (message: string) => void;
+  removeMessage: (id: number) => void;
+
+  sheetId: string;
+  setSheetId: (selectSheet: string) => void;
+
+  cellValue: string;
+  setCellValue: (selectedCellValue: string) => void;
+
+  cellAddress: string;
+  setCellAddress: (selectedCellAddress: string) => void;
+
+  cellFormula: string;
+  setCellFormula: (selectedCellFormula: string) => void;
+
+  formulaSteps: string[];
+  setFormulaSteps: (currentFormulaSteps: string[]) => void;
+
+  cellFunctions: string[];
+  setCellFunctions: (selectedCellFunctions: string[]) => void;
+
+  cellArguments: string[];
+  setCellArguments: (selectedCellArguments: string[]) => void;
+
+  selectMacroPreset: string;
+  setSelectMacroPreset: (selectedMacroPreset: string) => void;
+}
+
+const useStore = create<StoreType>((set) => ({
   category: "Formula",
   setCategory: (selectedCategory) => set({ category: selectedCategory }),
 
@@ -28,7 +73,7 @@ const useStore = create((set) => ({
     })),
 
   sheetId: "",
-  setSheetId: (selectSheet) => set({ sheetName: selectSheet }),
+  setSheetId: (selectSheet) => set({ sheetId: selectSheet }),
 
   cellValue: "",
   setCellValue: (selectedCellValue) => set({ cellValue: selectedCellValue }),
