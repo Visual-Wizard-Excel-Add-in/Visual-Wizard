@@ -1,0 +1,117 @@
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+import { viteStaticCopy } from "vite-plugin-static-copy";
+import { createHtmlPlugin } from "vite-plugin-html";
+import path from "path";
+import { getHttpsServerOptions } from "office-addin-dev-certs";
+
+const urlDev = "https://localhost:3000/";
+const urlProd = "https://visual-wizard.netlify.app/";
+
+export default defineConfig(async (config) => {
+  const { mode } = config;
+  const dev = mode === "development";
+  const isNetlify: boolean = process.env.VITE_NETLIFY === "true";
+
+  let httpsOptions: any;
+  if (!isNetlify) {
+    httpsOptions = await getHttpsServerOptions();
+  }
+
+  return {
+    plugins: [
+      createHtmlPlugin({
+        minify: !dev,
+        pages: [
+          {
+            filename: "index.html",
+            template: "src/index.html",
+            injectOptions: {
+              data: {
+                injectScripts: dev
+                  ? ["/polyfill.js", "/vendor.js", "/index.js"]
+                  : ["/polyfill.js", "/vendor.js", "/index.js"],
+              },
+            },
+          },
+          {
+            filename: "taskpane.html",
+            template: "src/taskpane/taskpane.html",
+            injectOptions: {
+              data: {
+                injectScripts: dev
+                  ? ["/polyfill.js", "/vendor.js", "/taskpane.js"]
+                  : ["/polyfill.js", "/vendor.js", "/taskpane.js"],
+              },
+            },
+          },
+        ],
+      }),
+
+      react(),
+
+      viteStaticCopy({
+        targets: [
+          { src: "src/taskpane/assets/*", dest: "assets" },
+          {
+            src: "manifest*.xml",
+            dest: "",
+            transform: (content: string): string =>
+              dev
+                ? content
+                : content.toString().replace(new RegExp(urlDev, "g"), urlProd),
+          },
+        ],
+      }),
+
+      {
+        name: "debug-plugin",
+        resolveId(source: string) {
+          console.log("Resolving:", source);
+          return null;
+        },
+      },
+    ],
+
+    build: {
+      rollupOptions: {
+        input: {
+          index: path.resolve(__dirname, "src/index.html"),
+          taskpane: path.resolve(__dirname, "src/taskpane/index.jsx"),
+        },
+        output: {
+          entryFileNames: "[name].js",
+          chunkFileNames: "[name].js",
+          assetFileNames: "assets/[name][extname]",
+          manualChunks: {
+            vendor: ["react", "react-dom"],
+          },
+        },
+      },
+      outDir: "dist",
+      sourcemap: true,
+    },
+
+    server: {
+      https: isNetlify ? false : httpsOptions,
+      port: 3000,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+      },
+    },
+
+    test: {
+      environment: "jsdom",
+      setupFiles: "./src/setupTests.js",
+      globals: true,
+      coverage: {
+        exclude: [
+          "postcss.config.js",
+          "tailwind.config.js",
+          "**/index.jsx",
+          ".eslintrc.cjs",
+        ],
+      },
+    },
+  };
+});

@@ -10,7 +10,9 @@ module.exports = {
   },
   extends: [
     "airbnb",
+    "airbnb-typescript",
     "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
     "plugin:prettier/recommended",
   ],
   ignorePatterns: ["dist", ".eslintrc.cjs", "*.spec.jsx"],
@@ -32,6 +34,23 @@ module.exports = {
         },
       },
     },
+    {
+      files: ["**/*.ts", "**/*.tsx"],
+      parser: "@typescript-eslint/parser",
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+        ecmaVersion: "latest",
+        sourceType: "module",
+      },
+      rules: {
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": "warn",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+      },
+    },
   ],
   parserOptions: {
     ecmaFeatures: {
@@ -40,7 +59,7 @@ module.exports = {
     ecmaVersion: "latest",
     sourceType: "module",
   },
-  plugins: ["react", "prettier", "react-hooks"],
+  plugins: ["react", "prettier", "react-hooks", "@typescript-eslint"],
   rules: {
     semi: "warn",
     "no-unused-vars": "warn",
@@ -52,7 +71,10 @@ module.exports = {
     "react/self-closing-comp": "off",
     "react/react-in-jsx-scope": "off",
     "react/require-default-props": "warn",
-    "react/jsx-filename-extension": ["warn", { extensions: [".js", ".jsx"] }],
+    "react/jsx-filename-extension": [
+      "warn",
+      { extensions: [".js", ".jsx", ".ts", ".tsx"] },
+    ],
     "no-param-reassign": 0,
     "global-require": 0,
     "no-underscore-dangle": "off",
@@ -66,6 +88,7 @@ module.exports = {
       version: "detect",
     },
     "import/resolver": {
+      typescript: {},
       node: {
         extensions: [".js", ".jsx", ".ts", ".tsx"],
         paths: ["src"],
