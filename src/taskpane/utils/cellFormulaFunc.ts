@@ -1,9 +1,10 @@
-import {
-  extractAddresses,
-  splitCellAddress,
-  getCellsInRange,
-} from "./cellCommonUtils";
+import { splitCellAddress, getCellsInRange } from "./cellCommonUtils";
 import ProgressGraph from "./ProgressGraph";
+
+interface ArgValueType {
+  arg: string;
+  value: string | number | Date | null;
+}
 
 async function parseFormulaSteps() {
   return Excel.run(async (context) => {
@@ -13,7 +14,7 @@ async function parseFormulaSteps() {
       range.load(["address", "formulas", "values"]);
       await context.sync();
 
-      const formula = range.formulas[0][0];
+      const formula: string = range.formulas[0][0];
 
       if (!formula) return [];
 
@@ -31,11 +32,14 @@ async function parseFormulaSteps() {
   });
 }
 
-async function parseNestedFormula(context, formula) {
-  const steps = [];
-  const stack = [];
+async function parseNestedFormula(
+  context: Excel.RequestContext,
+  formula: string,
+): Promise<GraphNodeType[]> {
+  const steps: GraphNodeType[] = [];
+  const stack: GraphNodeType[] | null = [];
   const regex = /([A-Z]+)\(/gi;
-  let match;
+  let match: RegExpExecArray | null;
 
   while ((match = regex.exec(formula)) !== null) {
     const funcName = match[1];
@@ -43,7 +47,11 @@ async function parseNestedFormula(context, formula) {
     const args = getArgs(formula, startIndex);
 
     if (!["DATE", "YEAR", "MONTH", "DAY"].includes(funcName.toUpperCase())) {
-      const step = await processFunction(context, funcName, args);
+      const step: GraphNodeType | null = await processFunction(
+        context,
+        funcName,
+        args,
+      );
 
       if (step) {
         if (stack.length > 0) {
@@ -58,8 +66,12 @@ async function parseNestedFormula(context, formula) {
   return steps.reverse();
 }
 
-async function processFunction(context, funcName, args) {
-  const argList = [];
+async function processFunction(
+  context: Excel.RequestContext,
+  funcName: string,
+  args: string,
+) {
+  const argList: string[] = [];
   const argRegex =
     /((?:[^!]+!)?\$?[A-Z]+\$?[0-9]+(?::\$?[A-Z]+\$?[0-9]+)?|\d+(\.\d+)?|"[^"]*"|TRUE|FALSE|[^,()]+)/g;
   let argMatch;
@@ -76,11 +88,11 @@ async function processFunction(context, funcName, args) {
     }
   }
 
-  const argValues = [];
-  const cellAddresses = new Set();
-  let sheet;
-  let cell;
-  let cellLoadedSuccessfully = true;
+  const argValues: ArgValueType[] = [];
+  const cellAddresses: Set<string> = new Set();
+  let sheet: Excel.Worksheet | string | undefined;
+  let cell: Excel.Range | undefined;
+  let cellLoadedSuccessfully: boolean = true;
 
   for (const arg of argList) {
     if (arg.match(/((?:[^!]+!)?\$?[A-Z]+\$?[0-9]+(?::\$?[A-Z]+\$?[0-9]+)?)/)) {
@@ -119,12 +131,12 @@ async function processFunction(context, funcName, args) {
 
       if (cellLoadedSuccessfully && cell) {
         const cellNumberFormat = cell.numberFormat[0][0];
-        let cellValue = cell.values[0][0];
+        let cellValue: string | number | Date = cell.values[0][0];
 
         if (
           cellNumberFormat &&
           cellNumberFormat.includes("yy") &&
-          cellValue !== ""
+          typeof cellValue === "number"
         ) {
           cellValue = new Date((cellValue - 25569) * 86400 * 1000);
         }
@@ -149,41 +161,42 @@ async function processFunction(context, funcName, args) {
   return formulaOrderInfo;
 }
 
-function groupCellsIntoRanges(cells) {
+function groupCellsIntoRanges(cells: string[]): (string | null)[] {
   if (cells.length === 0) return [];
 
-  const sortedCells = cells.sort((a, b) => {
-    const colA = a.match(/[A-Z]+/)[0];
-    const colB = b.match(/[A-Z]+/)[0];
-    const rowA = parseInt(a.match(/\d+/)[0], 10);
-    const rowB = parseInt(b.match(/\d+/)[0], 10);
+  const sortedCells = cells.sort((a: string, b: string) => {
+    const colA = a.match(/[A-Z]+/)?.[0];
+    const colB = b.match(/[A-Z]+/)?.[0];
+    const rowA = parseInt(a.match(/\d+/)?.[0] ?? "0", 10);
+    const rowB = parseInt(b.match(/\d+/)?.[0] ?? "0", 10);
 
     if (colA === colB) {
       return rowA - rowB;
     }
 
-    return colA.localeCompare(colB);
+    return (colA ?? "").localeCompare(colB ?? "");
   });
 
-  const ranges = [];
+  const ranges: string[] = [];
   let startCell = sortedCells[0];
   let endCell = sortedCells[0];
 
   for (let i = 1; i < sortedCells.length; i += 1) {
     const currentCell = sortedCells[i];
     const [currentColumn, currentRow] = [
-      currentCell.match(/[A-Z]+/)[0],
-      parseInt(currentCell.match(/\d+/)[0], 10),
+      currentCell.match(/[A-Z]+/)?.[0],
+      parseInt(currentCell.match(/\d+/)?.[0] ?? "0", 10),
     ];
     const [endColumn, endRow] = [
-      endCell.match(/[A-Z]+/)[0],
-      parseInt(endCell.match(/\d+/)[0], 10),
+      endCell.match(/[A-Z]+/)?.[0],
+      parseInt(endCell.match(/\d+/)?.[0] ?? "0", 10),
     ];
 
     if (
       (currentColumn === endColumn && currentRow === endRow + 1) ||
       (currentRow === endRow &&
-        currentColumn.charCodeAt(0) === endColumn.charCodeAt(0) + 1)
+        (currentColumn ?? "").charCodeAt(0) ===
+          (endColumn ?? "").charCodeAt(0) + 1)
     ) {
       endCell = currentCell;
     } else {
@@ -205,21 +218,22 @@ function groupCellsIntoRanges(cells) {
   let currentRange = rangeCells.length > 0 ? rangeCells[0] : null;
 
   for (let i = 1; i < rangeCells.length; i += 1) {
-    const [startRange, endRange] = currentRange.split(":");
+    const [startRange, endRange] = currentRange?.split(":") ?? [];
     const [nextStartRange, nextEndRange] = rangeCells[i].split(":");
 
-    const currentStartCol = startRange.match(/[A-Z]+/)[0];
-    const currentEndCol = endRange.match(/[A-Z]+/)[0];
-    const nextStartCol = nextStartRange.match(/[A-Z]+/)[0];
-    const nextEndCol = nextEndRange.match(/[A-Z]+/)[0];
+    const currentStartCol = startRange.match(/[A-Z]+/)?.[0];
+    const currentEndCol = endRange.match(/[A-Z]+/)?.[0];
+    const nextStartCol = nextStartRange.match(/[A-Z]+/)?.[0];
+    const nextEndCol = nextEndRange.match(/[A-Z]+/)?.[0];
 
-    const currentStartRow = parseInt(startRange.match(/\d+/)[0], 10);
-    const currentEndRow = parseInt(endRange.match(/\d+/)[0], 10);
-    const nextStartRow = parseInt(nextStartRange.match(/\d+/)[0], 10);
-    const nextEndRow = parseInt(nextEndRange.match(/\d+/)[0], 10);
+    const currentStartRow = parseInt(startRange.match(/\d+/)?.[0] ?? "0", 10);
+    const currentEndRow = parseInt(endRange.match(/\d+/)?.[0] ?? "0", 10);
+    const nextStartRow = parseInt(nextStartRange.match(/\d+/)?.[0] ?? "0", 10);
+    const nextEndRow = parseInt(nextEndRange.match(/\d+/)?.[0] ?? "0", 10);
 
     if (
-      currentEndCol.charCodeAt(0) + 1 === nextStartCol.charCodeAt(0) &&
+      (currentEndCol ?? "").charCodeAt(0) + 1 ===
+        (nextStartCol ?? "").charCodeAt(0) &&
       nextStartRow >= currentStartRow &&
       nextEndRow <= currentEndRow
     ) {
@@ -238,26 +252,7 @@ function groupCellsIntoRanges(cells) {
   return [...individualCells, ...mergedRanges];
 }
 
-function isAdjacent(cell1, cell2) {
-  try {
-    const [col1, row1] = splitCellAddress(cell1);
-    const [col2, row2] = splitCellAddress(cell2);
-
-    if (col1 === col2 && row2 === row1 + 1) {
-      return true;
-    }
-
-    if (row1 === row2 && col2.charCodeAt(0) === col1.charCodeAt(0) + 1) {
-      return true;
-    }
-
-    return false;
-  } catch (e) {
-    return false;
-  }
-}
-
-function getArgs(formula, startIndex) {
+function getArgs(formula: string, startIndex: number): string {
   let depth = 1;
   let currentArg = "";
   let inString = false;
@@ -287,8 +282,8 @@ function getArgs(formula, startIndex) {
   return currentArg;
 }
 
-function splitArgs(args) {
-  const result = [];
+function splitArgs(args: string): string[] {
+  const result: string[] = [];
   let depth = 0;
   let currentArg = "";
 
@@ -313,7 +308,7 @@ function splitArgs(args) {
   return result;
 }
 
-function sortStepsByCalculationOrder(steps) {
+function sortStepsByCalculationOrder(steps: GraphNodeType[]): GraphNodeType[] {
   const graph = new ProgressGraph();
 
   steps.forEach((step) => {
@@ -333,13 +328,11 @@ function sortStepsByCalculationOrder(steps) {
   return graph.topologicalSort();
 }
 
-function extractAddressesFromStep(step) {
-  const { formula } = step;
-
-  return extractAddresses(formula);
-}
-
-function applyFunctionSpecificLogic(funcName, args, formulaOrderInfo) {
+function applyFunctionSpecificLogic(
+  funcName: string,
+  args: string,
+  formulaOrderInfo: GraphNodeType,
+) {
   switch (funcName.toUpperCase()) {
     case "IF": {
       const [ifCondition, ifTrueValue, ifFalseValue] = splitArgs(args);
@@ -421,8 +414,6 @@ export {
   parseFormulaSteps,
   parseNestedFormula,
   groupCellsIntoRanges,
-  isAdjacent,
   getArgs,
   splitArgs,
-  extractAddressesFromStep,
 };
