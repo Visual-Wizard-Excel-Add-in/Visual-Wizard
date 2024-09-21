@@ -1,11 +1,13 @@
 import ProgressGraphNode from "./ProgressGraphNode";
 
 class ProgressGraph {
+  nodes: Map<string, GraphType>;
+
   constructor() {
     this.nodes = new Map();
   }
 
-  addNode(node) {
+  addNode(node: GraphNodeType) {
     const key = node.formula || node.address;
 
     if (!this.nodes.has(key)) {
@@ -15,18 +17,18 @@ class ProgressGraph {
     return this.nodes.get(key);
   }
 
-  addDependency(from, to) {
+  addDependency(from: GraphNodeType, to: GraphNodeType) {
     const fromNode = this.addNode(from);
     const toNode = this.addNode(to);
 
-    toNode.dependencies.add(fromNode);
+    toNode && fromNode ? toNode.dependencies.add(fromNode) : undefined;
   }
 
   topologicalSort() {
-    const sorted = [];
+    const sorted: GraphNodeType[] = [];
     const visited = new Set();
 
-    const visit = (node) => {
+    const visit = (node: GraphType) => {
       if (visited.has(node.data.formula)) return;
 
       visited.add(node.data.formula);
