@@ -7,7 +7,17 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
+    "allowJs": true,
+    "checkJs": false,
+    "lib": ["ES2020", "DOM"],
+    "types": ["office-js", "node"],
+    "outDir": "dist",
+    "baseUrl": "./",
+    "paths": {
+      "src/*": ["src/*"]
+    }
   },
   "include": ["src/**/*", "vite.config.ts", "*.js", "*.jsx", "*.ts", "*.tsx"],
   "exclude": ["node_modules", "dist"]
