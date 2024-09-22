@@ -1,34 +1,59 @@
 import { extractArgsAddress, updateState } from "./cellCommonUtils";
 
-async function storeCellStyle(cellAddress, allPresets, isCellHighlighting) {
-  let cellStyleToReturn = null;
+async function storeCellStyle(
+  cellAddress: string,
+  allPresets: string,
+  isCellHighlighting: Boolean,
+) {
+  let cellStyleToReturn: CellStyleType | null = null;
 
   try {
     await Excel.run(async (context) => {
       const sheet = context.workbook.worksheets.getActiveWorksheet();
       const cell = sheet.getRange(cellAddress);
-      const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
+      const edges: EdgesType = [
+        "EdgeBottom",
+        "EdgeLeft",
+        "EdgeTop",
+        "EdgeRight",
+      ];
 
-      const allSavedPresets = await OfficeRuntime.storage.getItem(allPresets);
-      const parsedPresets = allSavedPresets
+      const allSavedPresets: string =
+        await OfficeRuntime.storage.getItem(allPresets);
+      const parsedPresets: StylePresetsType = allSavedPresets
         ? { ...JSON.parse(allSavedPresets) }
         : {};
 
-      cell.load([
-        "address",
-        "numberFormat",
-        "format/font",
-        "format/verticalAlignment",
-        "format/horizontalAlignment",
-        "format/fill",
+      cell.load(["address", "numberFormat", "numberFormatLocal"]);
+      cell.format.load([
+        "fill/color",
+        "font",
+        "borders",
+        "protection",
+        "horizontalAlignment",
+        "verticalAlignment",
+        "wrapText",
+        "indentLevel",
+        "readingOrder",
+        "textOrientation",
       ]);
+      cell.format.font.load([
+        "name",
+        "size",
+        "color",
+        "bold",
+        "italic",
+        "underline",
+        "strikethrough",
+      ]);
+      cell.format.protection.load(["locked", "formulaHidden"]);
       await context.sync();
 
       if (parsedPresets[cellAddress] && !isCellHighlighting) {
         return;
       }
 
-      const borders = {};
+      const borders: { [key: string]: Excel.RangeBorder } = {};
 
       for (const edge of edges) {
         borders[edge] = cell.format.borders.getItem(edge);
@@ -38,11 +63,12 @@ async function storeCellStyle(cellAddress, allPresets, isCellHighlighting) {
 
       await context.sync();
 
-      const cellStyle = {
-        color: cell.format.fill.color,
+      const cellStyle: CellStyleType = {
         borders: {},
-        numberFormat: cell.numberFormat,
+        numberFormat: cell.numberFormat[0][0],
+        numberFormatLocal: cell.numberFormatLocal[0][0],
         font: {
+          name: cell.format.font.name,
           bold: cell.format.font.bold,
           color: cell.format.font.color,
           italic: cell.format.font.italic,
@@ -50,8 +76,21 @@ async function storeCellStyle(cellAddress, allPresets, isCellHighlighting) {
           underline: cell.format.font.underline,
           tintAndShade: cell.format.font.tintAndShade,
         },
-        horizontalAlignment: cell.format.horizontalAlignment,
-        verticalAlignment: cell.format.verticalAlignment,
+        fill: {
+          color: cell.format.fill.color,
+        },
+        alignment: {
+          horizontalAlignment: cell.format.horizontalAlignment,
+          verticalAlignment: cell.format.verticalAlignment,
+          wrapText: cell.format.wrapText,
+          indentLevel: cell.format.indentLevel,
+          readingOrder: cell.format.readingOrder,
+          textOrientation: cell.format.textOrientation,
+        },
+        protection: {
+          locked: cell.format.protection.locked,
+          formulaHidden: cell.format.protection.formulaHidden,
+        },
       };
 
       for (const edge of edges) {
@@ -81,38 +120,46 @@ async function storeCellStyle(cellAddress, allPresets, isCellHighlighting) {
     if (allPresets === "allMacroPresets") {
       return cellStyleToReturn;
     }
-  } catch (e) {
-    const warningMessage = {
-      type: "warning",
-      title: "저장 실패: ",
-      body: `기존 셀 서식을 저장하는데 실패했습니다. ${e.message}`,
-    };
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      const warningMessage = {
+        type: "warning",
+        title: "저장 실패: ",
+        body: `기존 셀 서식을 저장하는데 실패했습니다. ${e.message}`,
+      };
 
-    updateState("setMessageList", warningMessage);
-    throw new Error(e.message, e.stack);
+      updateState("setMessageList", warningMessage);
+      throw new Error(e.message);
+    }
   }
   return null;
 }
 
 async function applyCellStyle(
-  cellAddress,
-  allPresets,
-  isCellHighlighting,
+  cellAddress: string,
+  allPresets: string,
+  isCellHighlighting: boolean,
   actionCellStyle = null,
 ) {
   try {
     await Excel.run(async (context) => {
       const sheet = context.workbook.worksheets.getActiveWorksheet();
       const cell = sheet.getRange(cellAddress);
-      const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
-      const allSavedPresets = await OfficeRuntime.storage.getItem(allPresets);
-      let cellStyle = {};
+      const edges: EdgesType = [
+        "EdgeBottom",
+        "EdgeLeft",
+        "EdgeTop",
+        "EdgeRight",
+      ];
+      const allSavedPresets: string =
+        await OfficeRuntime.storage.getItem(allPresets);
+      let cellStyle: CellStyleType | null = null;
 
       if (!allSavedPresets) {
         throw new Error("No any saved presets found.");
       }
 
-      const parsedPresets = JSON.parse(allSavedPresets);
+      const parsedPresets: StylePresetsType = JSON.parse(allSavedPresets);
 
       if (allPresets === "allMacroPresets") {
         cellStyle = actionCellStyle;
@@ -121,8 +168,8 @@ async function applyCellStyle(
       }
 
       if (cellStyle && !isCellHighlighting) {
-        if (cellStyle.color) {
-          cell.format.fill.color = cellStyle.color;
+        if (cellStyle.fill.color) {
+          cell.format.fill.color = cellStyle.fill.color;
         }
 
         if (cellStyle.font.bold) {
@@ -136,11 +183,12 @@ async function applyCellStyle(
         if (cellStyle.font.tintAndShade) {
           cell.format.font.tintAndShade = cellStyle.font.tintAndShade;
         }
-        cell.numberFormat = cellStyle.numberFormat;
+        cell.numberFormat[0][0] = cellStyle.numberFormat;
         cell.format.font.size = cellStyle.font.size;
         cell.format.font.underline = cellStyle.font.underline;
-        cell.format.horizontalAlignment = cellStyle.horizontalAlignment;
-        cell.format.verticalAlignment = cellStyle.verticalAlignment;
+        cell.format.horizontalAlignment =
+          cellStyle.alignment.horizontalAlignment;
+        cell.format.verticalAlignment = cellStyle.alignment.verticalAlignment;
 
         if (cellStyle.borders) {
           for (const edge of edges) {
@@ -163,7 +211,7 @@ async function applyCellStyle(
 
                 border.style = Excel.BorderLineStyle.none;
                 border.color = "#d6d6d6";
-                border.weight = "thin";
+                border.weight = "Thin";
               }
             }
           }
@@ -182,11 +230,11 @@ async function applyCellStyle(
       }
     });
   } catch (e) {
-    throw new Error(e.message, e.stack);
+    if (e instanceof Error) throw new Error(e.message);
   }
 }
 
-async function detectErrorCell(isCellHighlighting) {
+async function detectErrorCell(isCellHighlighting: boolean) {
   await Excel.run(async (context) => {
     const sheet = context.workbook.worksheets.getActiveWorksheet();
     const range = sheet.getUsedRange();
@@ -194,7 +242,7 @@ async function detectErrorCell(isCellHighlighting) {
     range.load("values, address");
     await context.sync();
 
-    const errorCells = [];
+    const errorCells: Excel.Range[] = [];
 
     if (range.values) {
       range.values.forEach((row, rowIndex) => {
@@ -235,7 +283,12 @@ async function detectErrorCell(isCellHighlighting) {
       if (isCellHighlighting) {
         cell.format.fill.color = "red";
 
-        const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
+        const edges: EdgesType = [
+          "EdgeBottom",
+          "EdgeLeft",
+          "EdgeTop",
+          "EdgeRight",
+        ];
 
         edges.forEach((edge) => {
           const border = cell.format.borders.getItem(edge);
@@ -250,7 +303,11 @@ async function detectErrorCell(isCellHighlighting) {
   });
 }
 
-async function highlightingCell(isCellHighlighting, argCells, resultCell) {
+async function highlightingCell(
+  isCellHighlighting: boolean,
+  argCells: string[],
+  resultCell: string,
+): Promise<void> {
   return Excel.run(async (context) => {
     const worksheet = context.workbook.worksheets.getActiveWorksheet();
     const resultCellRange = worksheet.getRange(resultCell);
@@ -259,8 +316,10 @@ async function highlightingCell(isCellHighlighting, argCells, resultCell) {
 
     const argsCellAddresses = argCells.map(extractArgsAddress).filter(Boolean);
 
-    for (const argcell of argsCellAddresses) {
-      await storeCellStyle(argcell, "allCellStyles", isCellHighlighting);
+    for (const argCell of argsCellAddresses) {
+      if (typeof argCell === "string") {
+        await storeCellStyle(argCell, "allCellStyles", isCellHighlighting);
+      }
     }
 
     if (isCellHighlighting) {
@@ -271,15 +330,17 @@ async function highlightingCell(isCellHighlighting, argCells, resultCell) {
       await applyCellStyle(resultCell, "allCellStyles", isCellHighlighting);
     }
 
-    for (const argcell of argsCellAddresses) {
-      const argcellsRange = worksheet.getRange(argcell);
+    for (const argCell of argsCellAddresses) {
+      if (typeof argCell === "string") {
+        const argcellsRange = worksheet.getRange(argCell);
 
-      if (isCellHighlighting) {
-        argcellsRange.format.fill.color = "#28f925";
+        if (isCellHighlighting) {
+          argcellsRange.format.fill.color = "#28f925";
 
-        await changeCellborder(argcellsRange, "red", false);
-      } else {
-        await applyCellStyle(argcell, "allCellStyles", isCellHighlighting);
+          await changeCellborder(argcellsRange, "red", false);
+        } else {
+          await applyCellStyle(argCell, "allCellStyles", isCellHighlighting);
+        }
       }
     }
 
@@ -287,8 +348,12 @@ async function highlightingCell(isCellHighlighting, argCells, resultCell) {
   });
 }
 
-async function changeCellborder(targetCell, color, isClear) {
-  const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
+async function changeCellborder(
+  targetCell: Excel.Range,
+  color: string,
+  isClear: boolean,
+): Promise<void> {
+  const edges: EdgesType = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
 
   for (const edge of edges) {
     const border = targetCell.format.borders.getItem(edge);
@@ -305,16 +370,23 @@ async function changeCellborder(targetCell, color, isClear) {
   await targetCell.context.sync();
 }
 
-function convertAddressToA1(originalAddress, startRow, startColumn) {
-  const row = parseInt(originalAddress.match(/\d+/)[0], 10) - startRow + 1;
-  const column =
-    originalAddress.match(/[A-Z]+/)[0].charCodeAt(0) - 65 - startColumn;
+function convertAddressToA1(
+  originalAddress: string,
+  startRow: number,
+  startColumn: number,
+): string {
+  const row =
+    parseInt(originalAddress.match(/\d+/)?.[0] ?? "0", 10) - startRow + 1;
+  const columnMatch = originalAddress.match(/[A-Z]+/)?.[0];
+  const column = columnMatch
+    ? columnMatch.charCodeAt(0) - 65 - startColumn
+    : -startColumn;
   const newAddress = String.fromCharCode(65 + column) + row.toString();
 
   return newAddress;
 }
 
-async function saveCellStylePreset(styleName) {
+async function saveCellStylePreset(styleName: string) {
   try {
     if (styleName === "") {
       const warningMessage = {
@@ -329,17 +401,14 @@ async function saveCellStylePreset(styleName) {
     }
 
     await Excel.run(async (context) => {
-      let cellStylePresets =
+      let cellStylePresets: string =
         await OfficeRuntime.storage.getItem("cellStylePresets");
 
-      if (!cellStylePresets) {
-        cellStylePresets = {};
-      } else {
-        cellStylePresets = JSON.parse(cellStylePresets);
-      }
+      const allStylePresets: { [key: string]: StylePresetsType } =
+        JSON.parse(cellStylePresets);
 
-      if (cellStylePresets[styleName]) {
-        delete cellStylePresets[styleName];
+      if (allStylePresets[styleName]) {
+        delete allStylePresets[styleName];
       }
 
       const range = context.workbook.getSelectedRange();
@@ -350,9 +419,10 @@ async function saveCellStylePreset(styleName) {
       const rows = range.rowCount;
       const columns = range.columnCount;
       const startAddress = range.address.split("!")[1];
-      const startRow = parseInt(startAddress.match(/\d+/)[0], 10);
-      const startColumn = startAddress.match(/[A-Z]+/)[0].charCodeAt(0) - 65;
-      const cellStyles = {};
+      const startRow = parseInt(startAddress.match(/\d+/)?.[0] ?? "0", 10);
+      const startColumn =
+        (startAddress.match(/[A-Z]+/)?.[0] ?? "A").charCodeAt(0) - 65;
+      const cellStyles: StylePresetsType = {};
 
       for (let i = 0; i < rows; i += 1) {
         for (let j = 0; j < columns; j += 1) {
@@ -382,13 +452,13 @@ async function saveCellStylePreset(styleName) {
           ]);
           cell.format.protection.load(["locked", "formulaHidden"]);
 
-          const borderEdges = [
+          const borderEdges: EdgesType = [
             "EdgeTop",
             "EdgeBottom",
             "EdgeLeft",
             "EdgeRight",
           ];
-          const borders = {};
+          const borders: BorderStyleType = {};
 
           borderEdges.forEach((edge) => {
             const border = cell.format.borders.getItem(edge);
@@ -428,8 +498,8 @@ async function saveCellStylePreset(styleName) {
               readingOrder: cell.format.readingOrder,
               textOrientation: cell.format.textOrientation,
             },
-            numberFormat: cell.numberFormat,
-            numberFormatLocal: cell.numberFormatLocal,
+            numberFormat: cell.numberFormat[0][0],
+            numberFormatLocal: cell.numberFormatLocal[0][0],
             borders: {},
             protection: {
               locked: cell.format.protection.locked,
@@ -446,7 +516,7 @@ async function saveCellStylePreset(styleName) {
               ] = {
                 style: border.style,
                 color: "#d6d6d6",
-                weight: "thin",
+                weight: "Thin",
               };
             } else {
               cellStyles[newAddress].borders[
@@ -461,11 +531,11 @@ async function saveCellStylePreset(styleName) {
         }
       }
 
-      cellStylePresets[styleName] = cellStyles;
+      allStylePresets[styleName] = cellStyles;
 
       await OfficeRuntime.storage.setItem(
         "cellStylePresets",
-        JSON.stringify(cellStylePresets),
+        JSON.stringify(allStylePresets),
       );
 
       const successMessage = {
@@ -485,11 +555,11 @@ async function saveCellStylePreset(styleName) {
 
     updateState("setMessageList", errorMessage);
 
-    throw new Error("Error in saveCellStylePreset:", error);
+    throw new Error(`Error in saveCellStylePreset: ${error}`);
   }
 }
 
-async function loadCellStylePreset(styleName) {
+async function loadCellStylePreset(styleName: string) {
   try {
     await Excel.run(async (context) => {
       const range = context.workbook.getSelectedRange();
@@ -497,11 +567,10 @@ async function loadCellStylePreset(styleName) {
       range.load(["address", "rowCount", "columnCount"]);
       await context.sync();
 
-      let cellStylePresets =
-        await OfficeRuntime.storage.getItem("cellStylePresets");
-
-      cellStylePresets = JSON.parse(cellStylePresets);
-      const savedCellStyles = cellStylePresets[styleName];
+      const cellStylePresets: { [key: string]: StylePresetsType } = JSON.parse(
+        await OfficeRuntime.storage.getItem("cellStylePresets"),
+      );
+      const savedCellStyles: StylePresetsType = cellStylePresets[styleName];
 
       if (!savedCellStyles) {
         throw new Error("Preset not found");
@@ -512,34 +581,46 @@ async function loadCellStylePreset(styleName) {
       const savedAddresses = Object.keys(savedCellStyles);
 
       const savedRows = savedAddresses.reduce((max, addr) => {
-        const row = parseInt(addr.match(/\d+$/)[0], 10);
+        const row = parseInt(addr.match(/\d+$/)?.[0] ?? "0", 10);
 
         return Math.max(max, row);
       }, 0);
 
       const savedColumns = savedAddresses.reduce((max, addr) => {
-        const col = addr.match(/^[A-Z]+/)[0];
+        const col = addr.match(/^[A-Z]+/)?.[0] ?? "A";
 
         return Math.max(max, col.charCodeAt(0) - 64);
       }, 0);
 
-      const getAddress = (row, column) => {
+      const getAddress = (row: number, column: number) => {
         const col = String.fromCharCode(64 + column);
 
         return `${col}${row}`;
       };
 
-      const getStyle = (row, column) => {
+      const getStyle = (row: number, column: number) => {
         const address = getAddress(row, column);
 
         return savedCellStyles[address] || {};
       };
 
-      const applyStyle = (cell, styles) => {
+      const applyStyle = (cell: Excel.Range, styles: CellStyleType) => {
         if (styles.font) {
-          Object.keys(styles.font).forEach((key) => {
+          const fontKeys: Array<keyof typeof styles.font> = [
+            "name",
+            "bold",
+            "color",
+            "size",
+            "italic",
+            "underline",
+            "strikethrough",
+            "tintAndShade",
+          ];
+
+          fontKeys.forEach((key) => {
             if (styles.font[key] !== undefined) {
-              cell.format.font[key] = styles.font[key];
+              (cell.format.font[key] as Excel.RangeFont[typeof key]) =
+                styles.font[key];
             }
           });
         }
@@ -549,11 +630,16 @@ async function loadCellStylePreset(styleName) {
         }
 
         if (styles.borders) {
-          ["top", "bottom", "left", "right"].forEach((edge) => {
+          const borders: ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"] = [
+            "EdgeBottom",
+            "EdgeLeft",
+            "EdgeTop",
+            "EdgeRight",
+          ];
+
+          borders.forEach((edge) => {
             if (styles.borders[edge]) {
-              const border = cell.format.borders.getItem(
-                `Edge${edge.charAt(0).toUpperCase() + edge.slice(1)}`,
-              );
+              const border = cell.format.borders.getItem(edge);
 
               if (styles.borders[edge].style) {
                 border.style = styles.borders[edge].style;
@@ -571,7 +657,7 @@ async function loadCellStylePreset(styleName) {
         }
 
         if (styles.alignment) {
-          const alignmentProperties = [
+          const alignmentProperties: Array<keyof typeof styles.alignment> = [
             "horizontalAlignment",
             "verticalAlignment",
             "wrapText",
@@ -581,8 +667,9 @@ async function loadCellStylePreset(styleName) {
           ];
 
           alignmentProperties.forEach((prop) => {
-            if (styles.alignment[prop] !== undefined) {
-              cell.format[prop] = styles.alignment[prop];
+            if (styles.alignment?.[prop] !== undefined) {
+              (cell.format[prop] as Excel.RangeFormat[typeof prop]) =
+                styles.alignment[prop];
             }
           });
         }
@@ -599,8 +686,8 @@ async function loadCellStylePreset(styleName) {
         }
 
         if (styles.numberFormat) {
-          cell.numberFormat = styles.numberFormat;
-          cell.numberFormatLocal = styles.numberFormatLocal;
+          cell.numberFormat[0][0] = styles.numberFormat;
+          cell.numberFormatLocal[0][0] = styles.numberFormatLocal;
         }
       };
 
@@ -626,7 +713,7 @@ async function loadCellStylePreset(styleName) {
   }
 }
 
-async function saveChartStylePreset(targetPreset, styleName) {
+async function saveChartStylePreset(targetPreset: string, styleName: string) {
   try {
     if (styleName === "") {
       updateState("setMessageList", {
@@ -639,11 +726,10 @@ async function saveChartStylePreset(targetPreset, styleName) {
     }
 
     await Excel.run(async (context) => {
-      let chartStylePresets = await OfficeRuntime.storage.getItem(targetPreset);
+      let chartStylePresets: string | { [key: string]: ChartStyleType } =
+        await OfficeRuntime.storage.getItem(targetPreset);
 
-      if (!chartStylePresets) {
-        chartStylePresets = {};
-      } else {
+      if (typeof chartStylePresets === "string") {
         chartStylePresets = JSON.parse(chartStylePresets);
       }
 
@@ -696,7 +782,7 @@ async function saveChartStylePreset(targetPreset, styleName) {
         case Excel.ChartType.areaStacked:
         case Excel.ChartType.areaStacked100:
         case Excel.ChartType.histogram:
-        case Excel.ChartType.boxWhisker:
+        case Excel.ChartType.boxwhisker:
         case Excel.ChartType.waterfall:
         case Excel.ChartType.funnel:
         case Excel.ChartType._3DArea:
@@ -730,7 +816,6 @@ async function saveChartStylePreset(targetPreset, styleName) {
           propertiesToLoad.push("series");
           break;
 
-        case Excel.ChartType.scatter:
         case Excel.ChartType.bubble:
         case Excel.ChartType.xyscatter:
         case Excel.ChartType.xyscatterLines:
@@ -775,7 +860,6 @@ async function saveChartStylePreset(targetPreset, styleName) {
           );
           break;
 
-        case Excel.ChartType.map:
         case Excel.ChartType.regionMap:
           propertiesToLoad.push("series");
           break;
@@ -834,7 +918,7 @@ async function saveChartStylePreset(targetPreset, styleName) {
 
       await context.sync();
 
-      const chartStyle = {
+      const chartStyle: ChartStyleType = {
         chartType: currentChartType,
         font: {
           name: selectedChart.format.font.name,
@@ -846,7 +930,7 @@ async function saveChartStylePreset(targetPreset, styleName) {
         },
         roundedCorners: selectedChart.format.roundedCorners,
         fill: {
-          color: chartFillColor,
+          color: chartFillColor.value,
         },
         border: {
           lineStyle: selectedChart.format.border.lineStyle,
@@ -854,7 +938,7 @@ async function saveChartStylePreset(targetPreset, styleName) {
           weight: selectedChart.format.border.weight,
         },
         plotArea: {
-          fill: plotAreaFillColor,
+          fill: plotAreaFillColor.value,
           border: {
             lineStyle: selectedChart.plotArea.format.border.lineStyle,
             color: selectedChart.plotArea.format.border.color,
@@ -871,7 +955,7 @@ async function saveChartStylePreset(targetPreset, styleName) {
           insideWidth: selectedChart.plotArea.insideWidth,
         },
         legend: {
-          fill: legendFillColor,
+          fill: legendFillColor.value,
           font: {
             name: selectedChart.legend.format.font.name,
             size: selectedChart.legend.format.font.size,
@@ -888,10 +972,11 @@ async function saveChartStylePreset(targetPreset, styleName) {
           position: selectedChart.legend.position,
         },
         seriesNameLevel: selectedChart.seriesNameLevel,
+        axes: {},
+        series: [],
       };
 
       if (propertiesToLoad.includes("axes/categoryAxis")) {
-        chartStyle.axes = chartStyle.axes || {};
         chartStyle.axes.categoryAxis = {
           position: selectedChart.axes.categoryAxis.position,
           format: {
@@ -913,7 +998,6 @@ async function saveChartStylePreset(targetPreset, styleName) {
       }
 
       if (propertiesToLoad.includes("axes/valueAxis")) {
-        chartStyle.axes = chartStyle.axes || {};
         chartStyle.axes.valueAxis = {
           position: selectedChart.axes.valueAxis.position,
           format: {
@@ -950,7 +1034,9 @@ async function saveChartStylePreset(targetPreset, styleName) {
         }
       }
 
-      chartStylePresets[styleName] = chartStyle;
+      if (typeof chartStylePresets !== "string") {
+        chartStylePresets[styleName] = chartStyle;
+      }
 
       await OfficeRuntime.storage.setItem(
         targetPreset,
@@ -964,16 +1050,18 @@ async function saveChartStylePreset(targetPreset, styleName) {
       });
     });
   } catch (error) {
-    updateState("setMessageList", {
-      type: "error",
-      title: "오류 발생",
-      body: `차트 서식 프리셋을 저장하는 중 오류가 발생했습니다. ${error.message}`,
-    });
-    throw new Error(error.message, error.stack);
+    if (error instanceof Error) {
+      updateState("setMessageList", {
+        type: "error",
+        title: "오류 발생",
+        body: `차트 서식 프리셋을 저장하는 중 오류가 발생했습니다. ${error.message}`,
+      });
+      throw new Error(error.message);
+    }
   }
 }
 
-async function loadChartStylePreset(targetPreset, styleName) {
+async function loadChartStylePreset(targetPreset: string, styleName: string) {
   if (styleName === "") {
     updateState("setMessageList", {
       type: "warning",
@@ -1001,7 +1089,8 @@ async function loadChartStylePreset(targetPreset, styleName) {
       currentChart.load("chartType");
       await context.sync();
 
-      let chartStylePresets = await OfficeRuntime.storage.getItem(targetPreset);
+      let chartStylePresets: { [key: string]: ChartStyleType } =
+        await JSON.parse(OfficeRuntime.storage.getItem(targetPreset));
 
       if (!chartStylePresets) {
         updateState("setMessageList", {
@@ -1013,7 +1102,6 @@ async function loadChartStylePreset(targetPreset, styleName) {
         return;
       }
 
-      chartStylePresets = JSON.parse(chartStylePresets);
       const chartStyle = chartStylePresets[styleName];
 
       if (!chartStyle) {
@@ -1067,7 +1155,10 @@ async function loadChartStylePreset(targetPreset, styleName) {
   }
 }
 
-function applyBasicChartProperties(currentChart, chartStyle) {
+function applyBasicChartProperties(
+  currentChart: Excel.Chart,
+  chartStyle: ChartStyleType,
+) {
   if (chartStyle.fill.color) {
     currentChart.format.fill.setSolidColor(chartStyle.fill.color.m_value);
   } else {
@@ -1093,9 +1184,19 @@ function applyBasicChartProperties(currentChart, chartStyle) {
   }
 
   if (chartStyle.font) {
-    Object.keys(chartStyle.font).forEach((key) => {
+    const chartFontKeys: Array<keyof typeof chartStyle.font> = [
+      "name",
+      "size",
+      "color",
+      "bold",
+      "italic",
+      "underline",
+    ];
+
+    chartFontKeys.forEach((key) => {
       if (chartStyle.font[key] !== undefined) {
-        currentChart.format.font[key] = chartStyle.font[key];
+        (currentChart.format.font[key] as Excel.ChartFont[typeof key]) =
+          chartStyle.font[key];
       }
     });
   }
@@ -1105,12 +1206,13 @@ function applyBasicChartProperties(currentChart, chartStyle) {
   }
 }
 
-function applyLegendProperties(currentChart, chartStyle) {
+function applyLegendProperties(
+  currentChart: Excel.Chart,
+  chartStyle: ChartStyleType,
+) {
   if (chartStyle.legend) {
-    if (chartStyle.legend.fill.color) {
-      currentChart.legend.format.fill.setSolidColor(
-        chartStyle.legend.fill.color.m_value,
-      );
+    if (chartStyle.legend.fill) {
+      currentChart.legend.format.fill.setSolidColor(chartStyle.legend.fill);
     } else {
       currentChart.legend.format.fill.clear();
     }
@@ -1137,9 +1239,20 @@ function applyLegendProperties(currentChart, chartStyle) {
     }
 
     if (chartStyle.legend.font) {
-      Object.keys(chartStyle.legend.font).forEach((key) => {
+      const legendFontKeys: Array<keyof typeof chartStyle.legend.font> = [
+        "name",
+        "size",
+        "color",
+        "bold",
+        "italic",
+        "underline",
+      ];
+
+      legendFontKeys.forEach((key) => {
         if (chartStyle.legend.font[key] !== undefined) {
-          currentChart.legend.format.font[key] = chartStyle.legend.font[key];
+          (currentChart.legend.format.font[
+            key
+          ] as Excel.ChartFont[typeof key]) = chartStyle.legend.font[key];
         }
       });
     }
@@ -1150,12 +1263,13 @@ function applyLegendProperties(currentChart, chartStyle) {
   }
 }
 
-function applyPlotAreaProperties(currentChart, chartStyle) {
+function applyPlotAreaProperties(
+  currentChart: Excel.Chart,
+  chartStyle: ChartStyleType,
+) {
   if (chartStyle.plotArea) {
-    if (chartStyle.plotArea.fill.color) {
-      currentChart.plotArea.format.fill.setSolidColor(
-        chartStyle.plotArea.fill.color.m_value,
-      );
+    if (chartStyle.plotArea.fill) {
+      currentChart.plotArea.format.fill.setSolidColor(chartStyle.plotArea.fill);
     } else {
       currentChart.plotArea.format.fill.clear();
     }
@@ -1199,7 +1313,10 @@ function applyPlotAreaProperties(currentChart, chartStyle) {
   }
 }
 
-function applyAxisProperties(currentChart, chartStyle) {
+function applyAxisProperties(
+  currentChart: Excel.Chart,
+  chartStyle: ChartStyleType,
+) {
   if (chartStyle.axes) {
     if (chartStyle.axes.categoryAxis && currentChart.axes.categoryAxis) {
       applySingleAxisProperties(
@@ -1217,9 +1334,12 @@ function applyAxisProperties(currentChart, chartStyle) {
   }
 }
 
-function applySingleAxisProperties(axis, axisStyle) {
+function applySingleAxisProperties(
+  axis: Excel.ChartAxis,
+  axisStyle: ValueAxisType,
+) {
   if (axisStyle.format) {
-    if (axisStyle.format.line.lineStyle !== "None") {
+    if (axisStyle.format.line.style !== "None") {
       if (axisStyle.format.line) {
         axis.format.line.color = axisStyle.format.line.color;
         axis.format.line.lineStyle = axisStyle.format.line.style;
@@ -1233,9 +1353,19 @@ function applySingleAxisProperties(axis, axisStyle) {
     }
 
     if (axisStyle.format.font) {
-      Object.keys(axisStyle.format.font).forEach((key) => {
+      const axisFontKeys: Array<keyof typeof axisStyle.format.font> = [
+        "name",
+        "size",
+        "color",
+        "bold",
+        "italic",
+        "underline",
+      ];
+
+      axisFontKeys.forEach((key) => {
         if (axisStyle.format.font[key] !== undefined)
-          axis.format.font[key] = axisStyle.format.font[key];
+          (axis.format.font[key] as Excel.ChartFont[typeof key]) =
+            axisStyle.format.font[key];
       });
     }
   }
@@ -1245,12 +1375,15 @@ function applySingleAxisProperties(axis, axisStyle) {
   }
 }
 
-async function applySeriesProperties(currentChart, chartStyle) {
+async function applySeriesProperties(
+  currentChart: Excel.Chart,
+  chartStyle: ChartStyleType,
+) {
   if (chartStyle.series && currentChart.series) {
     await currentChart.series.load("items");
     await currentChart.context.sync();
 
-    const seriesArray = Array.isArray(chartStyle.series)
+    const seriesArray: Excel.ChartSeries[] = Array.isArray(chartStyle.series)
       ? chartStyle.series
       : Object.values(chartStyle.series);
 
@@ -1278,31 +1411,31 @@ async function applySeriesProperties(currentChart, chartStyle) {
 
       if (seriesStyle.format) {
         if (seriesStyle.format.fill) {
-          if (seriesStyle.format.fill.color) {
-            series.format.fill.setSolidColor(seriesStyle.format.fill.color);
-          } else {
-            series.format.fill.clear();
-          }
-        }
-
-        if (seriesStyle.format.line.style !== "None") {
-          if (seriesStyle.format.line.color) {
-            series.format.line.color = seriesStyle.format.line.color;
-          }
-
-          if (seriesStyle.format.line.style) {
-            series.format.line.lineStyle = seriesStyle.format.line.style;
-          }
-
-          if (
-            seriesStyle.format.line.weight &&
-            seriesStyle.format.line.weight > 0
-          ) {
-            series.format.line.weight = seriesStyle.format.line.weight;
-          }
+          series.format.fill.setSolidColor(
+            seriesStyle.format.fill.getSolidColor().value,
+          );
         } else {
-          series.format.line.clear();
+          series.format.fill.clear();
         }
+      }
+
+      if (seriesStyle.format.line.lineStyle !== "None") {
+        if (seriesStyle.format.line.color) {
+          series.format.line.color = seriesStyle.format.line.color;
+        }
+
+        if (seriesStyle.format.line.lineStyle) {
+          series.format.line.lineStyle = seriesStyle.format.line.lineStyle;
+        }
+
+        if (
+          seriesStyle.format.line.weight &&
+          seriesStyle.format.line.weight > 0
+        ) {
+          series.format.line.weight = seriesStyle.format.line.weight;
+        }
+      } else {
+        series.format.line.clear();
       }
     }
   }
