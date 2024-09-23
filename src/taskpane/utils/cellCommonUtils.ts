@@ -1,11 +1,5 @@
 import useStore from "./store";
 
-interface MessageType {
-  type: string;
-  title: string;
-  body: string;
-}
-
 function updateState(
   setStateFunc: keyof ReturnType<typeof useStore.getState>,
   newValue: string | number | boolean | string[] | MessageType | null,

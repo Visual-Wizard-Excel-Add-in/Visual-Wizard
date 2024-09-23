@@ -139,7 +139,7 @@ async function applyCellStyle(
   cellAddress: string,
   allPresets: string,
   isCellHighlighting: boolean,
-  actionCellStyle = null,
+  actionCellStyle: CellStyleType | null = null,
 ) {
   try {
     await Excel.run(async (context) => {
