@@ -1,5 +1,11 @@
 declare const OfficeRuntime: typeof import("office-runtime");
 
+interface MessageType {
+  type: string;
+  title: string;
+  body: string;
+}
+
 interface GraphNodeType {
   address: string;
   condition?: string;
@@ -332,4 +338,47 @@ interface ValueAxisType {
       underline: "None" | "Single" | Excel.ChartUnderlineStyle;
     };
   };
+}
+
+interface MacroActionType {
+  type:
+    | "WorksheetChanged"
+    | "TableChanged"
+    | "ChartAdded"
+    | "TableAdded"
+    | "WorksheetFormatChanged";
+  address?: string;
+  details?:
+    | {
+        value: any;
+      }
+    | Excel.ChangedEventDetail;
+  cellStyle?: CellStyleType;
+  chartId?: string;
+  tableId?: string;
+  changeType?:
+    | Excel.DataChangeType
+    | "Unknown"
+    | "RangeEdited"
+    | "RowInserted"
+    | "RowDeleted"
+    | "ColumnInserted"
+    | "ColumnDeleted"
+    | "CellInserted"
+    | "CellDeleted";
+  showHeaders?: boolean;
+  chartType?: ChartType;
+  position?: {
+    top: number;
+    left: number;
+  };
+  size?: {
+    height: number;
+    width: number;
+  };
+  dataRange?: string[];
+}
+
+interface MacroPresetsType {
+  [key: string]: { actions: MacroActionType[] };
 }
