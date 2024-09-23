@@ -1,14 +1,14 @@
 import { storeCellStyle, applyCellStyle } from "./cellStyleFunc";
 import { updateState } from "./cellCommonUtils";
 
-let worksheetChangedHandler;
-let tableChangedHandler;
-let chartAddedHandler;
-let tableAddedHandler;
-let formatChangedHandler;
-let actions = [];
+let worksheetChangedHandler: OfficeExtension.EventHandlerResult<Excel.WorksheetChangedEventArgs> | null;
+let tableChangedHandler: OfficeExtension.EventHandlerResult<Excel.TableChangedEventArgs> | null;
+let chartAddedHandler: OfficeExtension.EventHandlerResult<Excel.ChartAddedEventArgs> | null;
+let tableAddedHandler: OfficeExtension.EventHandlerResult<Excel.TableAddedEventArgs> | null;
+let formatChangedHandler: OfficeExtension.EventHandlerResult<Excel.WorksheetFormatChangedEventArgs> | null;
+let actions: MacroActionType[] = [];
 
-async function manageRecording(isRecording, presetName) {
+async function manageRecording(isRecording: boolean, presetName: string) {
   if (presetName === "") {
     const warningMessage = {
       type: "warning",
@@ -41,9 +41,10 @@ async function manageRecording(isRecording, presetName) {
         (event) => onWorksheetChanged(event, presetName),
       );
 
-      let allMacroPresets =
-        await OfficeRuntime.storage.getItem("allMacroPresets");
-      allMacroPresets = allMacroPresets ? JSON.parse(allMacroPresets) : {};
+      let allMacroPresets = await JSON.parse(
+        OfficeRuntime.storage.getItem("allMacroPresets"),
+      );
+
       allMacroPresets[presetName] = { actions: [] };
 
       await OfficeRuntime.storage.setItem(
@@ -54,36 +55,46 @@ async function manageRecording(isRecording, presetName) {
     } else {
       if (worksheetChangedHandler) {
         await Excel.run(worksheetChangedHandler.context, async (ctx) => {
-          worksheetChangedHandler.remove();
-          await ctx.sync();
+          if (worksheetChangedHandler !== null) {
+            worksheetChangedHandler.remove();
+            await ctx.sync();
+          }
         });
       }
 
       if (tableChangedHandler) {
         await Excel.run(tableChangedHandler.context, async (ctx) => {
-          tableChangedHandler.remove();
-          await ctx.sync();
+          if (tableChangedHandler !== null) {
+            tableChangedHandler.remove();
+            await ctx.sync();
+          }
         });
       }
 
       if (chartAddedHandler) {
         await Excel.run(chartAddedHandler.context, async (ctx) => {
-          chartAddedHandler.remove();
-          await ctx.sync();
+          if (chartAddedHandler !== null) {
+            chartAddedHandler.remove();
+            await ctx.sync();
+          }
         });
       }
 
       if (tableAddedHandler) {
         await Excel.run(tableAddedHandler.context, async (ctx) => {
-          tableAddedHandler.remove();
-          await ctx.sync();
+          if (tableAddedHandler !== null) {
+            tableAddedHandler.remove();
+            await ctx.sync();
+          }
         });
       }
 
       if (formatChangedHandler) {
         await Excel.run(formatChangedHandler.context, async (ctx) => {
-          formatChangedHandler.remove();
-          await ctx.sync();
+          if (formatChangedHandler !== null) {
+            formatChangedHandler.remove();
+            await ctx.sync();
+          }
         });
       }
 
@@ -106,12 +117,21 @@ async function manageRecording(isRecording, presetName) {
   });
 }
 
-async function onWorksheetChanged(event, presetName) {
-  const action = { type: event.type };
-  let cellStyleData = null;
-  let allMacroPresets = await OfficeRuntime.storage.getItem("allMacroPresets");
-  let warningMessage = {};
-  allMacroPresets = allMacroPresets ? JSON.parse(allMacroPresets) : {};
+async function onWorksheetChanged(
+  event:
+    | Excel.WorksheetChangedEventArgs
+    | Excel.TableAddedEventArgs
+    | Excel.TableChangedEventArgs
+    | Excel.WorksheetFormatChangedEventArgs
+    | Excel.ChartAddedEventArgs,
+  presetName: string,
+) {
+  const action: MacroActionType = { type: event.type };
+  let cellStyleData: CellStyleType | null = null;
+  let allMacroPresets = await JSON.parse(
+    OfficeRuntime.storage.getItem("allMacroPresets"),
+  );
+  let warningMessage: MessageType = { type: "", title: "", body: "" };
 
   if (!allMacroPresets[presetName].actions) {
     allMacroPresets[presetName] = { actions: [], cellStyles: {} };
@@ -133,7 +153,11 @@ async function onWorksheetChanged(event, presetName) {
           "allMacroPresets",
           true,
         );
-        action.cellStyle = cellStyleData;
+
+        if (cellStyleData !== null) {
+          action.cellStyle = cellStyleData;
+        }
+
         break;
 
       case "TableChanged":
@@ -150,7 +174,12 @@ async function onWorksheetChanged(event, presetName) {
 
       case "TableAdded":
         action.tableId = event.tableId;
-        [action.address, action.showHeaders] = await onTableAdded(action);
+
+        const tableInfo = await onTableAdded(action);
+
+        if (tableInfo) {
+          [action.address, action.showHeaders] = tableInfo;
+        }
         break;
 
       default:
@@ -164,16 +193,18 @@ async function onWorksheetChanged(event, presetName) {
         break;
     }
   } catch (e) {
-    warningMessage = {
-      type: "error",
-      title: "에러 발생: ",
-      body: `기록 중 예상치 못한 에러가 발생했습니다. ${e.message}`,
-    };
+    if (e instanceof Error) {
+      warningMessage = {
+        type: "error",
+        title: "에러 발생: ",
+        body: `기록 중 예상치 못한 에러가 발생했습니다. ${e.message}`,
+      };
+    }
 
     updateState("setMessageList", warningMessage);
   }
 
-  if (action.chartType === "Unknown") {
+  if (action.chartType === "Invalid") {
     warningMessage = {
       type: "warning",
       title: "지원하지 않는 차트: ",
@@ -186,7 +217,7 @@ async function onWorksheetChanged(event, presetName) {
   actions.push(action);
 }
 
-async function saveMacro(presetName) {
+async function saveMacro(presetName: string) {
   try {
     let allMacroPresets =
       await OfficeRuntime.storage.getItem("allMacroPresets");
@@ -211,21 +242,29 @@ async function saveMacro(presetName) {
 
     updateState("setMessageList", successMessage);
   } catch (error) {
-    const warningMessage = {
-      type: "warning",
-      title: "저장 실패",
-      body: `매크로 기록에 실패했습니다. ${error.message}`,
-    };
+    if (error instanceof Error) {
+      const warningMessage = {
+        type: "warning",
+        title: "저장 실패",
+        body: `매크로 기록에 실패했습니다. ${error.message}`,
+      };
 
-    updateState("setMessageList", warningMessage);
+      updateState("setMessageList", warningMessage);
+    }
   }
 }
 
-async function onChartAdded(action) {
+async function onChartAdded(action: MacroActionType) {
+  let chartId: string;
+
+  if (action.chartId) {
+    chartId = action.chartId;
+  }
+
   try {
     await Excel.run(async (context) => {
       const sheet = context.workbook.worksheets.getActiveWorksheet();
-      const chart = sheet.charts.getItem(action.chartId);
+      const chart = sheet.charts.getItem(chartId);
       const dataRange = [];
 
       chart.load([
@@ -242,19 +281,12 @@ async function onChartAdded(action) {
       if (chart.chartType) {
         for (let i = 0; i < chart.series.count; i += 1) {
           const series = chart.series.getItemAt(i);
-          let valuesDataSource;
+          let valuesDataSource: OfficeExtension.ClientResult<string> | string;
 
           try {
             valuesDataSource = series.getDimensionDataSourceString("Values");
-          } catch (error) {
-            try {
-              series.load("values");
-              await context.sync();
-
-              valuesDataSource = { value: series.values.address };
-            } catch (innerError) {
-              valuesDataSource = { value: "Unknown" };
-            }
+          } catch (e) {
+            valuesDataSource = { value: "Invalid" };
           }
 
           await context.sync();
@@ -273,7 +305,7 @@ async function onChartAdded(action) {
         updateState("setMessageList", warningMessage);
       }
 
-      action.chartType = chart.chartType || "Unknown";
+      action.chartType = chart.chartType || "Invalid";
       action.position = { top: chart.top, left: chart.left };
       action.size = { height: chart.height, width: chart.width };
       action.dataRange = dataRange.map((range) => range.address);
@@ -281,23 +313,30 @@ async function onChartAdded(action) {
       return action;
     });
   } catch (e) {
-    const warningMessage = {
-      type: "warning",
-      title: "저장 실패",
-      body: `매크로 기록에 실패했습니다. ${e.message}`,
-    };
+    if (e instanceof Error) {
+      const warningMessage = {
+        type: "warning",
+        title: "저장 실패",
+        body: `매크로 기록에 실패했습니다. ${e.message}`,
+      };
 
-    updateState("setMessageList", warningMessage);
+      updateState("setMessageList", warningMessage);
+    }
   }
 }
 
-async function onTableAdded(action) {
+async function onTableAdded(action: MacroActionType) {
   try {
-    let tableAttributes = [];
+    let tableId: string;
+    let tableAttributes: [string, boolean];
 
-    await Excel.run(async (context) => {
+    if (action.tableId) {
+      tableId = action.tableId;
+    }
+
+    tableAttributes = await Excel.run(async (context) => {
       const sheet = context.workbook.worksheets.getActiveWorksheet();
-      const table = sheet.tables.getItem(action.tableId);
+      const table = sheet.tables.getItem(tableId);
       const tableRange = table.getRange();
 
       tableRange.load("address");
@@ -305,35 +344,43 @@ async function onTableAdded(action) {
       await context.sync();
 
       const { showHeaders } = table;
-      tableAttributes = [tableRange.address.split("!")[1], showHeaders];
+
+      return (tableAttributes = [
+        tableRange.address.split("!")[1],
+        showHeaders,
+      ]);
     });
 
-    return tableAttributes;
+    if (tableAttributes) {
+      return tableAttributes;
+    }
   } catch (e) {
-    const warningMessage = {
-      type: "warning",
-      title: "저장 실패",
-      body: `매크로 기록에 실패했습니다. ${e.message}`,
-    };
+    if (e instanceof Error) {
+      const warningMessage = {
+        type: "warning",
+        title: "저장 실패",
+        body: `매크로 기록에 실패했습니다. ${e.message}`,
+      };
 
-    updateState("setMessageList", warningMessage);
+      updateState("setMessageList", warningMessage);
 
-    return null;
+      return null;
+    }
   }
 }
 
-async function macroPlay(presetName) {
+async function macroPlay(presetName: string) {
   try {
     await Excel.run(async (context) => {
-      const allMacroPresets =
+      const allMacroPresets: string =
         await OfficeRuntime.storage.getItem("allMacroPresets");
-      let warningMessage = {};
+      let warningMessage: MessageType = { type: "", title: "", body: "" };
 
       if (!allMacroPresets) {
         throw new Error("No macros found.");
       }
 
-      const parsedPresets = JSON.parse(allMacroPresets);
+      const parsedPresets: MacroPresetsType = JSON.parse(allMacroPresets);
       const presetData = parsedPresets[presetName];
 
       if (!presetData || !presetData.actions) {
@@ -347,12 +394,14 @@ async function macroPlay(presetName) {
             break;
 
           case "WorksheetFormatChanged":
-            await applyCellStyle(
-              action.address,
-              "allMacroPresets",
-              false,
-              action.cellStyle,
-            );
+            if (action.address) {
+              await applyCellStyle(
+                action.address,
+                "allMacroPresets",
+                false,
+                action.cellStyle,
+              );
+            }
             break;
 
           case "TableChanged":
@@ -392,8 +441,11 @@ async function macroPlay(presetName) {
   }
 }
 
-async function applyWorksheetChange(context, action) {
-  if (action.details && action.details.value) {
+async function applyWorksheetChange(
+  context: Excel.RequestContext,
+  action: MacroActionType,
+) {
+  if (action.details && "value" in action.details && action.details.value) {
     const sheet = context.workbook.worksheets.getActiveWorksheet();
     const range = sheet.getRange(action.address);
 
@@ -402,13 +454,20 @@ async function applyWorksheetChange(context, action) {
   }
 }
 
-async function applyTableChange(context, action) {
+async function applyTableChange(
+  context: Excel.RequestContext,
+  action: MacroActionType,
+) {
   const sheet = context.workbook.worksheets.getActiveWorksheet();
-  let warningMessage = {};
+  let warningMessage = { type: "", title: "", body: "" };
 
   switch (action.changeType) {
     case "RangeEdited":
-      if (action.details && action.details.valueAfter) {
+      if (
+        action.details &&
+        !("value" in action.details) &&
+        action.details.valueAfter
+      ) {
         const range = sheet.getRange(action.address);
         range.values = [[action.details.valueAfter]];
 
@@ -429,30 +488,52 @@ async function applyTableChange(context, action) {
   }
 }
 
-async function applyChartAdded(context, action) {
+async function applyChartAdded(
+  context: Excel.RequestContext,
+  action: MacroActionType,
+) {
   const sheet = context.workbook.worksheets.getActiveWorksheet();
-  let mergedRange = null;
+  let chartType: ChartType = "Invalid";
+  let mergedRange: string | undefined = undefined;
 
-  if (action.dataRange[0].includes(":")) {
+  if (action.chartType) {
+    chartType = action.chartType;
+  }
+
+  if (action.dataRange && action.dataRange[0].includes(":")) {
     mergedRange = `${action.dataRange[0].split(":")[0]}:${action.dataRange[action.dataRange.length - 1].split(":")[1]}`;
-  } else {
+  } else if (action.dataRange) {
     mergedRange = `${action.dataRange[0]}:${action.dataRange[action.dataRange.length - 1]}`;
   }
 
-  const chart = sheet.charts.add(action.chartType, sheet.getRange(mergedRange));
+  const chart = sheet.charts.add(chartType, sheet.getRange(mergedRange));
 
-  chart.top = action.position.top;
-  chart.left = action.position.left;
-  chart.height = action.size.height;
-  chart.width = action.size.width;
+  if (action.position) {
+    chart.top = action.position.top;
+    chart.left = action.position.left;
+  }
+
+  if (action.size) {
+    chart.height = action.size.height;
+    chart.width = action.size.width;
+  }
 
   await context.sync();
 }
 
-async function applyTableAdded(context, action) {
+async function applyTableAdded(
+  context: Excel.RequestContext,
+  action: MacroActionType,
+) {
   const sheet = context.workbook.worksheets.getActiveWorksheet();
 
-  sheet.tables.add(action.address);
+  if (action.address) {
+    sheet.tables.add(
+      action.address,
+      action.showHeaders ? action.showHeaders : true,
+    );
+  }
+
   await context.sync();
 }
 
