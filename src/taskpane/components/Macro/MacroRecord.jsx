@@ -3,6 +3,7 @@ import { Button } from "@fluentui/react-components";
 
 import { useStyles } from "../../utils/style";
 import useStore from "../../utils/store";
+import CustomDropdown from "../common/CustomDropdown";
 import {
   SaveIcon,
   DeleteIcon,
@@ -10,7 +11,6 @@ import {
   RecordStop,
   PlusIcon,
 } from "../../utils/icons";
-import CustomDropdown from "../common/CustomDropdown";
 import {
   addPreset,
   deletePreset,
@@ -20,13 +20,11 @@ import { manageRecording, macroPlay } from "../../utils/macroFuncs";
 
 function MacroRecord() {
   const [macroPresets, setMacroPresets] = useState([]);
+  const isRecording = useStore((state) => state.isRecording);
+  const setIsRecording = useStore((state) => state.setIsRecording);
+  const selectMacroPreset = useStore((state) => state.selectMacroPreset);
+  const setSelectMacroPreset = useStore((state) => state.setSelectMacroPreset);
   const styles = useStyles();
-  const {
-    isRecording,
-    setIsRecording,
-    selectMacroPreset,
-    setSelectMacroPreset,
-  } = useStore();
 
   useEffect(() => {
     async function fetchPresets() {
@@ -109,6 +107,7 @@ function MacroRecord() {
             onClick={newPreset}
             className={styles.buttons}
             aria-label="plus"
+            type="button"
           >
             <PlusIcon />
           </button>
@@ -125,6 +124,7 @@ function MacroRecord() {
             onClick={handleDeletePreset}
             className={styles.buttons}
             aria-label="delete"
+            type="button"
           >
             <DeleteIcon />
           </button>
@@ -132,6 +132,7 @@ function MacroRecord() {
             onClick={() => {}}
             className={styles.buttons}
             aria-label="save"
+            type="button"
           >
             <SaveIcon />
           </button>
@@ -151,6 +152,7 @@ function MacroRecord() {
           onClick={controlMacroRecording}
           className={styles.buttons}
           aria-label="record"
+          type="button"
         >
           {isRecording ? <RecordStop /> : <RecordStart color="red" />}
         </button>

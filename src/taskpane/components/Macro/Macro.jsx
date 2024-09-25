@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import useStore from "../../utils/store";
 import FeatureTab from "../common/FeatureTab";
@@ -7,7 +7,8 @@ import MacroSetting from "./MacroSetting";
 import MacroNoticeBar from "./MacroNoticeBar";
 
 function Macro() {
-  const { openTab, setOpenTab } = useStore();
+  const openTab = useStore((state) => state.openTab);
+  const setOpenTab = useStore((state) => state.setOpenTab);
   const [isShowNoticeBar, setIsShowNoticeBar] = useState(true);
   const features = [
     {
@@ -20,9 +21,9 @@ function Macro() {
     },
   ];
 
-  function handToggle(event, data) {
+  const handToggle = useCallback((event, data) => {
     setOpenTab(data.openItems);
-  }
+  }, []);
 
   return (
     <>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button, Input, Divider } from "@fluentui/react-components";
 
 import useStore from "../../utils/store";
@@ -10,10 +10,10 @@ import {
 } from "../../utils/cellCommonUtils";
 
 function MacroSetting() {
-  const { selectMacroPreset } = useStore();
   const [storedMacro, setStoredMacro] = useState([]);
   const [modifiedActions, setModifiedActions] = useState({});
   const [selectChartType, setSelectChartType] = useState("");
+  const selectMacroPreset = useStore((state) => state.selectMacroPreset);
 
   useEffect(() => {
     async function fetchMacroPresets() {
@@ -43,7 +43,7 @@ function MacroSetting() {
     return mergedRange;
   }
 
-  function eachAction(action, index) {
+  function renderActionType(action, index) {
     let actionContent = null;
 
     switch (action.type) {
@@ -187,7 +187,7 @@ function MacroSetting() {
     });
   }
 
-  async function applyChanges() {
+  const applyChanges = useCallback(async () => {
     const updatedActions = storedMacro.map((action, index) => {
       const modifiedAction = modifiedActions[index] || {};
 
@@ -217,7 +217,7 @@ function MacroSetting() {
       "allMacroPresets",
       JSON.stringify(allMacroPresets),
     );
-  }
+  }, [storedMacro, modifiedActions]);
 
   return (
     <>
@@ -227,7 +227,7 @@ function MacroSetting() {
           변경사항 적용
         </Button>
       </div>
-      {storedMacro.map((action, index) => eachAction(action, index))}
+      {storedMacro.map((action, index) => renderActionType(action, index))}
     </>
   );
 }
