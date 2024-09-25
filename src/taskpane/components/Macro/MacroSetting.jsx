@@ -7,7 +7,7 @@ import chartTypeList from "../../utils/chartTypeList";
 import {
   getChartTypeInKorean,
   getChartTypeInEnglish,
-} from "../../utils/cellCommonUtils";
+} from "../../utils/commonFuncs";
 
 function MacroSetting() {
   const [storedMacro, setStoredMacro] = useState([]);

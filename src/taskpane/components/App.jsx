@@ -12,7 +12,7 @@ import {
   activeSheetId,
   registerSelectionChange,
   getCellValue,
-} from "../utils/cellCommonUtils";
+} from "../utils/commonFuncs";
 import CustomMessageBar from "./common/CustomMessageBar";
 
 function App() {

@@ -11,7 +11,7 @@ import useStore from "../taskpane/utils/store";
 import {
   extractAddresses,
   evaluateTestFormula,
-} from "../taskpane/utils/cellCommonUtils";
+} from "../taskpane/utils/commonFuncs";
 import {
   groupCellsIntoRanges,
   parseFormulaSteps,

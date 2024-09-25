@@ -10,7 +10,7 @@ import {
   saveCellStylePreset,
   loadCellStylePreset,
 } from "../taskpane/utils/cellStyleFunc";
-import * as cellCommonUtils from "../taskpane/utils/cellCommonUtils";
+import * as cellCommonUtils from "../taskpane/utils/commonFuncs";
 
 const mockChart = {
   load: vi.fn(),

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Switch } from "@fluentui/react-components";
 
-import { getLastCellAddress } from "../../utils/cellCommonUtils";
+import { getLastCellAddress } from "../../utils/commonFuncs";
 import { detectErrorCell } from "../../utils/cellStyleFunc";
 
 function ValidateTest() {

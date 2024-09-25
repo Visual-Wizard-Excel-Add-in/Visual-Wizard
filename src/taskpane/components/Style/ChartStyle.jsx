@@ -4,7 +4,7 @@ import { Button } from "@fluentui/react-components";
 import { useStyles } from "../../utils/style";
 import CustomDropdown from "../common/CustomDropdown";
 import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
-import { addPreset, deletePreset } from "../../utils/cellCommonUtils";
+import { addPreset, deletePreset } from "../../utils/commonFuncs";
 import {
   saveChartStylePreset,
   loadChartStylePreset,

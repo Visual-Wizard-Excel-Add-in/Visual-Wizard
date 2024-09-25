@@ -12,7 +12,7 @@ import {
   addPreset,
   deletePreset,
   updateState,
-} from "../taskpane/utils/cellCommonUtils";
+} from "../taskpane/utils/commonFuncs";
 import { manageRecording, macroPlay } from "../taskpane/utils/macroFuncs";
 import { vi } from "vitest";
 

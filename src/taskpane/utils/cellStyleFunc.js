@@ -1,4 +1,4 @@
-import { extractArgsAddress, updateState } from "./cellCommonUtils";
+import { extractArgsAddress, updateState } from "./commonFuncs";
 
 async function storeCellStyle(cellAddress, allPresets, isCellHighlighting) {
   let cellStyleToReturn = null;

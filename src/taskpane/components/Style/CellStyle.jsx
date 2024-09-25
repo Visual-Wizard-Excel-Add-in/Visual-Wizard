@@ -9,7 +9,7 @@ import {
   saveCellStylePreset,
   loadCellStylePreset,
 } from "../../utils/cellStyleFunc";
-import { addPreset, deletePreset } from "../../utils/cellCommonUtils";
+import { addPreset, deletePreset } from "../../utils/commonFuncs";
 
 function CellStyle() {
   const [cellStylePresets, setCellStylePresets] = useState([]);

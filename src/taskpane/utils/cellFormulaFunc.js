@@ -2,7 +2,7 @@ import {
   extractAddresses,
   splitCellAddress,
   getCellsInRange,
-} from "./cellCommonUtils";
+} from "./commonFuncs";
 import ProgressGraph from "./ProgressGraph";
 
 async function parseFormulaSteps() {

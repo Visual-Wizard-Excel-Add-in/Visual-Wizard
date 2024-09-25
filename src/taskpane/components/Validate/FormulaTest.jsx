@@ -2,10 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Button, Input, Divider } from "@fluentui/react-components";
 
 import useStore from "../../utils/store";
-import {
-  extractAddresses,
-  evaluateTestFormula,
-} from "../../utils/cellCommonUtils";
+import { extractAddresses, evaluateTestFormula } from "../../utils/commonFuncs";
 import {
   groupCellsIntoRanges,
   parseFormulaSteps,

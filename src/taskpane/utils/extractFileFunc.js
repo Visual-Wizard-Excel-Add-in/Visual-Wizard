@@ -1,4 +1,4 @@
-import { updateState } from "./cellCommonUtils";
+import { updateState } from "./commonFuncs";
 
 async function executeFunction(selectedOption) {
   try {
@@ -15,6 +15,8 @@ async function executeFunction(selectedOption) {
         sheet.delete();
         await context.sync();
       }
+
+      var a = 1;
 
       sheet = context.workbook.worksheets.add(sheetName);
       await context.sync();

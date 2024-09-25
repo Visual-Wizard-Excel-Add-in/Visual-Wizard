@@ -12,7 +12,7 @@ import {
   saveCellStylePreset,
   loadCellStylePreset,
 } from "../taskpane/utils/cellStyleFunc";
-import { addPreset, deletePreset } from "../taskpane/utils/cellCommonUtils";
+import { addPreset, deletePreset } from "../taskpane/utils/commonFuncs";
 
 vi.mock("../taskpane/utils/store");
 vi.mock("../taskpane/utils/cellCommonUtils");

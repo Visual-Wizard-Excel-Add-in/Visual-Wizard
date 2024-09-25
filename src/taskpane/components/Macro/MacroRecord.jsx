@@ -11,11 +11,7 @@ import {
   RecordStop,
   PlusIcon,
 } from "../../utils/icons";
-import {
-  addPreset,
-  deletePreset,
-  updateState,
-} from "../../utils/cellCommonUtils";
+import { addPreset, deletePreset, updateState } from "../../utils/commonFuncs";
 import { manageRecording, macroPlay } from "../../utils/macroFuncs";
 
 function MacroRecord() {

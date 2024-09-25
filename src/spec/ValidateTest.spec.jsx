@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 
 import ValidateTest from "../taskpane/components/Validate/ValidateTest";
-import { getLastCellAddress } from "../taskpane/utils/cellCommonUtils";
+import { getLastCellAddress } from "../taskpane/utils/commonFuncs";
 import { detectErrorCell } from "../taskpane/utils/cellStyleFunc";
 
 global.Excel = {

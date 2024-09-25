@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import useStore from "../../utils/store";
 import { highlightingCell } from "../../utils/cellStyleFunc";
 import { groupCellsIntoRanges } from "../../utils/cellFormulaFunc";
-import { extractAddresses } from "../../utils/cellCommonUtils";
+import { extractAddresses } from "../../utils/commonFuncs";
 
 function FormulaAttribute() {
   const isCellHighlighting = useStore((state) => state.isCellHighlighting);

@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import * as originalCellCommonUtils from "../taskpane/utils/cellCommonUtils";
+import * as originalCellCommonUtils from "../taskpane/utils/commonFuncs";
 import useStore from "../taskpane/utils/store";
 
 const mockExcel = {
