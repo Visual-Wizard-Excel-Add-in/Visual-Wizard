@@ -13,7 +13,8 @@ import useStore from "../../utils/store";
 import { useStyles } from "../../utils/style";
 
 function CustomMessageBar() {
-  const { messageList, removeMessage } = useStore();
+  const messageList = useStore((state) => state.messageList);
+  const removeMessage = useStore((state) => state.removeMessage);
   const styles = useStyles();
   const messageId = useId();
 
