@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button } from "@fluentui/react-components";
 
+import CustomDropdown from "../common/CustomDropdown";
 import useStore from "../../utils/store";
 import { useStyles } from "../../utils/style";
-import CustomDropdown from "../common/CustomDropdown";
 import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
 import {
   saveCellStylePreset,
@@ -12,9 +12,12 @@ import {
 import { addPreset, deletePreset } from "../../utils/cellCommonUtils";
 
 function CellStyle() {
-  const styles = useStyles();
-  const { selectedStylePreset, setSelectedStylePreset } = useStore();
   const [cellStylePresets, setCellStylePresets] = useState([]);
+  const selectedStylePreset = useStore((state) => state.selectedStylePreset);
+  const setSelectedStylePreset = useStore(
+    (state) => state.setSelectedStylePreset,
+  );
+  const styles = useStyles();
 
   useEffect(() => {
     async function fetchPresets() {
@@ -28,7 +31,7 @@ function CellStyle() {
     }
 
     fetchPresets();
-  }, []);
+  }, [selectedStylePreset]);
 
   async function loadPresets() {
     let presets = await OfficeRuntime.storage.getItem("cellStylePresets");
@@ -89,6 +92,7 @@ function CellStyle() {
           onClick={newPreset}
           className={styles.buttons}
           aria-label="plus"
+          type="button"
         >
           <PlusIcon />
         </button>
@@ -105,6 +109,7 @@ function CellStyle() {
           className={styles.buttons}
           onClick={handleDeletePreset}
           aria-label="delete"
+          type="button"
         >
           <DeleteIcon />
         </button>
@@ -112,6 +117,7 @@ function CellStyle() {
           onClick={() => saveCellStylePreset(selectedStylePreset)}
           className={styles.buttons}
           aria-label="save"
+          type="button"
         >
           <SaveIcon />
         </button>

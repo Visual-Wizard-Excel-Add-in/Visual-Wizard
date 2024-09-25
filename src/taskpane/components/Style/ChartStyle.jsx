@@ -11,9 +11,9 @@ import {
 } from "../../utils/cellStyleFunc";
 
 function ChartStyle() {
-  const styles = useStyles();
   const [selectedChartPreset, setSelectedChartPreset] = useState("");
   const [chartStylePresets, setChartStylePresets] = useState([]);
+  const styles = useStyles();
 
   useEffect(() => {
     async function fetchPresets() {
@@ -81,6 +81,7 @@ function ChartStyle() {
           onClick={newPreset}
           className={styles.buttons}
           aria-label="plus"
+          type="button"
         >
           <PlusIcon />
         </button>
@@ -97,6 +98,7 @@ function ChartStyle() {
           onClick={handleDeletePreset}
           className={styles.buttons}
           aria-label="delete"
+          type="button"
         >
           <DeleteIcon />
         </button>
@@ -106,6 +108,7 @@ function ChartStyle() {
           }
           className={styles.buttons}
           aria-label="save"
+          type="button"
         >
           <SaveIcon />
         </button>
