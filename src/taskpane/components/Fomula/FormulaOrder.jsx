@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Button } from "@fluentui/react-components";
+import { v4 as uuidv4 } from "uuid";
 
 import useStore from "../../utils/store";
 import CustomPopover from "../common/CustomPopover";
@@ -38,7 +39,7 @@ function FormulaOrder() {
       const func = step.functionName;
       const description = <FormulaOrderDescription step={step} />;
       return (
-        <div key={`${step.address}-${step.functionName}}`}>
+        <div key={uuidv4()}>
           <span>{index + 1}. </span>
           <CustomPopover
             position="after"

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button, Input, Divider } from "@fluentui/react-components";
+import { v4 as uuidv4 } from "uuid";
 
 import useStore from "../../utils/store";
 import CustomDropdown from "../common/CustomDropdown";
@@ -49,10 +50,7 @@ function MacroSetting() {
     switch (action.type) {
       case "WorksheetChanged":
         actionContent = (
-          <div
-            key={`sheetChanged-${action.address}-${action.details.value}`}
-            className="mb-3"
-          >
+          <div className="mb-3">
             <p className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
               {index + 1}. 셀 내용 변경
             </p>
@@ -78,10 +76,7 @@ function MacroSetting() {
 
       case "WorksheetFormatChanged":
         actionContent = (
-          <span
-            key={`sheetFormatChanged-${action.address}-${index}`}
-            className="text-base font-bold bg-green-500 bg-opacity-20"
-          >
+          <span className="text-base font-bold bg-green-500 bg-opacity-20">
             {index + 1}. 셀 서식 변경
           </span>
         );
@@ -89,10 +84,7 @@ function MacroSetting() {
 
       case "TableChanged":
         actionContent = (
-          <span
-            key={`tableChanged-${action.tableId}-${index}`}
-            className="text-base font-bold bg-green-500 bg-opacity-20"
-          >
+          <span className="text-base font-bold bg-green-500 bg-opacity-20">
             {index + 1}. 테이블 변경
           </span>
         );
@@ -100,7 +92,7 @@ function MacroSetting() {
 
       case "ChartAdded":
         actionContent = (
-          <div key={`chartAdded-${action.chartId}-${index}`}>
+          <div>
             <p className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
               {index + 1}. 차트 추가
             </p>
@@ -139,7 +131,7 @@ function MacroSetting() {
 
       case "TableAdded":
         actionContent = (
-          <div key={`TableAdded-${action.tableId}-${index}`}>
+          <div>
             <div className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
               {index + 1}. 표 추가
             </div>
@@ -159,7 +151,7 @@ function MacroSetting() {
     }
 
     return (
-      <div>
+      <div key={uuidv4()}>
         {actionContent}
         <Divider className="my-2" appearance="strong" />
       </div>

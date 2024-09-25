@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 import useStore from "../../utils/store";
 import FeatureTab from "../common/FeatureTab";
@@ -27,7 +28,7 @@ function Style() {
     <div className="mt-2">
       {features.map((feature, index) => (
         <FeatureTab
-          key={feature.name}
+          key={uuidv4()}
           order={String(index + 1)}
           featureName={feature.name}
           openTab={openTab}
