@@ -9,6 +9,7 @@ function ValidateTest() {
   const [lastCell, setLastCell] = useState("");
 
   useEffect(() => {
+    let selectionChangeHandler = null;
     const fetchLastCellAddress = async () => {
       const address = await getLastCellAddress();
 
@@ -18,15 +19,20 @@ function ValidateTest() {
     fetchLastCellAddress();
 
     Excel.run(async (context) => {
-      context.workbook.worksheets.onSelectionChanged.add(fetchLastCellAddress);
+      selectionChangeHandler =
+        context.workbook.worksheets.onSelectionChanged.add(
+          fetchLastCellAddress,
+        );
       await context.sync();
     });
 
     return async () => {
-      await Excel.run(fetchLastCellAddress.context, async (context) => {
-        fetchLastCellAddress.remove();
+      await Excel.run(selectionChangeHandler.context, async (context) => {
+        selectionChangeHandler.remove();
         await context.sync();
       });
+
+      selectionChangeHandler = null;
     };
   }, []);
 
