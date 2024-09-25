@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Switch } from "@fluentui/react-components";
 
 import { getLastCellAddress } from "../../utils/cellCommonUtils";
@@ -30,19 +30,14 @@ function ValidateTest() {
     };
   }, []);
 
-  async function highlightError() {
+  const highlightError = useCallback(async () => {
     await detectErrorCell(isError);
     setIsError((prev) => !prev);
-  }
+  }, [isError]);
 
   return (
     <div>
-      <Switch
-        label="에러 셀 검사"
-        onChange={() => {
-          highlightError();
-        }}
-      />
+      <Switch label="에러 셀 검사" onChange={highlightError} />
       <p>
         사용중인 마지막 셀 영역:&nbsp;
         <span className="font-bold">{lastCell}</span>

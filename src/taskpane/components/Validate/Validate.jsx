@@ -1,10 +1,13 @@
+import { useCallback } from "react";
+
 import useStore from "../../utils/store";
 import FeatureTab from "../common/FeatureTab";
 import ValidateTest from "./ValidateTest";
 import FormulaTest from "./FormulaTest";
 
 function Validate() {
-  const { openTab, setOpenTab } = useStore();
+  const openTab = useStore((state) => state.openTab);
+  const setOpenTab = useStore((state) => state.setOpenTab);
   const features = [
     {
       name: "유효성 검사",
@@ -16,9 +19,9 @@ function Validate() {
     },
   ];
 
-  function handToggle(event, data) {
+  const handToggle = useCallback((event, data) => {
     setOpenTab(data.openItems);
-  }
+  }, []);
 
   return (
     <div className="mt-2">
