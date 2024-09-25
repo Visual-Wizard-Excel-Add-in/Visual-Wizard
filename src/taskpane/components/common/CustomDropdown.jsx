@@ -1,4 +1,5 @@
 import { Dropdown, Option, OptionGroup } from "@fluentui/react-components";
+import { useCallback } from "react";
 import { useStyles } from "../../utils/style";
 
 function CustomDropdown({
@@ -9,10 +10,13 @@ function CustomDropdown({
 }) {
   const styles = useStyles();
 
-  function handleChange(event, value) {
-    event.stopPropagation();
-    handleValue(value.optionText);
-  }
+  const handleChange = useCallback(
+    (event, value) => {
+      event.stopPropagation();
+      handleValue(value.optionText);
+    },
+    [handleValue],
+  );
 
   const groupedOptions = options.reduce((acc, option) => {
     const label = option.label || "";
