@@ -17,7 +17,10 @@ import CustomMessageBar from "./common/CustomMessageBar";
 
 function App() {
   const styles = useStyles();
-  const { category, sheetId, setSheetId, messageList } = useStore();
+  const category = useStore((state) => state.category);
+  const sheetId = useStore((state) => state.sheetId);
+  const setSheetId = useStore((state) => state.setSheetId);
+  const messageList = useStore((state) => state.messageList);
 
   const categories = {
     Formula: <Formula />,

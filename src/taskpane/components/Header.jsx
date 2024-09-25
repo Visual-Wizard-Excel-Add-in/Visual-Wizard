@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { Tab, TabList } from "@fluentui/react-components";
 
 import useStore from "../utils/store";
@@ -5,12 +6,13 @@ import { useStyles } from "../utils/style";
 
 function Header() {
   const styles = useStyles();
-  const { setCategory, setOpenTab } = useStore();
+  const setCategory = useStore((state) => state.setCategory);
+  const setOpenTab = useStore((state) => state.setOpenTab);
 
-  function selectCategory(event, data) {
+  const selectCategory = useCallback((event, data) => {
     setCategory(data.value);
     setOpenTab([]);
-  }
+  }, []);
 
   return (
     <div className={`sticky top-0 z-10 ${styles.list}`}>
