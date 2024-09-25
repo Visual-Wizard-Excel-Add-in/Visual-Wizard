@@ -47,6 +47,7 @@ module.exports = {
     "no-use-before-define": ["warn", { functions: false, variables: true }],
     "no-param-reassign": 0,
     "global-require": 0,
+    "react/prop-types": "off",
     "no-underscore-dangle": "off",
     "no-restricted-syntax": "off",
     "no-cond-assign": "off",
