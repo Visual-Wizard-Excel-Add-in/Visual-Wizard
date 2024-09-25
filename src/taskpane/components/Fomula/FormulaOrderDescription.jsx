@@ -95,6 +95,7 @@ function FormulaOrderDescription({ step }) {
                   <button
                     className={styles.blurText}
                     onClick={() => setIsExpandedTrueValue(!isExpandedTrueValue)}
+                    type="button"
                   >
                     {isExpandedTrueValue ? "[간략히]" : "[더보기]"}
                   </button>
@@ -114,6 +115,7 @@ function FormulaOrderDescription({ step }) {
                     onClick={() =>
                       setIsExpandedFalseValue(!isExpandedFalseValue)
                     }
+                    type="button"
                   >
                     {isExpandedFalseValue ? "[간략히]" : "[더보기]"}
                   </button>
@@ -155,6 +157,7 @@ function FormulaOrderDescription({ step }) {
           <button
             className={styles.blurText}
             onClick={() => setIsExpandedFormula(!isExpandedFormula)}
+            type="button"
           >
             {isExpandedFormula ? "[간략히]" : "[더보기]"}
           </button>
