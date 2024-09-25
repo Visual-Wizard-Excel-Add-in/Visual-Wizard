@@ -6,7 +6,8 @@ import FormulaAttribute from "./FormulaAttribute";
 import FormulaOrder from "./FormulaOrder";
 
 function Fomula() {
-  const { openTab, setOpenTab } = useStore();
+  const openTab = useStore((state) => state.openTab);
+  const setOpenTab = useStore((state) => state.setOpenTab);
   const features = [
     {
       name: "정보",

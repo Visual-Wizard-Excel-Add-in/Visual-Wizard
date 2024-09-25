@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import { useStyles } from "../../utils/style";
 
 function FormulaOrderDescription({ step }) {
@@ -35,6 +36,7 @@ function FormulaOrderDescription({ step }) {
           <button
             className={styles.blurText}
             onClick={() => setIsExpanded(!isExpanded)}
+            type="button"
           >
             {isExpanded ? "[간략히]" : "[더보기]"}
           </button>
@@ -51,6 +53,7 @@ function FormulaOrderDescription({ step }) {
           <button
             className={styles.blurText}
             onClick={() => setIsExpanded(!isExpanded)}
+            type="button"
           >
             {isExpanded ? "[간략히]" : "[더보기]"}
           </button>

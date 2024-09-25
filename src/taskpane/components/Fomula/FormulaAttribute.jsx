@@ -7,15 +7,15 @@ import { groupCellsIntoRanges } from "../../utils/cellFormulaFunc";
 import { extractAddresses } from "../../utils/cellCommonUtils";
 
 function FormulaAttribute() {
-  const {
-    isCellHighlighting,
-    setIsCellHighlighting,
-    cellFormula,
-    cellArguments,
-    cellAddress,
-    cellValue,
-    cellFunctions,
-  } = useStore();
+  const isCellHighlighting = useStore((state) => state.isCellHighlighting);
+  const setIsCellHighlighting = useStore(
+    (state) => state.setIsCellHighlighting,
+  );
+  const cellFormula = useStore((state) => state.cellFormula);
+  const cellArguments = useStore((state) => state.cellArguments);
+  const cellAddress = useStore((state) => state.cellAddress);
+  const cellValue = useStore((state) => state.cellValue);
+  const cellFunctions = useStore((state) => state.cellFunctions);
 
   const handleHighlighting = useCallback(async () => {
     const newHighlightState = !isCellHighlighting;

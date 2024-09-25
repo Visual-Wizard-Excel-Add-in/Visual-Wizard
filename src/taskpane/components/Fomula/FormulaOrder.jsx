@@ -1,13 +1,15 @@
 import { useEffect } from "react";
 import { Button } from "@fluentui/react-components";
 
-import { parseFormulaSteps } from "../../utils/cellFormulaFunc";
 import useStore from "../../utils/store";
 import CustomPopover from "../common/CustomPopover";
 import FormulaOrderDescription from "./FormulaOrderDescription";
+import { parseFormulaSteps } from "../../utils/cellFormulaFunc";
 
 function FormulaOrder() {
-  const { cellFormula, formulaSteps, setFormulaSteps } = useStore();
+  const cellFormula = useStore((state) => state.cellFormula);
+  const formulaSteps = useStore((state) => state.formulaSteps);
+  const setFormulaSteps = useStore((state) => state.setFormulaSteps);
 
   useEffect(() => {
     async function fetchFormulaSteps() {
