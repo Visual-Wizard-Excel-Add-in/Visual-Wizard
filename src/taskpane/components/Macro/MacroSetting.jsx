@@ -23,7 +23,7 @@ function MacroSetting() {
       if (data) {
         const parsedData = JSON.parse(data);
 
-        setStoredMacro(parsedData[selectMacroPreset].actions || []);
+        setStoredMacro(parsedData[selectMacroPreset]?.actions || []);
       } else {
         setStoredMacro([]);
       }
