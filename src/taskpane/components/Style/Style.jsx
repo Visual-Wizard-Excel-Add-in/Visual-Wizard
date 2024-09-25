@@ -20,7 +20,7 @@ function Style() {
     },
   ];
 
-  const handToggle = useCallback((event, data) => {
+  const handleToggle = useCallback((event, data) => {
     setOpenTab(data.openItems);
   }, []);
 
@@ -32,7 +32,7 @@ function Style() {
           order={String(index + 1)}
           featureName={feature.name}
           openTab={openTab}
-          handToggle={handToggle}
+          handleToggle={handleToggle}
           featureContents={feature.component}
         />
       ))}

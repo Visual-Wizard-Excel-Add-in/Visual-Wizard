@@ -12,7 +12,7 @@ function FeatureTab({
   order,
   featureName,
   openTab,
-  handToggle,
+  handleToggle,
   featureContents: FeatureContents,
   currentFormula,
 }) {
@@ -26,7 +26,7 @@ function FeatureTab({
   }
 
   return (
-    <Accordion openItems={openTab} onToggle={handToggle} multiple collapsible>
+    <Accordion openItems={openTab} onToggle={handleToggle} multiple collapsible>
       <AccordionItem value={order}>
         <AccordionHeader className={`${accordionBackgroundColor()} h-7`}>
           {featureName}

@@ -336,8 +336,6 @@ async function macroPlay(presetName) {
       const parsedPresets = JSON.parse(allMacroPresets);
       const presetData = parsedPresets[presetName];
 
-      console.log(presetData);
-
       if (!presetData || !presetData.actions) {
         throw new Error(`No actions found for preset: ${presetName}`);
       }

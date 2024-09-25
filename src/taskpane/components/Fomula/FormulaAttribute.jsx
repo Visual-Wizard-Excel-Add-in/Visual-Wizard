@@ -1,5 +1,5 @@
-import { Switch } from "@fluentui/react-components";
 import { useCallback } from "react";
+import { Switch } from "@fluentui/react-components";
 
 import useStore from "../../utils/store";
 import { highlightingCell } from "../../utils/cellStyleFunc";
