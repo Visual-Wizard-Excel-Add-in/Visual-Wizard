@@ -16,10 +16,13 @@ import { manageRecording, macroPlay } from "../../utils/macroFuncs";
 
 function MacroRecord() {
   const [macroPresets, setMacroPresets] = useState([]);
-  const isRecording = useStore((state) => state.isRecording);
-  const setIsRecording = useStore((state) => state.setIsRecording);
-  const selectMacroPreset = useStore((state) => state.selectMacroPreset);
-  const setSelectMacroPreset = useStore((state) => state.setSelectMacroPreset);
+  const [isRecording, setIsRecording, selectMacroPreset, setSelectMacroPreset] =
+    useStore((state) => [
+      state.isRecording,
+      state.setIsRecording,
+      state.selectMacroPreset,
+      state.setSelectMacroPreset,
+    ]);
   const styles = useStyles();
 
   useEffect(() => {

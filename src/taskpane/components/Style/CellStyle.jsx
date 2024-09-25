@@ -13,10 +13,10 @@ import { addPreset, deletePreset } from "../../utils/commonFuncs";
 
 function CellStyle() {
   const [cellStylePresets, setCellStylePresets] = useState([]);
-  const selectedStylePreset = useStore((state) => state.selectedStylePreset);
-  const setSelectedStylePreset = useStore(
-    (state) => state.setSelectedStylePreset,
-  );
+  const [selectedStylePreset, setSelectedStylePreset] = useStore((state) => [
+    state.selectedStylePreset,
+    state.setSelectedStylePreset,
+  ]);
   const styles = useStyles();
 
   useEffect(() => {

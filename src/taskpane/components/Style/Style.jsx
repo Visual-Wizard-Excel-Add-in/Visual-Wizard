@@ -7,8 +7,10 @@ import CellStyle from "./CellStyle";
 import ChartStyle from "./ChartStyle";
 
 function Style() {
-  const openTab = useStore((state) => state.openTab);
-  const setOpenTab = useStore((state) => state.setOpenTab);
+  const [openTab, setOpenTab] = useStore((state) => [
+    state.openTab,
+    state.setOpenTab,
+  ]);
   const features = [
     {
       name: "셀 서식",

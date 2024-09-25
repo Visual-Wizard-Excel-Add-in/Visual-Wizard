@@ -8,9 +8,11 @@ import FormulaOrderDescription from "./FormulaOrderDescription";
 import { parseFormulaSteps } from "../../utils/cellFormulaFunc";
 
 function FormulaOrder() {
-  const cellFormula = useStore((state) => state.cellFormula);
-  const formulaSteps = useStore((state) => state.formulaSteps);
-  const setFormulaSteps = useStore((state) => state.setFormulaSteps);
+  const [cellFormula, formulaSteps, setFormulaSteps] = useStore((state) => [
+    state.cellFormula,
+    state.formulaSteps,
+    state.setFormulaSteps,
+  ]);
 
   useEffect(() => {
     async function fetchFormulaSteps() {

@@ -8,8 +8,10 @@ import MacroSetting from "./MacroSetting";
 import MacroNoticeBar from "./MacroNoticeBar";
 
 function Macro() {
-  const openTab = useStore((state) => state.openTab);
-  const setOpenTab = useStore((state) => state.setOpenTab);
+  const [openTab, setOpenTab] = useStore((state) => [
+    state.openTab,
+    state.setOpenTab,
+  ]);
   const [isShowNoticeBar, setIsShowNoticeBar] = useState(true);
   const features = [
     {

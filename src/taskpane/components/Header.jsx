@@ -6,8 +6,10 @@ import { useStyles } from "../utils/style";
 
 function Header() {
   const styles = useStyles();
-  const setCategory = useStore((state) => state.setCategory);
-  const setOpenTab = useStore((state) => state.setOpenTab);
+  const [setCategory, setOpenTab] = useStore((state) => [
+    state.setCategory,
+    state.setOpenTab,
+  ]);
 
   const selectCategory = useCallback((event, data) => {
     setCategory(data.value);

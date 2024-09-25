@@ -13,9 +13,11 @@ function FormulaTest() {
   const [args, setArgs] = useState([]);
   const [inputValues, setInputValues] = useState({});
   const [testResult, setTestResult] = useState(null);
-  const cellFormula = useStore((state) => state.cellFormula);
-  const cellValue = useStore((state) => state.cellValue);
-  const cellArguments = useStore((state) => state.cellArguments);
+  const [cellFormula, cellValue, cellArguments] = useStore((state) => [
+    state.cellFormula,
+    state.cellValue,
+    state.cellArguments,
+  ]);
 
   useEffect(() => {
     const fetchArgs = async () => {

@@ -7,8 +7,10 @@ import ValidateTest from "./ValidateTest";
 import FormulaTest from "./FormulaTest";
 
 function Validate() {
-  const openTab = useStore((state) => state.openTab);
-  const setOpenTab = useStore((state) => state.setOpenTab);
+  const [openTab, setOpenTab] = useStore((state) => [
+    state.openTab,
+    state.setOpenTab,
+  ]);
   const features = [
     {
       name: "유효성 검사",
