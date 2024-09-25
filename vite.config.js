@@ -1,37 +1,26 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import { createHtmlPlugin } from "vite-plugin-html";
+import react from "@vitejs/plugin-react";
 import path from "path";
 
-const urlDev = "https://localhost:3000/";
-const urlProd = "https://visual-wizard.netlify.app/";
-
-export default defineConfig(async ({ mode }) => {
-  const dev = mode === "development";
-  const isNetlify = process.env.VITE_NETLIFY === "true";
-
-  let httpsOptions;
-  if (!isNetlify) {
-    const { getHttpsServerOptions: getLocalHttpsOptions } = await import(
-      "office-addin-dev-certs"
-    );
-    httpsOptions = await getLocalHttpsOptions();
-  }
+export default defineConfig(async () => {
+  const { getHttpsServerOptions: getLocalHttpsOptions } = await import(
+    "office-addin-dev-certs"
+  );
+  const httpsOptions = await getLocalHttpsOptions();
 
   return {
     plugins: [
       createHtmlPlugin({
-        minify: !dev,
+        minify: false,
         pages: [
           {
             filename: "index.html",
             template: "src/index.html",
             injectOptions: {
               data: {
-                injectScripts: dev
-                  ? ["/polyfill.js", "/vendor.js", "/index.js"]
-                  : ["/polyfill.js", "/vendor.js", "/index.js"],
+                injectScripts: ["/polyfill.js", "/vendor.js", "/index.js"],
               },
             },
           },
@@ -40,9 +29,7 @@ export default defineConfig(async ({ mode }) => {
             template: "src/taskpane/taskpane.html",
             injectOptions: {
               data: {
-                injectScripts: dev
-                  ? ["/polyfill.js", "/vendor.js", "/taskpane.js"]
-                  : ["/polyfill.js", "/vendor.js", "/taskpane.js"],
+                injectScripts: ["/polyfill.js", "/vendor.js", "/taskpane.js"],
               },
             },
           },
@@ -57,21 +44,10 @@ export default defineConfig(async ({ mode }) => {
           {
             src: "manifest*.xml",
             dest: "",
-            transform: (content) =>
-              dev
-                ? content
-                : content.toString().replace(new RegExp(urlDev, "g"), urlProd),
+            transform: (content) => content,
           },
         ],
       }),
-
-      {
-        name: "debug-plugin",
-        resolveId(source) {
-          console.log("Resolving:", source);
-          return null;
-        },
-      },
     ],
 
     build: {
@@ -94,7 +70,7 @@ export default defineConfig(async ({ mode }) => {
     },
 
     server: {
-      https: isNetlify ? false : httpsOptions,
+      https: httpsOptions,
       port: 3000,
       headers: {
         "Access-Control-Allow-Origin": "*",
