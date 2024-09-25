@@ -1,9 +1,13 @@
+import { useCallback } from "react";
+import { v4 as uuidv4 } from "uuid";
+
 import useStore from "../../utils/store";
 import FeatureTab from "../common/FeatureTab";
 import Extraction from "./Extraction";
 
 function Share() {
-  const { openTab, setOpenTab } = useStore();
+  const openTab = useStore((state) => state.openTab);
+  const setOpenTab = useStore((state) => state.setOpenTab);
   const features = [
     {
       name: "추출하기",
@@ -11,19 +15,19 @@ function Share() {
     },
   ];
 
-  function handleToggle(event, data) {
+  const handleToggle = useCallback((event, data) => {
     setOpenTab(data.openItems);
-  }
+  }, []);
 
   return (
     <div className="mt-2">
       {features.map((feature, index) => (
         <FeatureTab
-          key={feature.name}
+          key={uuidv4()}
           order={String(index + 1)}
           featureName={feature.name}
           openTab={openTab}
-          handToggle={handleToggle}
+          handleToggle={handleToggle}
           featureContents={feature.component}
         />
       ))}
