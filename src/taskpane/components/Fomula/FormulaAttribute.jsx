@@ -1,4 +1,5 @@
 import { Switch } from "@fluentui/react-components";
+import { useCallback } from "react";
 
 import useStore from "../../utils/store";
 import { highlightingCell } from "../../utils/cellStyleFunc";
@@ -16,7 +17,7 @@ function FormulaAttribute() {
     cellFunctions,
   } = useStore();
 
-  async function handleHighlighting() {
+  const handleHighlighting = useCallback(async () => {
     const newHighlightState = !isCellHighlighting;
 
     highlightingCell(
@@ -26,7 +27,7 @@ function FormulaAttribute() {
     );
 
     setIsCellHighlighting(newHighlightState);
-  }
+  }, [isCellHighlighting, cellFormula, cellAddress]);
 
   const groupedCellArguments =
     groupCellsIntoRanges(cellArguments.map((arg) => arg.split("(")[0])) || [];
