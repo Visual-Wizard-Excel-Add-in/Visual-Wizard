@@ -28,7 +28,7 @@ const useStore = create((set) => ({
     })),
 
   sheetId: "",
-  setSheetId: (selectSheet) => set({ sheetName: selectSheet }),
+  setSheetId: (selectSheet) => set({ sheetId: selectSheet }),
 
   cellValue: "",
   setCellValue: (selectedCellValue) => set({ cellValue: selectedCellValue }),
