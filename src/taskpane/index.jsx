@@ -27,8 +27,6 @@ const globalStyles = `
     width: 80% !important;
     min-width: 0% !important;
   }
-
-
 `;
 
 const styleSheet = document.createElement("style");
