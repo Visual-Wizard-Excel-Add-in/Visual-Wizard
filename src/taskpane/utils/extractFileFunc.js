@@ -16,8 +16,6 @@ async function executeFunction(selectedOption) {
         await context.sync();
       }
 
-      var a = 1;
-
       sheet = context.workbook.worksheets.add(sheetName);
       await context.sync();
 
