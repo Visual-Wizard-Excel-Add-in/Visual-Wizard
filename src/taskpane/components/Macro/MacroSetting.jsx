@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button, Input, Divider } from "@fluentui/react-components";
-import { v4 as uuidv4 } from "uuid";
 
 import useStore from "../../utils/store";
 import CustomDropdown from "../common/CustomDropdown";
@@ -151,7 +150,7 @@ function MacroSetting() {
     }
 
     return (
-      <div key={uuidv4()}>
+      <div key={`${action.type}-${index}`}>
         {actionContent}
         <Divider className="my-2" appearance="strong" />
       </div>

@@ -1,5 +1,4 @@
 import { Link, Divider } from "@fluentui/react-components";
-import { v4 as uuidv4 } from "uuid";
 
 import FORMULA_EXPLANATION from "../../utils/formulaExplanation";
 import useStore from "../../utils/store";
@@ -14,7 +13,7 @@ function FormulaInformation() {
       {cellFunctions.length !== 0 &&
         cellFunctions.map((func) => {
           return (
-            <div key={uuidv4()}>
+            <div key={func}>
               <p className="font-bold">{func}</p>
               <span className="whitespace-pre-wrap">
                 : {FORMULA_EXPLANATION[func]}

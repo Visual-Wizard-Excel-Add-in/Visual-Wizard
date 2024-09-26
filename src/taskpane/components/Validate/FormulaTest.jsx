@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button, Input, Divider } from "@fluentui/react-components";
-import { v4 as uuidv4 } from "uuid";
 
 import useStore from "../../utils/store";
 import { extractAddresses, evaluateTestFormula } from "../../utils/commonFuncs";
@@ -13,11 +12,9 @@ function FormulaTest() {
   const [args, setArgs] = useState([]);
   const [inputValues, setInputValues] = useState({});
   const [testResult, setTestResult] = useState(null);
-  const [cellFormula, cellValue, cellArguments] = useStore((state) => [
-    state.cellFormula,
-    state.cellValue,
-    state.cellArguments,
-  ]);
+  const cellFormula = useStore((state) => state.cellFormula);
+  const cellValue = useStore((state) => state.cellValue);
+  const cellArguments = useStore((state) => state.cellArguments);
 
   useEffect(() => {
     const fetchArgs = async () => {
@@ -70,7 +67,7 @@ function FormulaTest() {
       </div>
       <Divider className="my-2" appearance="strong" />
       {args.map((arg, index) => (
-        <p key={uuidv4()} className="mb-2">
+        <p key={arg} className="mb-2">
           {index + 1}. 인자:
           {cellArguments?.find((detailArg) => detailArg.includes(arg)) || arg}
           <br />

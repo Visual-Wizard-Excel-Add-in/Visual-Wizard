@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { Button } from "@fluentui/react-components";
-import { v4 as uuidv4 } from "uuid";
 
 import useStore from "../../utils/store";
 import CustomPopover from "../common/CustomPopover";
@@ -8,11 +7,9 @@ import FormulaOrderDescription from "./FormulaOrderDescription";
 import { parseFormulaSteps } from "../../utils/cellFormulaFunc";
 
 function FormulaOrder() {
-  const [cellFormula, formulaSteps, setFormulaSteps] = useStore((state) => [
-    state.cellFormula,
-    state.formulaSteps,
-    state.setFormulaSteps,
-  ]);
+  const cellFormula = useStore((state) => state.cellFormula);
+  const formulaSteps = useStore((state) => state.formulaSteps);
+  const setFormulaSteps = useStore((state) => state.setFormulaSteps);
 
   useEffect(() => {
     async function fetchFormulaSteps() {
@@ -41,7 +38,7 @@ function FormulaOrder() {
       const func = step.functionName;
       const description = <FormulaOrderDescription step={step} />;
       return (
-        <div key={uuidv4()}>
+        <div key={`${step.address}-${step.functionName}`}>
           <span>{index + 1}. </span>
           <CustomPopover
             position="after"

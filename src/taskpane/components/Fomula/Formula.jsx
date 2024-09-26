@@ -1,5 +1,4 @@
 import { useCallback } from "react";
-import { v4 as uuidv4 } from "uuid";
 
 import FeatureTab from "../common/FeatureTab";
 import useStore from "../../utils/store";
@@ -8,10 +7,8 @@ import FormulaAttribute from "./FormulaAttribute";
 import FormulaOrder from "./FormulaOrder";
 
 function Fomula() {
-  const [openTab, setOpenTab] = useStore((state) => [
-    state.openTab,
-    state.setOpenTab,
-  ]);
+  const setOpenTab = useStore((state) => state.setOpenTab);
+  const openTab = useStore((state) => state.openTab);
   const features = [
     {
       name: "정보",
@@ -32,7 +29,7 @@ function Fomula() {
     <div className="mt-2">
       {features.map((feature, index) => (
         <FeatureTab
-          key={uuidv4()}
+          key={feature.name}
           order={String(index + 1)}
           featureName={feature.name}
           openTab={openTab}
