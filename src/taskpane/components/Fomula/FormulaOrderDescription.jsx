@@ -45,7 +45,12 @@ function FormulaOrderDescription({ step }) {
     </div>
   );
 
-  const renderCriteriaRange = (range, maxLength, isExpanded, setIsExpanded) => (
+  const renderConditionRange = (
+    range,
+    maxLength,
+    isExpanded,
+    setIsExpanded,
+  ) => (
     <div>
       <strong>조건 범위: {truncateText(range, maxLength, isExpanded)}</strong>
       {range.length > maxLength && (
@@ -135,7 +140,7 @@ function FormulaOrderDescription({ step }) {
       ].includes(functionName) && (
         <div>
           {criteriaRange &&
-            renderCriteriaRange(
+            renderConditionRange(
               criteriaRange,
               35,
               isExpandedCondition,
