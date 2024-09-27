@@ -7,7 +7,7 @@ import { evaluateTestFormula } from "../../utils/validateFuncs";
 import {
   groupCellsIntoRanges,
   parseFormulaSteps,
-} from "../../utils/cellFormulaFuncs";
+} from "../../utils/formulaFuncs";
 
 function FormulaTest() {
   const [args, setArgs] = useState([]);

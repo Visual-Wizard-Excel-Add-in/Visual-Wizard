@@ -3,7 +3,7 @@ import { Switch } from "@fluentui/react-components";
 
 import useStore from "../../utils/store";
 import { highlightingCell } from "../../utils/cellStyleFuncs";
-import { groupCellsIntoRanges } from "../../utils/cellFormulaFuncs";
+import { groupCellsIntoRanges } from "../../utils/formulaFuncs";
 import { extractReferenceCells } from "../../utils/commonFuncs";
 
 function FormulaAttribute() {

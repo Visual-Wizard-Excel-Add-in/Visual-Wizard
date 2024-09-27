@@ -3,7 +3,7 @@ import {
   parseFormulaSteps,
   parseNestedFormula,
   processFunction,
-} from "../taskpane/utils/cellFormulaFuncs";
+} from "../taskpane/utils/formulaFuncs";
 
 global.Excel = {
   run: vi.fn((callback) => {

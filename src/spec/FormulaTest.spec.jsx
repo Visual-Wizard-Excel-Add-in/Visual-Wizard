@@ -13,7 +13,7 @@ import { evaluateTestFormula } from "../taskpane/utils/validateFuncs";
 import {
   groupCellsIntoRanges,
   parseFormulaSteps,
-} from "../taskpane/utils/cellFormulaFuncs";
+} from "../taskpane/utils/formulaFuncs";
 import { describe, it, vi } from "vitest";
 
 vi.mock("../taskpane/utils/store", () => ({
