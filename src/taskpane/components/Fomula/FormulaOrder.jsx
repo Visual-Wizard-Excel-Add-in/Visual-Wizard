@@ -15,7 +15,7 @@ function FormulaOrder() {
     async function fetchFormulaSteps() {
       if (cellFormula) {
         try {
-          const result = await parseFormulaSteps();
+          const result = await parseFormulaSteps(cellFormula);
 
           setFormulaSteps(result);
         } catch (error) {

@@ -1,49 +1,32 @@
-import {
-  extractReferenceCells,
-  splitCellAddress,
-  getCellsInRange,
-} from "./commonFuncs";
 import ProgressGraph from "./ProgressGraph";
 
-async function parseFormulaSteps() {
-  return Excel.run(async (context) => {
-    try {
-      const range = context.workbook.getSelectedRange();
+async function parseFormulaSteps(formula) {
+  try {
+    if (!formula) return [];
 
-      range.load(["address", "formulas", "values"]);
-      await context.sync();
+    const steps = await parseNestedFormula(formula);
+    const validSteps = steps.filter((step) => step !== undefined);
+    const sortedSteps = sortCalculationOrder(validSteps);
 
-      const formula = range.formulas[0][0];
-
-      if (!formula) return [];
-
-      const steps = await parseNestedFormula(context, formula);
-
-      await context.sync();
-
-      const validSteps = steps.filter((step) => step !== undefined);
-      const sortedSteps = sortStepsByCalculationOrder(validSteps);
-
-      return sortedSteps;
-    } catch (e) {
-      return [];
-    }
-  });
+    return sortedSteps;
+  } catch (e) {
+    return [];
+  }
 }
 
-async function parseNestedFormula(context, formula) {
+async function parseNestedFormula(formula) {
   const steps = [];
   const stack = [];
-  const regex = /([A-Z]+)\(/gi;
+  const regex = /([A-Z]+)\(/g;
   let match;
 
   while ((match = regex.exec(formula)) !== null) {
     const funcName = match[1];
-    const startIndex = regex.lastIndex;
-    const args = getArgs(formula, startIndex);
+    const argsStartIndex = regex.lastIndex;
+    const args = getArgs(formula, argsStartIndex);
 
     if (!["DATE", "YEAR", "MONTH", "DAY"].includes(funcName.toUpperCase())) {
-      const step = await processFunction(context, funcName, args);
+      const step = await getFormulaDetail(funcName, args);
 
       if (step) {
         if (stack.length > 0) {
@@ -58,11 +41,14 @@ async function parseNestedFormula(context, formula) {
   return steps.reverse();
 }
 
-async function processFunction(context, funcName, args) {
+async function getFormulaDetail(funcName, args) {
   const argList = [];
-  const argRegex =
+  const cellAddresses = new Set();
+  const referenceRegex =
     /((?:[^!]+!)?\$?[A-Z]+\$?[0-9]+(?::\$?[A-Z]+\$?[0-9]+)?|\d+(\.\d+)?|"[^"]*"|TRUE|FALSE|[^,()]+)/g;
-  let argMatch;
+  const onlyCellRegex =
+    /((?:[^!]+!)?\$?[A-Z]+\$?[0-9]+(?::\$?[A-Z]+\$?[0-9]+)?)/;
+  let argMatch = null;
 
   if (["DATE", "YEAR", "MONTH", "DAY"].includes(funcName.toUpperCase())) {
     return null;
@@ -71,82 +57,30 @@ async function processFunction(context, funcName, args) {
   const argsArray = args.split(",");
 
   for (const arg of argsArray) {
-    while ((argMatch = argRegex.exec(arg.trim())) !== null) {
+    while ((argMatch = referenceRegex.exec(arg.trim())) !== null) {
       argList.push(argMatch[0]);
     }
   }
 
-  const argValues = [];
-  const cellAddresses = new Set();
-  let sheet;
-  let cell;
-  let cellLoadedSuccessfully = true;
-
   for (const arg of argList) {
-    if (arg.match(/((?:[^!]+!)?\$?[A-Z]+\$?[0-9]+(?::\$?[A-Z]+\$?[0-9]+)?)/)) {
+    if (arg.match(onlyCellRegex)) {
       const parts = arg.split("!");
-      const sheetName =
-        parts.length > 1 ? parts[0].replace(/'/g, "") : undefined;
       const normalizedAddress = parts[parts.length - 1].replace(/\$/g, "");
 
-      if (normalizedAddress.includes(":")) {
-        const [startCell, endCell] = normalizedAddress.split(":");
-        const cellsInRange = getCellsInRange(startCell, endCell);
-
-        cellsInRange.forEach((cells) => cellAddresses.add(cells));
-      } else {
-        cellAddresses.add(normalizedAddress);
-      }
-
-      try {
-        sheet = sheetName
-          ? context.workbook.worksheets.getItem(sheetName)
-          : context.workbook.worksheets.getActiveWorksheet();
-      } catch (e) {
-        sheet = context.workbook.worksheets.getActiveWorksheet();
-      }
-
-      try {
-        cell = sheet.getRange(normalizedAddress);
-
-        cell.load(["address", "values", "numberFormat"]);
-        await context.sync();
-      } catch (e) {
-        argValues.push({ arg, value: null });
-
-        cellLoadedSuccessfully = false;
-      }
-
-      if (cellLoadedSuccessfully && cell) {
-        const cellNumberFormat = cell.numberFormat[0][0];
-        let cellValue = cell.values[0][0];
-
-        if (
-          cellNumberFormat &&
-          cellNumberFormat.includes("yy") &&
-          cellValue !== ""
-        ) {
-          cellValue = new Date((cellValue - 25569) * 86400 * 1000);
-        }
-
-        argValues.push({ arg, value: cellValue });
-      }
-    } else {
-      argValues.push({ arg, value: arg });
+      cellAddresses.add(normalizedAddress);
     }
   }
 
-  const groupedAddresses = groupCellsIntoRanges(Array.from(cellAddresses));
-  const formulaOrderInfo = {
-    address: groupedAddresses.join(", "),
+  const formulaStepInfo = {
+    address: Array.from(cellAddresses).join(", "),
     functionName: funcName,
     formula: `${funcName}(${args})`,
     dependencies: [],
   };
 
-  applyFunctionSpecificLogic(funcName, args, formulaOrderInfo);
+  getConditionFuncInfo(funcName, args, formulaStepInfo);
 
-  return formulaOrderInfo;
+  return formulaStepInfo;
 }
 
 function groupCellsIntoRanges(cells) {
@@ -238,25 +172,6 @@ function groupCellsIntoRanges(cells) {
   return [...individualCells, ...mergedRanges];
 }
 
-function isAdjacent(cell1, cell2) {
-  try {
-    const [col1, row1] = splitCellAddress(cell1);
-    const [col2, row2] = splitCellAddress(cell2);
-
-    if (col1 === col2 && row2 === row1 + 1) {
-      return true;
-    }
-
-    if (row1 === row2 && col2.charCodeAt(0) === col1.charCodeAt(0) + 1) {
-      return true;
-    }
-
-    return false;
-  } catch (e) {
-    return false;
-  }
-}
-
 function getArgs(formula, startIndex) {
   let depth = 1;
   let currentArg = "";
@@ -313,33 +228,27 @@ function splitArgs(args) {
   return result;
 }
 
-function sortStepsByCalculationOrder(steps) {
-  const graph = new ProgressGraph();
+function sortCalculationOrder(steps) {
+  const orderGraph = new ProgressGraph();
 
   steps.forEach((step) => {
     if (step) {
-      graph.addNode(step);
+      orderGraph.addNode(step);
     }
   });
 
   steps.forEach((step) => {
     if (step && step.dependencies) {
       step.dependencies.forEach((dep) => {
-        graph.addDependency(dep, step);
+        orderGraph.addDependency(dep, step);
       });
     }
   });
 
-  return graph.topologicalSort();
+  return orderGraph.topologicalSort();
 }
 
-function extractAddressesFromStep(step) {
-  const { formula } = step;
-
-  return extractReferenceCells(formula);
-}
-
-function applyFunctionSpecificLogic(funcName, args, formulaOrderInfo) {
+function getConditionFuncInfo(funcName, args, formulaOrderInfo) {
   switch (funcName.toUpperCase()) {
     case "IF": {
       const [ifCondition, ifTrueValue, ifFalseValue] = splitArgs(args);
@@ -417,12 +326,10 @@ function applyFunctionSpecificLogic(funcName, args, formulaOrderInfo) {
 }
 
 export {
-  processFunction,
+  getFormulaDetail as processFunction,
   parseFormulaSteps,
   parseNestedFormula,
   groupCellsIntoRanges,
-  isAdjacent,
   getArgs,
   splitArgs,
-  extractAddressesFromStep,
 };

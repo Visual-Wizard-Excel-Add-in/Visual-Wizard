@@ -20,7 +20,7 @@ function FormulaTest() {
   useEffect(() => {
     const fetchArgs = async () => {
       if (cellFormula) {
-        const formulaSteps = await parseFormulaSteps();
+        const formulaSteps = await parseFormulaSteps(cellFormula);
         const allArgs = formulaSteps.flatMap((step) => {
           const addresses = extractReferenceCells(step.address);
 
