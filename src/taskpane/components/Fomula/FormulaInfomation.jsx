@@ -5,8 +5,8 @@ import useStore from "../../utils/store";
 import { useStyles } from "../../utils/style";
 
 function FormulaInformation() {
-  const styles = useStyles();
   const cellFunctions = useStore((state) => state.cellFunctions);
+  const styles = useStyles();
 
   return (
     <div>
