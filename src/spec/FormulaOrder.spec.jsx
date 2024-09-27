@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 
 import FormulaOrder from "../taskpane/components/Fomula/FormulaOrder";
 import useStore from "../taskpane/utils/store";
-import { parseFormulaSteps } from "../taskpane/utils/cellFormulaFunc";
+import { parseFormulaSteps } from "../taskpane/utils/cellFormulaFuncs";
 
 vi.mock("../taskpane/utils/store", () => ({
   __esModule: true,

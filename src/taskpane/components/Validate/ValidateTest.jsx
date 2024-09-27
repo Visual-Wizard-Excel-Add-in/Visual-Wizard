@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Switch } from "@fluentui/react-components";
 
-import { getLastCellAddress } from "../../utils/commonFuncs";
-import { detectErrorCell } from "../../utils/cellStyleFunc";
+import { getLastCellAddress } from "../../utils/validateFuncs";
+import { detectErrorCell } from "../../utils/cellStyleFuncs";
 
 function ValidateTest() {
   const [isError, setIsError] = useState(true);

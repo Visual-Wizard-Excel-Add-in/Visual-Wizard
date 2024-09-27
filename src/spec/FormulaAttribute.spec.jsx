@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 
 import FormulaAttribute from "../taskpane/components/Fomula/FormulaAttribute";
 import useStore from "../taskpane/utils/store";
-import { highlightingCell } from "../taskpane/utils/cellStyleFunc";
+import { highlightingCell } from "../taskpane/utils/cellStyleFuncs";
 
 vi.mock("../taskpane/utils/store", () => ({
   default: vi.fn(),

@@ -1,5 +1,4 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import * as originalCellCommonUtils from "../taskpane/utils/commonFuncs";
 import useStore from "../taskpane/utils/store";
 
 const mockExcel = {
@@ -16,11 +15,12 @@ const mockOfficeRuntime = {
   },
 };
 
-let cellCommonUtils;
+let commonFuncs;
+let validateFuncs;
 
-vi.mock("../taskpane/utils/cellCommonUtils", async () => {
+vi.mock("../taskpane/utils/commonFuncs", async () => {
   const mockUpdateState = vi.fn();
-  const actual = await vi.importActual("../taskpane/utils/cellCommonUtils");
+  const actual = await vi.importActual("../taskpane/utils/commonFuncs");
 
   return {
     ...actual,
@@ -51,46 +51,47 @@ vi.mock("../taskpane/utils/store", () => ({
   },
 }));
 
-describe("cellCommonUtils", () => {
+describe("commonFuncs", () => {
   beforeEach(async () => {
     vi.resetAllMocks();
 
     global.Excel = mockExcel;
     global.OfficeRuntime = mockOfficeRuntime;
 
-    cellCommonUtils = await vi.importMock("../taskpane/utils/cellCommonUtils");
+    commonFuncs = await vi.importMock("../taskpane/utils/commonFuncs");
+    validateFuncs = await vi.importMock("../taskpane/utils/validateFuncs");
 
     useStore.getState.mockReturnValue(mockSetState);
   });
 
   describe("splitCellAddress", () => {
     it("should correctly split a cell address", () => {
-      expect(cellCommonUtils.splitCellAddress("A1")).toEqual(["A", 1]);
-      expect(cellCommonUtils.splitCellAddress("$B$2")).toEqual(["B", 2]);
-      expect(cellCommonUtils.splitCellAddress("AA100")).toEqual(["AA", 100]);
+      expect(commonFuncs.splitCellAddress("A1")).toEqual(["A", 1]);
+      expect(commonFuncs.splitCellAddress("$B$2")).toEqual(["B", 2]);
+      expect(commonFuncs.splitCellAddress("AA100")).toEqual(["AA", 100]);
     });
 
     it("should throw an error for invalid cell addresses", () => {
-      expect(() => cellCommonUtils.splitCellAddress("Invalid")).toThrow(
+      expect(() => commonFuncs.splitCellAddress("Invalid")).toThrow(
         "Invalid cell address: Invalid",
       );
     });
   });
 
-  describe("extractAddresses", () => {
+  describe("extractReferenceCells", () => {
     it("should extract single cell addresses", () => {
-      expect(cellCommonUtils.extractAddresses("A1")).toEqual(["A1"]);
-      expect(cellCommonUtils.extractAddresses("Sheet1!B2")).toEqual(["B2"]);
+      expect(commonFuncs.extractReferenceCells("A1")).toEqual(["A1"]);
+      expect(commonFuncs.extractReferenceCells("Sheet1!B2")).toEqual(["B2"]);
     });
 
     it("should extract cell ranges", () => {
-      expect(cellCommonUtils.extractAddresses("A1:B2")).toEqual([
+      expect(commonFuncs.extractReferenceCells("A1:B2")).toEqual([
         "A1",
         "A2",
         "B1",
         "B2",
       ]);
-      expect(cellCommonUtils.extractAddresses("Sheet1!C3:D4")).toEqual([
+      expect(commonFuncs.extractReferenceCells("Sheet1!C3:D4")).toEqual([
         "C3",
         "C4",
         "D3",
@@ -99,7 +100,7 @@ describe("cellCommonUtils", () => {
     });
 
     it("should handle multiple addresses and ranges", () => {
-      expect(cellCommonUtils.extractAddresses("A1,B2:C3")).toEqual([
+      expect(commonFuncs.extractReferenceCells("A1,B2:C3")).toEqual([
         "A1",
         "B2",
         "B3",
@@ -111,67 +112,55 @@ describe("cellCommonUtils", () => {
 
   describe("getChartTypeInKorean", () => {
     it("should return the correct Korean chart type", () => {
-      expect(cellCommonUtils.getChartTypeInKorean("ColumnClustered")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("ColumnClustered")).toBe(
         "묶은 세로 막대형 차트",
       );
-      expect(cellCommonUtils.getChartTypeInKorean("Pie")).toBe("원형 차트");
-      expect(cellCommonUtils.getChartTypeInKorean("Line")).toBe(
-        "꺾은선형 차트",
-      );
-      expect(cellCommonUtils.getChartTypeInKorean("Invalid")).toBe(
-        "유효하지 않음",
-      );
-      expect(cellCommonUtils.getChartTypeInKorean("ColumnStacked")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("Pie")).toBe("원형 차트");
+      expect(commonFuncs.getChartTypeInKorean("Line")).toBe("꺾은선형 차트");
+      expect(commonFuncs.getChartTypeInKorean("Invalid")).toBe("유효하지 않음");
+      expect(commonFuncs.getChartTypeInKorean("ColumnStacked")).toBe(
         "누적 세로 막대형 차트",
       );
-      expect(cellCommonUtils.getChartTypeInKorean("3DColumnClustered")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("3DColumnClustered")).toBe(
         "3D 묶은 세로 막대형 차트",
       );
-      expect(cellCommonUtils.getChartTypeInKorean("BarClustered")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("BarClustered")).toBe(
         "묶은 가로 막대형 차트",
       );
-      expect(cellCommonUtils.getChartTypeInKorean("LineMarkers")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("LineMarkers")).toBe(
         "표식이 있는 꺾은선형 차트",
       );
-      expect(cellCommonUtils.getChartTypeInKorean("Area")).toBe("영역형 차트");
-      expect(cellCommonUtils.getChartTypeInKorean("Doughnut")).toBe(
-        "도넛형 차트",
-      );
-      expect(cellCommonUtils.getChartTypeInKorean("Histogram")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("Area")).toBe("영역형 차트");
+      expect(commonFuncs.getChartTypeInKorean("Doughnut")).toBe("도넛형 차트");
+      expect(commonFuncs.getChartTypeInKorean("Histogram")).toBe(
         "히스토그램형 차트",
       );
-      expect(cellCommonUtils.getChartTypeInKorean("XYScatter")).toBe(
-        "분산형 차트",
-      );
-      expect(cellCommonUtils.getChartTypeInKorean("Bubble")).toBe(
-        "거품형 차트",
-      );
-      expect(cellCommonUtils.getChartTypeInKorean("Waterfall")).toBe(
-        "폭포 차트",
-      );
-      expect(cellCommonUtils.getChartTypeInKorean("StockOHLC")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("XYScatter")).toBe("분산형 차트");
+      expect(commonFuncs.getChartTypeInKorean("Bubble")).toBe("거품형 차트");
+      expect(commonFuncs.getChartTypeInKorean("Waterfall")).toBe("폭포 차트");
+      expect(commonFuncs.getChartTypeInKorean("StockOHLC")).toBe(
         "시가-고가-저가-종가 차트",
       );
-      expect(cellCommonUtils.getChartTypeInKorean("Surface")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("Surface")).toBe(
         "3차원 표면형 차트",
       );
-      expect(cellCommonUtils.getChartTypeInKorean("Radar")).toBe("방사형 차트");
-      expect(cellCommonUtils.getChartTypeInKorean("CylinderColClustered")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("Radar")).toBe("방사형 차트");
+      expect(commonFuncs.getChartTypeInKorean("CylinderColClustered")).toBe(
         "원기둥 묶은 세로 막대형 차트",
       );
-      expect(cellCommonUtils.getChartTypeInKorean("ConeColClustered")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("ConeColClustered")).toBe(
         "원뿔 묶은 세로 막대형 차트",
       );
-      expect(cellCommonUtils.getChartTypeInKorean("PyramidColClustered")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("PyramidColClustered")).toBe(
         "피라미드 묶은 세로 막대형 차트",
       );
-      expect(cellCommonUtils.getChartTypeInKorean("RegionMap")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("RegionMap")).toBe(
         "지역 맵형 차트",
       );
     });
 
     it('should return "알 수 없는 차트 유형" for unknown chart types', () => {
-      expect(cellCommonUtils.getChartTypeInKorean("UnknownType")).toBe(
+      expect(commonFuncs.getChartTypeInKorean("UnknownType")).toBe(
         "알 수 없는 차트 유형",
       );
     });
@@ -179,17 +168,15 @@ describe("cellCommonUtils", () => {
 
   describe("getChartTypeInEnglish", () => {
     it("should return the correct English chart type", () => {
-      expect(
-        cellCommonUtils.getChartTypeInEnglish("묶은 세로 막대형 차트"),
-      ).toBe("ColumnClustered");
-      expect(cellCommonUtils.getChartTypeInEnglish("원형 차트")).toBe("Pie");
-      expect(cellCommonUtils.getChartTypeInEnglish("꺾은선형 차트")).toBe(
-        "Line",
+      expect(commonFuncs.getChartTypeInEnglish("묶은 세로 막대형 차트")).toBe(
+        "ColumnClustered",
       );
+      expect(commonFuncs.getChartTypeInEnglish("원형 차트")).toBe("Pie");
+      expect(commonFuncs.getChartTypeInEnglish("꺾은선형 차트")).toBe("Line");
     });
 
     it('should return "Unknown chart type" for unknown chart types', () => {
-      expect(cellCommonUtils.getChartTypeInEnglish("알 수 없는 유형")).toBe(
+      expect(commonFuncs.getChartTypeInEnglish("알 수 없는 유형")).toBe(
         "Unknown chart type",
       );
     });
@@ -224,7 +211,7 @@ describe("cellCommonUtils", () => {
         callback(mockContext),
       );
 
-      const result = await cellCommonUtils.evaluateTestFormula("SUM(A1:A5)");
+      const result = await validateFuncs.evaluateTestFormula("SUM(A1:A5)");
 
       expect(result).toBe("Test Result");
     });
@@ -232,8 +219,7 @@ describe("cellCommonUtils", () => {
     it("should handle errors and return null", async () => {
       vi.mocked(Excel.run).mockRejectedValue(new Error("Test error"));
 
-      const result =
-        await cellCommonUtils.evaluateTestFormula("InvalidFormula");
+      const result = await validateFuncs.evaluateTestFormula("InvalidFormula");
 
       expect(result).toBeNull();
     });
@@ -241,14 +227,14 @@ describe("cellCommonUtils", () => {
 
   describe("extractArgsAddress", () => {
     it("should extract address from regular cell references", () => {
-      expect(cellCommonUtils.extractArgsAddress("A1")).toBe("A1");
-      expect(cellCommonUtils.extractArgsAddress("$B$2")).toBe("B2");
-      expect(cellCommonUtils.extractArgsAddress("Sheet1!C3")).toBe("C3");
+      expect(commonFuncs.extractArgsAddress("A1")).toBe("A1");
+      expect(commonFuncs.extractArgsAddress("$B$2")).toBe("B2");
+      expect(commonFuncs.extractArgsAddress("Sheet1!C3")).toBe("C3");
     });
 
     it("should return null for non-cell references", () => {
-      expect(cellCommonUtils.extractArgsAddress("NotAnAddress")).toBeNull();
-      expect(cellCommonUtils.extractArgsAddress("123")).toBeNull();
+      expect(commonFuncs.extractArgsAddress("NotAnAddress")).toBeNull();
+      expect(commonFuncs.extractArgsAddress("123")).toBeNull();
     });
   });
 
@@ -288,15 +274,15 @@ describe("cellCommonUtils", () => {
         callback(mockContext),
       );
 
-      vi.spyOn(cellCommonUtils, "extractFunctionsFromFormula").mockReturnValue([
+      vi.spyOn(commonFuncs, "extractFunctionsFromFormula").mockReturnValue([
         "SUM",
       ]);
-      vi.spyOn(cellCommonUtils, "extractArgsFromFormula").mockResolvedValue([
+      vi.spyOn(commonFuncs, "extractArgsFromFormula").mockResolvedValue([
         "B1(Test Value)",
         "B2(Test Value)",
       ]);
 
-      await cellCommonUtils.getCellValue();
+      await commonFuncs.getCellValue();
 
       expect(mockSetState.setCellAddress).toHaveBeenCalledWith("Sheet1!A1");
       expect(mockSetState.setCellValue).toHaveBeenCalledWith("Test Value");
@@ -329,7 +315,7 @@ describe("cellCommonUtils", () => {
 
       mockExcel.run.mockImplementation((callback) => callback(mockContext));
 
-      await cellCommonUtils.getCellValue();
+      await commonFuncs.getCellValue();
 
       expect(mockSetState.setCellValue).toHaveBeenCalledWith("2021. 1. 1.");
     });
@@ -359,7 +345,7 @@ describe("cellCommonUtils", () => {
 
       mockExcel.run.mockImplementation((callback) => callback(mockContext));
 
-      const result = await cellCommonUtils.getTargetCellValue("Sheet1!B2");
+      const result = await commonFuncs.getTargetCellValue("Sheet1!B2");
 
       expect(result).toBe("Target Value");
     });
@@ -387,7 +373,7 @@ describe("cellCommonUtils", () => {
 
       mockExcel.run.mockImplementation((callback) => callback(mockContext));
 
-      const result = await cellCommonUtils.getTargetCellValue("Sheet1!B2");
+      const result = await commonFuncs.getTargetCellValue("Sheet1!B2");
 
       expect(result).toBe("2021. 1. 1.");
     });

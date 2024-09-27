@@ -2,11 +2,12 @@ import { useState, useEffect, useCallback } from "react";
 import { Button, Input, Divider } from "@fluentui/react-components";
 
 import useStore from "../../utils/store";
-import { extractAddresses, evaluateTestFormula } from "../../utils/commonFuncs";
+import { extractReferenceCells } from "../../utils/commonFuncs";
+import { evaluateTestFormula } from "../../utils/validateFuncs";
 import {
   groupCellsIntoRanges,
   parseFormulaSteps,
-} from "../../utils/cellFormulaFunc";
+} from "../../utils/cellFormulaFuncs";
 
 function FormulaTest() {
   const [args, setArgs] = useState([]);
@@ -21,7 +22,7 @@ function FormulaTest() {
       if (cellFormula) {
         const formulaSteps = await parseFormulaSteps();
         const allArgs = formulaSteps.flatMap((step) => {
-          const addresses = extractAddresses(step.address);
+          const addresses = extractReferenceCells(step.address);
 
           return groupCellsIntoRanges(addresses);
         });

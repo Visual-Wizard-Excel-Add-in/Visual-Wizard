@@ -3,11 +3,11 @@ import { Button, Input, Divider } from "@fluentui/react-components";
 
 import useStore from "../../utils/store";
 import CustomDropdown from "../common/CustomDropdown";
-import chartTypeList from "../../utils/chartTypeList";
 import {
-  getChartTypeInKorean,
-  getChartTypeInEnglish,
-} from "../../utils/commonFuncs";
+  CHART_TYPE_LIST,
+  translateChartTypeKOR,
+  translateChartTypeENG,
+} from "../../utils/chartTypeUtils";
 
 function MacroSetting() {
   const [storedMacro, setStoredMacro] = useState([]);
@@ -103,15 +103,15 @@ function MacroSetting() {
                   handleChange(
                     index,
                     "chartType",
-                    getChartTypeInEnglish(value),
+                    translateChartTypeENG(value),
                   );
                 }}
-                options={chartTypeList.map((chartType) => ({
+                options={CHART_TYPE_LIST.map((chartType) => ({
                   name: chartType.name,
                   value: chartType.value,
                   label: chartType.label,
                 }))}
-                placeholder={getChartTypeInKorean(action.chartType)}
+                placeholder={translateChartTypeKOR(action.chartType)}
                 selectedValue={selectChartType}
               />
             </div>

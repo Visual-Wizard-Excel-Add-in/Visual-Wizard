@@ -11,7 +11,7 @@ import useStore from "../taskpane/utils/store";
 import {
   saveCellStylePreset,
   loadCellStylePreset,
-} from "../taskpane/utils/cellStyleFunc";
+} from "../taskpane/utils/cellStyleFuncs";
 import { addPreset, deletePreset } from "../taskpane/utils/commonFuncs";
 
 vi.mock("../taskpane/utils/store");

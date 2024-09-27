@@ -1,4 +1,4 @@
-import { extractArgsAddress, updateState } from "./commonFuncs";
+import { updateState } from "./commonFuncs";
 
 async function storeCellStyle(cellAddress, allPresets, isCellHighlighting) {
   let cellStyleToReturn = null;
@@ -257,9 +257,7 @@ async function highlightingCell(isCellHighlighting, argCells, resultCell) {
 
     await storeCellStyle(resultCell, "allCellStyles", isCellHighlighting);
 
-    const argsCellAddresses = argCells.map(extractArgsAddress).filter(Boolean);
-
-    for (const argcell of argsCellAddresses) {
+    for (const argcell of argCells) {
       await storeCellStyle(argcell, "allCellStyles", isCellHighlighting);
     }
 
@@ -271,7 +269,7 @@ async function highlightingCell(isCellHighlighting, argCells, resultCell) {
       await applyCellStyle(resultCell, "allCellStyles", isCellHighlighting);
     }
 
-    for (const argcell of argsCellAddresses) {
+    for (const argcell of argCells) {
       const argcellsRange = worksheet.getRange(argcell);
 
       if (isCellHighlighting) {

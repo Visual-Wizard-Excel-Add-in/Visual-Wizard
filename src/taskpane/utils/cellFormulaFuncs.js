@@ -1,5 +1,5 @@
 import {
-  extractAddresses,
+  extractReferenceCells,
   splitCellAddress,
   getCellsInRange,
 } from "./commonFuncs";
@@ -336,7 +336,7 @@ function sortStepsByCalculationOrder(steps) {
 function extractAddressesFromStep(step) {
   const { formula } = step;
 
-  return extractAddresses(formula);
+  return extractReferenceCells(formula);
 }
 
 function applyFunctionSpecificLogic(funcName, args, formulaOrderInfo) {

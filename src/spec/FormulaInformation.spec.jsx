@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 
 import FormulaInformation from "../taskpane/components/Fomula/FormulaInfomation";
 import useStore from "../taskpane/utils/store";
-import FORMULA_EXPLANATION from "../taskpane/utils/formulaExplanation";
+import FORMULA_EXPLANATION from "../taskpane/utils/FORMULA_EXPLANATION";
 
 vi.mock("../taskpane/utils/store", () => ({
   default: vi.fn(),

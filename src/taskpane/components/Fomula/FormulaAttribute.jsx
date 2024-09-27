@@ -2,9 +2,9 @@ import { useCallback } from "react";
 import { Switch } from "@fluentui/react-components";
 
 import useStore from "../../utils/store";
-import { highlightingCell } from "../../utils/cellStyleFunc";
-import { groupCellsIntoRanges } from "../../utils/cellFormulaFunc";
 import { extractAddresses } from "../../utils/commonFuncs";
+import { highlightingCell } from "../../utils/cellStyleFuncs";
+import { groupCellsIntoRanges } from "../../utils/cellFormulaFuncs";
 
 function FormulaAttribute() {
   const isCellHighlighting = useStore((state) => state.isCellHighlighting);

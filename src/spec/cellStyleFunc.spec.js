@@ -9,7 +9,7 @@ import {
   changeCellborder,
   saveCellStylePreset,
   loadCellStylePreset,
-} from "../taskpane/utils/cellStyleFunc";
+} from "../taskpane/utils/cellStyleFuncs";
 import * as cellCommonUtils from "../taskpane/utils/commonFuncs";
 
 const mockChart = {

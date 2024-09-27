@@ -1,6 +1,6 @@
 import { Link, Divider } from "@fluentui/react-components";
 
-import FORMULA_EXPLANATION from "../../utils/formulaExplanation";
+import FORMULA_EXPLANATION from "../../utils/FORMULA_EXPLANATION";
 import useStore from "../../utils/store";
 import { useStyles } from "../../utils/style";
 

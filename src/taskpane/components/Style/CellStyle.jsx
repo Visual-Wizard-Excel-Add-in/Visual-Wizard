@@ -8,7 +8,7 @@ import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
 import {
   saveCellStylePreset,
   loadCellStylePreset,
-} from "../../utils/cellStyleFunc";
+} from "../../utils/cellStyleFuncs";
 import { addPreset, deletePreset } from "../../utils/commonFuncs";
 
 function CellStyle() {

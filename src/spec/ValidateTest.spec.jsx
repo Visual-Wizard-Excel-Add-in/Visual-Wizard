@@ -7,8 +7,8 @@ import {
 } from "@testing-library/react";
 
 import ValidateTest from "../taskpane/components/Validate/ValidateTest";
-import { getLastCellAddress } from "../taskpane/utils/commonFuncs";
-import { detectErrorCell } from "../taskpane/utils/cellStyleFunc";
+import { getLastCellAddress } from "../taskpane/utils/validateFuncs";
+import { detectErrorCell } from "../taskpane/utils/cellStyleFuncs";
 
 global.Excel = {
   run: vi.fn().mockImplementation(async (context) => {

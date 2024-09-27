@@ -1,4 +1,4 @@
-import { storeCellStyle, applyCellStyle } from "./cellStyleFunc";
+import { storeCellStyle, applyCellStyle } from "./cellStyleFuncs";
 import { updateState } from "./commonFuncs";
 
 let worksheetChangedHandler;

@@ -8,14 +8,12 @@ import {
 
 import FormulaTest from "../taskpane/components/Validate/FormulaTest";
 import useStore from "../taskpane/utils/store";
-import {
-  extractAddresses,
-  evaluateTestFormula,
-} from "../taskpane/utils/commonFuncs";
+import { extractReferenceCells } from "../taskpane/utils/commonFuncs";
+import { evaluateTestFormula } from "../taskpane/utils/validateFuncs";
 import {
   groupCellsIntoRanges,
   parseFormulaSteps,
-} from "../taskpane/utils/cellFormulaFunc";
+} from "../taskpane/utils/cellFormulaFuncs";
 import { describe, it, vi } from "vitest";
 
 vi.mock("../taskpane/utils/store", () => ({
@@ -23,7 +21,7 @@ vi.mock("../taskpane/utils/store", () => ({
 }));
 
 vi.mock("../taskpane/utils/cellCommonUtils", () => ({
-  extractAddresses: vi.fn(),
+  extractReferenceCells: vi.fn(),
   evaluateTestFormula: vi.fn(),
 }));
 
@@ -41,7 +39,7 @@ describe("FormulaTest", () => {
     });
 
     parseFormulaSteps.mockResolvedValue([{ address: "A1:B1" }]);
-    extractAddresses.mockReturnValue(["A1", "B1"]);
+    extractReferenceCells.mockReturnValue(["A1", "B1"]);
     groupCellsIntoRanges.mockReturnValue(["A1:B1"]);
     evaluateTestFormula.mockResolvedValue("10");
   });

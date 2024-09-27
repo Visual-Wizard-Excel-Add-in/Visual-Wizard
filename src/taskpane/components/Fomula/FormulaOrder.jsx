@@ -4,7 +4,7 @@ import { Button } from "@fluentui/react-components";
 import useStore from "../../utils/store";
 import CustomPopover from "../common/CustomPopover";
 import FormulaOrderDescription from "./FormulaOrderDescription";
-import { parseFormulaSteps } from "../../utils/cellFormulaFunc";
+import { parseFormulaSteps } from "../../utils/cellFormulaFuncs";
 
 function FormulaOrder() {
   const cellFormula = useStore((state) => state.cellFormula);

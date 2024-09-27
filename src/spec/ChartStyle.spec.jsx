@@ -11,7 +11,7 @@ import { addPreset, deletePreset } from "../taskpane/utils/commonFuncs";
 import {
   saveChartStylePreset,
   loadChartStylePreset,
-} from "../taskpane/utils/cellStyleFunc";
+} from "../taskpane/utils/cellStyleFuncs";
 
 vi.mock("../taskpane/utils/cellCommonUtils");
 vi.mock("../taskpane/utils/cellStyleFunc");
