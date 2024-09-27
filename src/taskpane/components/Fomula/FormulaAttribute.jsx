@@ -33,18 +33,46 @@ function FormulaAttribute() {
     groupCellsIntoRanges(cellArguments.map((arg) => arg.split("(")[0])) || [];
 
   const formattedCellArguments = groupedCellArguments
-    .map((arg) => {
-      const matchingArg = cellArguments.find((ca) => ca.startsWith(arg));
+    .map((groupArg) => {
+      const matchingArg = cellArguments.find((cellArg) =>
+        cellArg.startsWith(groupArg),
+      );
 
-      if (matchingArg && !arg.includes(":")) {
-        return `${arg}(${matchingArg.split("(")[1]}`;
+      if (matchingArg && !groupArg.includes(":")) {
+        const value = matchingArg.split("(")[1].split(")")[0];
+        const valueWithComma = getValueWithComma(value);
+
+        return `${groupArg}(${valueWithComma})`;
       }
 
-      return arg;
+      return groupArg;
     })
     .join(", ");
 
   const resultCellAddress = cellAddress.split("!")[1];
+  const resultCellValue = getValueWithComma(cellValue);
+
+  function getValueWithComma(value) {
+    const valueInStr = typeof value === "string" ? value : String(cellValue);
+    let valueWithComma = null;
+
+    let endIndex = valueInStr.length;
+    const valueArr = [];
+
+    for (let i = valueInStr.length - 1; i >= 0; i -= 1) {
+      if (endIndex - i === 3) {
+        valueArr.push(valueInStr.slice(i, endIndex));
+
+        endIndex = i;
+      } else if (i === 0) {
+        valueArr.push(valueInStr.slice(i, endIndex));
+      }
+    }
+
+    valueWithComma = valueArr.reverse().join(",");
+
+    return valueWithComma;
+  }
 
   return (
     <div>
@@ -72,7 +100,7 @@ function FormulaAttribute() {
           &nbsp;결과:&nbsp;
           <span className="font-normal">
             {cellFunctions.length !== 0
-              ? `${resultCellAddress}(${cellValue})`
+              ? `${resultCellAddress}(${resultCellValue})`
               : null}
           </span>
         </p>
