@@ -39,6 +39,8 @@ function App() {
 
       setSheetId(sheet.id);
 
+      registerSelectionChange(sheet.id, getCellValue);
+
       handleSheetChange = worksheets.onActivated.add((event) =>
         onWorksheetChanged(event),
       );
