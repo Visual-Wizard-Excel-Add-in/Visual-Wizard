@@ -8,20 +8,16 @@ import Macro from "./Macro/Macro";
 import Validate from "./Validate/Validate";
 import Share from "./Share/Share";
 import { useStyles } from "../utils/style";
-import {
-  activeSheetId,
-  registerSelectionChange,
-  getCellValue,
-} from "../utils/commonFuncs";
+import { registerSelectionChange, getCellValue } from "../utils/commonFuncs";
 import CustomMessageBar from "./common/CustomMessageBar";
 
+let handleSheetChange = null;
+
 function App() {
-  const [category, sheetId, setSheetId, messageList] = useStore((state) => [
-    state.category,
-    state.sheetId,
-    state.setSheetId,
-    state.messageList,
-  ]);
+  const category = useStore((state) => state.category);
+  const sheetId = useStore((state) => state.sheetId);
+  const setSheetId = useStore((state) => state.setSheetId);
+  const messageList = useStore((state) => state.messageList);
   const styles = useStyles();
 
   const categories = {
@@ -34,41 +30,42 @@ function App() {
   const CurrentCategory = categories[category] || null;
 
   useEffect(() => {
-    handleSheetChange();
-  }, []);
+    Excel.run(async (context) => {
+      const { worksheets } = context.workbook;
+      const sheet = worksheets.getActiveWorksheet();
 
-  async function handleSheetChange() {
-    await Excel.run(async (context) => {
-      const { workbook } = context;
-
-      workbook.worksheets.onActivated.add(async () => {
-        await activeSheetId(sheetId);
-        await registerSelectionChange(sheetId, getCellValue);
-      });
-
-      workbook.worksheets.onActivated.add(async (event) => {
-        const newSheetId = event.worksheetId;
-
-        if (newSheetId !== sheetId) {
-          setSheetId(newSheetId);
-
-          await registerSelectionChange(newSheetId, getCellValue);
-        }
-      });
-
-      const initialSheet = workbook.worksheets.getActiveWorksheet();
-
-      initialSheet.load("id");
+      sheet.load("id");
       await context.sync();
 
-      const initialSheetId = initialSheet.id;
+      setSheetId(sheet.id);
 
-      if (initialSheetId !== sheetId) {
-        setSheetId(initialSheetId);
+      handleSheetChange = worksheets.onActivated.add((event) =>
+        onWorksheetChanged(event),
+      );
 
-        await registerSelectionChange(initialSheetId, getCellValue);
-      }
+      await context.sync();
     });
+
+    return () => {
+      if (handleSheetChange !== null) {
+        Excel.run(handleSheetChange.context, async (context) => {
+          handleSheetChange?.remove();
+          await context.sync();
+        });
+      }
+
+      handleSheetChange = null;
+    };
+  }, []);
+
+  function onWorksheetChanged(event) {
+    const currentSheetId = event.worksheetId;
+
+    if (currentSheetId !== sheetId) {
+      setSheetId(currentSheetId);
+
+      registerSelectionChange(currentSheetId, getCellValue);
+    }
   }
 
   return (
