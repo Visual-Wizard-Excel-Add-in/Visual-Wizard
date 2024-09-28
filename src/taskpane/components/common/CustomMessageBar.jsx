@@ -29,11 +29,11 @@ function CustomMessageBar() {
   }, [messageList]);
 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center mt-1 whitespace-pre-wrap">
       <MessageBarGroup animate="both" className={styles.messageBarGroup}>
         {messageList.map(({ id, message }) => (
           <MessageBar key={messageId} intent={message.type}>
-            <MessageBarBody>
+            <MessageBarBody className="whitespace-pre-wrap">
               <MessageBarTitle>{message.title}</MessageBarTitle>
               {message.body}
             </MessageBarBody>
