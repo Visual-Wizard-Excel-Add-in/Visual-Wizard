@@ -6,8 +6,8 @@ import useStore from "../../utils/store";
 import { useStyles } from "../../utils/style";
 import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
 import {
-  saveCellStylePreset,
-  loadCellStylePreset,
+  saveRangeStylePreset,
+  loadRangeStylePreset,
 } from "../../utils/cellStyleFuncs";
 import { addPreset, deletePreset } from "../../utils/commonFuncs";
 
@@ -114,7 +114,7 @@ function CellStyle() {
           <DeleteIcon />
         </button>
         <button
-          onClick={() => saveCellStylePreset(selectedStylePreset)}
+          onClick={() => saveRangeStylePreset(selectedStylePreset)}
           className={styles.buttons}
           aria-label="save"
           type="button"
@@ -125,7 +125,7 @@ function CellStyle() {
       <Button
         as="button"
         className="self-center w-7"
-        onClick={() => loadCellStylePreset(selectedStylePreset)}
+        onClick={() => loadRangeStylePreset(selectedStylePreset)}
         size="small"
       >
         적용

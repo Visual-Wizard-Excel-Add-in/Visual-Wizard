@@ -4,7 +4,6 @@ import { Switch } from "@fluentui/react-components";
 import useStore from "../../utils/store";
 import { highlightingCell } from "../../utils/cellStyleFuncs";
 import { groupCellsIntoRanges } from "../../utils/formulaFuncs";
-import { extractReferenceCells } from "../../utils/commonFuncs";
 
 function FormulaAttribute() {
   const isCellHighlighting = useStore((state) => state.isCellHighlighting);
@@ -20,11 +19,7 @@ function FormulaAttribute() {
   const handleHighlighting = useCallback(async () => {
     const newHighlightState = !isCellHighlighting;
 
-    highlightingCell(
-      newHighlightState,
-      extractReferenceCells(cellFormula),
-      cellAddress,
-    );
+    highlightingCell(newHighlightState, cellAddress);
 
     setIsCellHighlighting(newHighlightState);
   }, [isCellHighlighting, cellFormula, cellAddress]);
@@ -53,6 +48,9 @@ function FormulaAttribute() {
   const resultCellValue = getValueWithComma(cellValue);
 
   function getValueWithComma(value) {
+    if (typeof value !== "number") {
+      return value;
+    }
     const valueInStr = typeof value === "string" ? value : String(cellValue);
     let valueWithComma = null;
 
