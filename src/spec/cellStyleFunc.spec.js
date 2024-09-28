@@ -1,15 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  saveChartStylePreset,
-  loadChartStylePreset,
   storeCellStyle,
   applyCellStyle,
   detectErrorCell,
   highlightingCell,
-  changeCellborder,
   saveCellStylePreset,
   loadCellStylePreset,
 } from "../taskpane/utils/cellStyleFuncs";
+import {
+  saveChartStylePreset,
+  loadChartStylePreset,
+} from "../taskpane/utils/chartStyleFuncs";
 import * as cellCommonUtils from "../taskpane/utils/commonFuncs";
 
 const mockChart = {
@@ -654,56 +655,6 @@ describe("cellStyleFunc", () => {
         .getRange(resultCell);
 
       expect(resultCellRange.format.fill.color).toBe("");
-    });
-  });
-
-  describe("changeCellborder", () => {
-    beforeEach(() => {
-      global.Excel.run.mockReset();
-    });
-
-    it("should change the border color of the cell", async () => {
-      const mockCell = {
-        context: { sync: vi.fn() },
-        format: {
-          borders: {
-            getItem: vi.fn().mockReturnValue({
-              color: "",
-              style: "",
-            }),
-          },
-        },
-      };
-
-      await changeCellborder(mockCell, "blue", false);
-
-      const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
-      edges.forEach((edge) => {
-        const border = mockCell.format.borders.getItem(edge);
-        expect(border.color).toBe("blue");
-      });
-    });
-
-    it("should clear the border of the cell if isClear is true", async () => {
-      const mockCell = {
-        context: { sync: vi.fn() },
-        format: {
-          borders: {
-            getItem: vi.fn().mockReturnValue({
-              color: "",
-              style: "",
-            }),
-          },
-        },
-      };
-
-      await changeCellborder(mockCell, "blue", true);
-
-      const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
-      edges.forEach((edge) => {
-        const border = mockCell.format.borders.getItem(edge);
-        expect(border.style).toBe("None");
-      });
     });
   });
 

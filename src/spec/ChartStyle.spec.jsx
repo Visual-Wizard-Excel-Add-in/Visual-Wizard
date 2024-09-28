@@ -11,10 +11,11 @@ import { addPreset, deletePreset } from "../taskpane/utils/commonFuncs";
 import {
   saveChartStylePreset,
   loadChartStylePreset,
-} from "../taskpane/utils/cellStyleFuncs";
+} from "../taskpane/utils/chartStyleFuncs";
 
-vi.mock("../taskpane/utils/cellCommonUtils");
-vi.mock("../taskpane/utils/cellStyleFunc");
+vi.mock("../taskpane/utils/commonFuncs");
+vi.mock("../taskpane/utils/cellStyleFuncs");
+vi.mock("../taskpane/utils/chartStyleFuncs");
 
 global.OfficeRuntime = {
   storage: {

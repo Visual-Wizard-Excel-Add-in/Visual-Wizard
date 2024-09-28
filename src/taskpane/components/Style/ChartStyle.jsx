@@ -8,7 +8,7 @@ import { addPreset, deletePreset } from "../../utils/commonFuncs";
 import {
   saveChartStylePreset,
   loadChartStylePreset,
-} from "../../utils/cellStyleFuncs";
+} from "../../utils/chartStyleFuncs";
 
 function ChartStyle() {
   const [selectedChartPreset, setSelectedChartPreset] = useState("");
