@@ -1,5 +1,5 @@
 import { storeCellStyle, applyCellStyle } from "./cellStyleFuncs";
-import { updateState } from "./commonFuncs";
+import { popUpMessage } from "./commonFuncs";
 
 let worksheetChangedHandler;
 let tableChangedHandler;
@@ -10,13 +10,7 @@ let actions = [];
 
 async function manageRecording(isRecording, presetName) {
   if (presetName === "") {
-    const warningMessage = {
-      type: "warning",
-      title: "접근 오류: ",
-      body: `프리셋을 선택해주세요!`,
-    };
-
-    updateState("setMessageList", warningMessage);
+    popUpMessage("loadFail", "프리셋을 정확하게 선택해주세요!");
   }
 
   await Excel.run(async (context) => {
@@ -96,13 +90,7 @@ async function manageRecording(isRecording, presetName) {
       await saveMacro(presetName);
     }
   }).catch((error) => {
-    const warningMessage = {
-      type: "warning",
-      title: "에러 발생",
-      body: `녹화를 시작할 수 없습니다. ${error.message}`,
-    };
-
-    updateState("setMessageList", warningMessage);
+    popUpMessage("workFail", `녹화를 시작할 수 없습니다. ${error.message}`);
   });
 }
 
@@ -110,7 +98,7 @@ async function onWorksheetChanged(event, presetName) {
   const action = { type: event.type };
   let cellStyleData = null;
   let allMacroPresets = await OfficeRuntime.storage.getItem("allMacroPresets");
-  let warningMessage = {};
+
   allMacroPresets = allMacroPresets ? JSON.parse(allMacroPresets) : {};
 
   if (!allMacroPresets[presetName].actions) {
@@ -154,33 +142,18 @@ async function onWorksheetChanged(event, presetName) {
         break;
 
       default:
-        warningMessage = {
-          type: "warning",
-          title: "접근 오류",
-          body: "지원하지 않는 형식입니다.",
-        };
-
-        updateState("setMessageList", warningMessage);
+        popUpMessage("loadFail", "지원하지 않는 형식입니다.");
         break;
     }
-  } catch (e) {
-    warningMessage = {
-      type: "error",
-      title: "에러 발생: ",
-      body: `기록 중 예상치 못한 에러가 발생했습니다. ${e.message}`,
-    };
-
-    updateState("setMessageList", warningMessage);
+  } catch (error) {
+    popUpMessage(
+      "workFail",
+      `기록 중 예상치 못한 에러가 발생했습니다. ${error.message}`,
+    );
   }
 
   if (action.chartType === "Unknown") {
-    warningMessage = {
-      type: "warning",
-      title: "지원하지 않는 차트: ",
-      body: "매크로 설정에서 직접 차트 타입을 입력해주세요.",
-    };
-
-    updateState("setMessageList", warningMessage);
+    popUpMessage("loadFail", "매크로 설정에서 차트 타입을 변경해주세요.");
   }
 
   actions.push(action);
@@ -203,21 +176,9 @@ async function saveMacro(presetName) {
       JSON.stringify(allMacroPresets),
     );
 
-    const successMessage = {
-      type: "success",
-      title: "저장 완료: ",
-      body: "매크로를 기록했습니다.",
-    };
-
-    updateState("setMessageList", successMessage);
+    popUpMessage("saveSuccess", "매크로를 기록했습니다.");
   } catch (error) {
-    const warningMessage = {
-      type: "warning",
-      title: "저장 실패",
-      body: `매크로 기록에 실패했습니다. ${error.message}`,
-    };
-
-    updateState("setMessageList", warningMessage);
+    popUpMessage("saveFail", `매크로 기록에 실패했습니다. ${error.message}`);
   }
 }
 
@@ -264,13 +225,7 @@ async function onChartAdded(action) {
           });
         }
       } else {
-        const warningMessage = {
-          type: "warning",
-          title: "형식 오류: ",
-          body: "지원하지 않는 차트 형식입니다. 매크로 설정에서 반드시 차트 형식을 지정해주세요!",
-        };
-
-        updateState("setMessageList", warningMessage);
+        popUpMessage("workFail", "매크로 설정에서 차트 타입을 변경해주세요.");
       }
 
       action.chartType = chart.chartType || "Unknown";
@@ -280,14 +235,10 @@ async function onChartAdded(action) {
 
       return action;
     });
-  } catch (e) {
-    const warningMessage = {
-      type: "warning",
-      title: "저장 실패",
-      body: `매크로 기록에 실패했습니다. ${e.message}`,
-    };
+  } catch (error) {
+    popUpMessage("saveFail", `매크로 기록에 실패했습니다. ${error.message}`);
 
-    updateState("setMessageList", warningMessage);
+    throw new Error(error.message);
   }
 }
 
@@ -309,16 +260,10 @@ async function onTableAdded(action) {
     });
 
     return tableAttributes;
-  } catch (e) {
-    const warningMessage = {
-      type: "warning",
-      title: "저장 실패",
-      body: `매크로 기록에 실패했습니다. ${e.message}`,
-    };
+  } catch (error) {
+    popUpMessage("saveFail", `매크로 기록에 실패했습니다. ${error.message}`);
 
-    updateState("setMessageList", warningMessage);
-
-    return null;
+    throw new Error(error.message);
   }
 }
 
@@ -327,7 +272,6 @@ async function macroPlay(presetName) {
     await Excel.run(async (context) => {
       const allMacroPresets =
         await OfficeRuntime.storage.getItem("allMacroPresets");
-      let warningMessage = {};
 
       if (!allMacroPresets) {
         throw new Error("No macros found.");
@@ -368,13 +312,7 @@ async function macroPlay(presetName) {
             break;
 
           default:
-            warningMessage = {
-              type: "warning",
-              title: "형식 오류",
-              body: `지원하지 않는 형식의 기록입니다. 매크로 재생에 실패했습니다. `,
-            };
-
-            updateState("setMessageList", warningMessage);
+            popUpMessage("workFail", "지원하지 않는 형식의 기록입니다.");
             break;
         }
       }
@@ -382,13 +320,7 @@ async function macroPlay(presetName) {
       await context.sync();
     });
   } catch (error) {
-    const warningMessage = {
-      type: "warning",
-      title: "재생 실패",
-      body: "매크로 재생에 실패했습니다. 차트 형식, 혹은 지원되는 기록인지 확인해주세요.",
-    };
-
-    updateState("setMessageList", warningMessage);
+    popUpMessage("workFail", "지원하는 타입의 기록인지 확인해주세요.");
   }
 }
 
@@ -404,7 +336,6 @@ async function applyWorksheetChange(context, action) {
 
 async function applyTableChange(context, action) {
   const sheet = context.workbook.worksheets.getActiveWorksheet();
-  let warningMessage = {};
 
   switch (action.changeType) {
     case "RangeEdited":
@@ -417,14 +348,7 @@ async function applyTableChange(context, action) {
       break;
 
     default:
-      warningMessage = {
-        type: "warning",
-        title: "접근 오류",
-        body: "지원되지 않는 표 이벤트 입니다.",
-      };
-
-      updateState("setMessageList", warningMessage);
-
+      popUpMessage("loadFail", "지원하지 않는 표 이벤트입니다.");
       break;
   }
 }

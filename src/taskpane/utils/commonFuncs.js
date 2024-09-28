@@ -8,6 +8,7 @@ async function getCellValue() {
   try {
     await Excel.run(async (context) => {
       const range = context.workbook.getSelectedRange();
+
       const prevCellValue = useStore.getState().cellValue;
       const prevCellAddress = useStore.getState().cellAddress;
       const prevCellFormula = useStore.getState().cellFormula;
@@ -62,8 +63,10 @@ async function getCellValue() {
         updateState("setCellArguments", formulaArgs);
       }
     });
-  } catch (e) {
-    throw new Error(e.message);
+  } catch (error) {
+    popUpMessage("loadFail", "셀 정보를 불러오는데 실패했습니다.");
+
+    throw new Error(error.message);
   }
 }
 
@@ -108,7 +111,7 @@ let handleSelectionChange = null;
 async function registerSelectionChange(sheetId, func) {
   if (handleSelectionChange !== null) {
     await Excel.run(handleSelectionChange.context, async (context) => {
-      handleSelectionChange.remove();
+      handleSelectionChange?.remove();
       await context.sync();
 
       handleSelectionChange = null;
@@ -280,6 +283,62 @@ async function deletePreset(presetCategory, presetName) {
   }
 }
 
+function popUpMessage(purpose = null, option = "") {
+  let warningMessage = null;
+
+  switch (purpose) {
+    case "loadFail":
+      warningMessage = {
+        type: "warning",
+        title: "Load Failed:",
+        body: `데이터를 불러오는데 실패했습니다.\n${option}`,
+      };
+      break;
+
+    case "saveFail":
+      warningMessage = {
+        type: "warning",
+        title: "Save Failed:",
+        body: `데이터를 저장하는데 실패했습니다.\n${option}`,
+      };
+      break;
+
+    case "workFail":
+      warningMessage = {
+        type: "warning",
+        title: "Work Failed",
+        body: `실행에 실패했습니다.\n${option}`,
+      };
+      break;
+
+    case "saveSuccess":
+      warningMessage = {
+        type: "success",
+        title: "Saved",
+        body: `데이터를 저장했습니다.\n${option}`,
+      };
+      break;
+
+    case "loadSuccess":
+      warningMessage = {
+        type: "success",
+        title: "Loaded",
+        body: `데이터를 불러왔습니다.\n${option}`,
+      };
+      break;
+
+    default:
+      warningMessage = {
+        type: "warning",
+        title: "Undefiend Error:",
+        body: `예상하지 못한 에러가 발생했습니다.\n${option}`,
+      };
+      break;
+  }
+
+  updateState("setMessageList", warningMessage);
+}
+
 export {
   registerSelectionChange,
   getCellValue,
@@ -293,4 +352,5 @@ export {
   getTargetCellValue,
   extractArgsFromFormula,
   extractFunctionsFromFormula,
+  popUpMessage,
 };

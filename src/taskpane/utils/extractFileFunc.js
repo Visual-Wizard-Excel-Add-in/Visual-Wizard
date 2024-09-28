@@ -1,4 +1,4 @@
-import { updateState } from "./commonFuncs";
+import { popUpMessage } from "./commonFuncs";
 
 async function executeFunction(selectedOption) {
   try {
@@ -40,11 +40,7 @@ async function executeFunction(selectedOption) {
       }, 1000);
     });
   } catch (error) {
-    updateState("setMessageList", {
-      type: "warning",
-      title: "추출 실패: ",
-      body: `추출 과정에서 에러가 발생했습니다. ${error.message}`,
-    });
+    popUpMessage("workFail", error.message);
   }
 }
 export default executeFunction;

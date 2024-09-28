@@ -1,4 +1,4 @@
-import { updateState } from "./commonFuncs";
+import { popUpMessage } from "./commonFuncs";
 
 async function getLastCellAddress() {
   return Excel.run(async (context) => {
@@ -87,13 +87,10 @@ async function evaluateTestFormula(newFormula) {
 
     return testResult;
   } catch (e) {
-    const warningMessage = {
-      type: "warning",
-      title: "에러 발생: ",
-      body: `테스트를 진행 중 에러가 발생했습니다.${e.message}`,
-    };
-
-    updateState("setMessageList", warningMessage);
+    popUpMessage(
+      "workFail",
+      `테스트를 진행 중 에러가 발생했습니다.${e.message}`,
+    );
 
     return null;
   }

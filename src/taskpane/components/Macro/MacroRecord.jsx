@@ -11,7 +11,7 @@ import {
   RecordStop,
   PlusIcon,
 } from "../../utils/icons";
-import { addPreset, deletePreset, updateState } from "../../utils/commonFuncs";
+import { addPreset, deletePreset, popUpMessage } from "../../utils/commonFuncs";
 import { manageRecording, macroPlay } from "../../utils/macroFuncs";
 
 function MacroRecord() {
@@ -60,11 +60,7 @@ function MacroRecord() {
 
   function controlMacroRecording() {
     if (selectMacroPreset === "") {
-      updateState("setMessageList", {
-        type: "warning",
-        title: "접근 오류:",
-        body: "프리셋을 선택해주세요.",
-      });
+      popUpMessage("loadFail", "프리셋을 선택해주세요!");
 
       return;
     }
