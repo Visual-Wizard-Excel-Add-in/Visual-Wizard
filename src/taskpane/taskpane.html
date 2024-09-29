@@ -19,10 +19,7 @@
     <script type="module">
       const isNetlify = import.meta.env.VITE_NETLIFY;
 
-      const baseUrl =
-        isNetlify === "true"
-          ? "https://visual-wizard.netlify.app"
-          : "https://localhost:3000";
+      const baseUrl = "https://localhost:3000";
 
       import(`${baseUrl}/src/taskpane/index.jsx`);
 
