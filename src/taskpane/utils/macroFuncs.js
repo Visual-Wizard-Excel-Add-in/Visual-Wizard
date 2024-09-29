@@ -1,5 +1,5 @@
 import { storeCellStyle, applyCellStyle } from "./cellStyleFuncs";
-import { popUpMessage } from "./commonFuncs";
+import { getSelectRangeValue, popUpMessage } from "./commonFuncs";
 
 let worksheetChangedHandler;
 let tableChangedHandler;
@@ -7,6 +7,17 @@ let chartAddedHandler;
 let tableAddedHandler;
 let formatChangedHandler;
 let actions = [];
+
+async function removeHandler(handler) {
+  if (handler) {
+    await Excel.run(handler.context, async (context) => {
+      handler.remove();
+      await context.sync();
+    });
+  } else {
+    throw new Error(`No Exist ${handler} event`);
+  }
+}
 
 async function manageRecording(isRecording, presetName) {
   if (presetName === "") {
@@ -31,8 +42,8 @@ async function manageRecording(isRecording, presetName) {
       formatChangedHandler = sheet.onFormatChanged.add(async (event) =>
         onWorksheetChanged(event, presetName),
       );
-      worksheetChangedHandler = context.workbook.worksheets.onChanged.add(
-        (event) => onWorksheetChanged(event, presetName),
+      worksheetChangedHandler = sheet.onChanged.add((event) =>
+        onWorksheetChanged(event, presetName),
       );
 
       let allMacroPresets =
@@ -46,40 +57,11 @@ async function manageRecording(isRecording, presetName) {
       );
       await context.sync();
     } else {
-      if (worksheetChangedHandler) {
-        await Excel.run(worksheetChangedHandler.context, async (ctx) => {
-          worksheetChangedHandler.remove();
-          await ctx.sync();
-        });
-      }
-
-      if (tableChangedHandler) {
-        await Excel.run(tableChangedHandler.context, async (ctx) => {
-          tableChangedHandler.remove();
-          await ctx.sync();
-        });
-      }
-
-      if (chartAddedHandler) {
-        await Excel.run(chartAddedHandler.context, async (ctx) => {
-          chartAddedHandler.remove();
-          await ctx.sync();
-        });
-      }
-
-      if (tableAddedHandler) {
-        await Excel.run(tableAddedHandler.context, async (ctx) => {
-          tableAddedHandler.remove();
-          await ctx.sync();
-        });
-      }
-
-      if (formatChangedHandler) {
-        await Excel.run(formatChangedHandler.context, async (ctx) => {
-          formatChangedHandler.remove();
-          await ctx.sync();
-        });
-      }
+      await removeHandler(worksheetChangedHandler);
+      await removeHandler(tableChangedHandler);
+      await removeHandler(chartAddedHandler);
+      await removeHandler(tableAddedHandler);
+      await removeHandler(formatChangedHandler);
 
       worksheetChangedHandler = null;
       tableChangedHandler = null;
@@ -110,7 +92,9 @@ async function onWorksheetChanged(event, presetName) {
       case "WorksheetChanged":
         action.address = event.address;
         action.details = {
-          value: event.details.valueAfter ? event.details.valueAfter : "",
+          value: event.details
+            ? event.details.valueAfter
+            : await getSelectRangeValue(),
         };
         break;
 
@@ -329,7 +313,11 @@ async function applyWorksheetChange(context, action) {
     const sheet = context.workbook.worksheets.getActiveWorksheet();
     const range = sheet.getRange(action.address);
 
-    range.values = [[action.details.value]];
+    if (typeof action.details.value === "object") {
+      range.values = [action.details.value];
+    } else {
+      range.values = [[action.details.value]];
+    }
     await context.sync();
   }
 }
