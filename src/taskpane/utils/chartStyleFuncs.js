@@ -23,161 +23,159 @@ async function saveChartStylePreset(targetPreset, styleName) {
         popUpMessage("loadFail", "선택된 차트를 찾을 수 없습니다.");
       }
 
-      selectedChart.load("chartType");
+      selectedChart.load(["*", "chartType"]);
       await context.sync();
 
       const currentChartType = selectedChart.chartType;
 
       const propertiesToLoad = [
-        "format/fill",
-        "format/font",
-        "format/border",
-        "format/roundedCorners",
-        "plotArea/format/fill",
-        "plotArea/format/border",
-        "plotArea/position",
-        "plotArea/height",
-        "plotArea/left",
-        "plotArea/top",
-        "plotArea/width",
-        "plotArea/insideHeight",
-        "plotArea/insideLeft",
-        "plotArea/insideTop",
-        "plotArea/insideWidth",
-        "legend/format/fill",
-        "legend/format/font",
-        "legend/format/border",
-        "legend/position",
-        "seriesNameLevel",
+        "format",
+        "format/font/*",
+        "format/border/*",
+        "plotArea/format/border/*",
+        "plotArea/format/*",
+        "plotArea/*",
+        "legend/*",
+        "legend/format/*",
+        "legend/format/font/*",
+        "legend/format/border/*",
       ];
 
       switch (currentChartType) {
-        case Excel.ChartType.columnClustered:
-        case Excel.ChartType.columnStacked:
-        case Excel.ChartType.columnStacked100:
-        case Excel.ChartType.line:
-        case Excel.ChartType.lineStacked:
-        case Excel.ChartType.lineStacked100:
-        case Excel.ChartType.area:
-        case Excel.ChartType.areaStacked:
-        case Excel.ChartType.areaStacked100:
-        case Excel.ChartType.histogram:
-        case Excel.ChartType.boxWhisker:
-        case Excel.ChartType.waterfall:
-        case Excel.ChartType.funnel:
-        case Excel.ChartType._3DArea:
-        case Excel.ChartType._3DAreaStacked:
-        case Excel.ChartType._3DAreaStacked100:
-        case Excel.ChartType._3DColumn:
-        case Excel.ChartType._3DColumnClustered:
-        case Excel.ChartType._3DColumnStacked:
-        case Excel.ChartType._3DColumnStacked100:
-        case Excel.ChartType._3DLine:
-        case Excel.ChartType._3DBarClustered:
-        case Excel.ChartType._3DBarStacked:
-        case Excel.ChartType._3DBarStacked100:
+        case "ColumnClustered":
+        case "ColumnStacked":
+        case "ColumnStacked100":
+        case "Line":
+        case "LineStacked":
+        case "LineStacked100":
+        case "Area":
+        case "AreaStacked":
+        case "AreaStacked100":
+        case "Histogram":
+        case "BoxWhisker":
+        case "Waterfall":
+        case "Funnel":
+        case "3DArea":
+        case "3DAreaStacked":
+        case "3DAreaStacked100":
+        case "3DColumn":
+        case "3DColumnClustered":
+        case "3DColumnStacked":
+        case "3DColumnStacked100":
+        case "3DLine":
+        case "3DBarClustered":
+        case "3DBarStacked":
+        case "3DBarStacked100":
           propertiesToLoad.push(
-            "axes/categoryAxis/format/line",
-            "axes/categoryAxis/format/font",
-            "axes/valueAxis/format/line",
-            "axes/valueAxis/format/font",
-            "series",
-            "axes/categoryAxis/position",
-            "axes/valueAxis/position",
+            "axes/categoryAxis/*",
+            "axes/valueAxis/*",
+            "axes/categoryAxis/format/*",
+            "axes/valueAxis/format/*",
+            "axes/categoryAxis/format/line/*",
+            "axes/categoryAxis/format/font/*",
+            "axes/valueAxis/format/line/*",
+            "axes/valueAxis/format/font/*",
+            "series/items",
           );
           break;
 
-        case Excel.ChartType.pie:
-        case Excel.ChartType.doughnut:
-        case Excel.ChartType.treemap:
-        case Excel.ChartType.sunburst:
-        case Excel.ChartType._3DPie:
-        case Excel.ChartType._3DPieExploded:
-          propertiesToLoad.push("series");
+        case "Pie":
+        case "Doughnut":
+        case "Treemap":
+        case "Sunburst":
+        case "3DPie":
+        case "3DPieExploded":
+          propertiesToLoad.push("series/*");
           break;
 
-        case Excel.ChartType.scatter:
-        case Excel.ChartType.bubble:
-        case Excel.ChartType.xyscatter:
-        case Excel.ChartType.xyscatterLines:
-        case Excel.ChartType.xyscatterLinesNoMarkers:
-        case Excel.ChartType.xyscatterSmooth:
-        case Excel.ChartType.xyscatterSmoothNoMarkers:
+        case "Scatter":
+        case "Bubble":
+        case "Xyscatter":
+        case "XyscatterLines":
+        case "XyscatterLinesNoMarkers":
+        case "XyscatterSmooth":
+        case "XyscatterSmoothNoMarkers":
           propertiesToLoad.push(
-            "axes/valueAxis/format/line",
-            "axes/valueAxis/format/font",
-            "series",
-            "axes/valueAxis/position",
+            "axes/valueAxis/*",
+            "axes/valueAxis/format/*",
+            "axes/valueAxis/format/line/*",
+            "axes/valueAxis/format/font/*",
+            "series/*",
           );
           break;
 
-        case Excel.ChartType.stockHLC:
-        case Excel.ChartType.stockOHLC:
-        case Excel.ChartType.stockVHLC:
-        case Excel.ChartType.stockVOHLC:
-        case Excel.ChartType.surface:
-        case Excel.ChartType.surfaceTopView:
-        case Excel.ChartType.surfaceTopViewWireframe:
-        case Excel.ChartType.surfaceWireframe:
+        case "StockHLC":
+        case "StockOHLC":
+        case "StockVHLC":
+        case "StockVOHLC":
+        case "Surface":
+        case "SurfaceTopView":
+        case "SurfaceTopViewWireframe":
+        case "SurfaceWireframe":
           propertiesToLoad.push(
-            "axes/categoryAxis/format/line",
-            "axes/categoryAxis/format/font",
-            "axes/valueAxis/format/line",
-            "axes/valueAxis/format/font",
-            "series",
-            "axes/categoryAxis/position",
-            "axes/valueAxis/position",
+            "axes/categoryAxis/*",
+            "axes/valueAxis/*",
+            "axes/categoryAxis/format/*",
+            "axes/valueAxis/format/*",
+            "axes/categoryAxis/format/line/*",
+            "axes/categoryAxis/format/font/*",
+            "axes/valueAxis/format/line/*",
+            "axes/valueAxis/format/font/*",
+            "series/*",
           );
           break;
 
-        case Excel.ChartType.radar:
-        case Excel.ChartType.radarFilled:
-        case Excel.ChartType.radarMarkers:
+        case "Radar":
+        case "RadarFilled":
+        case "RadarMarkers":
           propertiesToLoad.push(
-            "axes/valueAxis/format/line",
-            "axes/valueAxis/format/font",
-            "series",
-            "axes/valueAxis/position",
+            "axes/valueAxis/*",
+            "axes/valueAxis/format/*",
+            "axes/valueAxis/format/line/*",
+            "axes/valueAxis/format/font/*",
+            "series/*",
           );
           break;
 
-        case Excel.ChartType.map:
-        case Excel.ChartType.regionMap:
-          propertiesToLoad.push("series");
+        case "Map":
+        case "RegionMap":
+          propertiesToLoad.push("series/*");
           break;
 
-        case Excel.ChartType.barClustered:
-        case Excel.ChartType.barStacked:
-        case Excel.ChartType.barStacked100:
-        case Excel.ChartType.coneBarClustered:
-        case Excel.ChartType.coneBarStacked:
-        case Excel.ChartType.coneBarStacked100:
-        case Excel.ChartType.cylinderBarClustered:
-        case Excel.ChartType.cylinderBarStacked:
-        case Excel.ChartType.cylinderBarStacked100:
-        case Excel.ChartType.pyramidBarClustered:
-        case Excel.ChartType.pyramidBarStacked:
-        case Excel.ChartType.pyramidBarStacked100:
-        case Excel.ChartType.barOfPie:
+        case "BarClustered":
+        case "BarStacked":
+        case "BarStacked100":
+        case "ConeBarClustered":
+        case "ConeBarStacked":
+        case "ConeBarStacked100":
+        case "CylinderBarClustered":
+        case "CylinderBarStacked":
+        case "CylinderBarStacked100":
+        case "PyramidBarClustered":
+        case "PyramidBarStacked":
+        case "PyramidBarStacked100":
+        case "BarOfPie":
           propertiesToLoad.push(
-            "axes/categoryAxis/format/line",
-            "axes/categoryAxis/format/font",
-            "axes/valueAxis/format/line",
-            "axes/valueAxis/format/font",
-            "series",
-            "axes/categoryAxis/position",
-            "axes/valueAxis/position",
+            "axes/categoryAxis/*",
+            "axes/categoryAxis/format/*",
+            "axes/valueAxis/*",
+            "axes/valueAxis/format/*",
+            "axes/categoryAxis/format/line/*",
+            "axes/categoryAxis/format/font/*",
+            "axes/valueAxis/format/line/*",
+            "axes/valueAxis/format/font/*",
+            "series/*",
           );
           break;
 
-        case Excel.ChartType.lineMarkers:
-        case Excel.ChartType.lineMarkersStacked:
-        case Excel.ChartType.lineMarkersStacked100:
-        case Excel.ChartType.pareto:
-        case Excel.ChartType.pieExploded:
-        case Excel.ChartType.pieOfPie:
-        case Excel.ChartType.doughnutExploded:
-          propertiesToLoad.push("series");
+        case "LineMarkers":
+        case "LineMarkersStacked":
+        case "LineMarkersStacked100":
+        case "Pareto":
+        case "PieExploded":
+        case "PieOfPie":
+        case "DoughnutExploded":
+          propertiesToLoad.push("series/*");
           break;
 
         default:
@@ -187,7 +185,6 @@ async function saveChartStylePreset(targetPreset, styleName) {
       }
 
       selectedChart.load(propertiesToLoad);
-      await context.sync();
 
       const chartFillColor = selectedChart.format.fill.getSolidColor();
       const legendFillColor = selectedChart.legend.format.fill.getSolidColor();
@@ -208,7 +205,7 @@ async function saveChartStylePreset(targetPreset, styleName) {
         },
         roundedCorners: selectedChart.format.roundedCorners,
         fill: {
-          color: chartFillColor,
+          color: chartFillColor.value,
         },
         border: {
           lineStyle: selectedChart.format.border.lineStyle,
@@ -216,7 +213,7 @@ async function saveChartStylePreset(targetPreset, styleName) {
           weight: selectedChart.format.border.weight,
         },
         plotArea: {
-          fill: plotAreaFillColor,
+          fill: plotAreaFillColor.value,
           border: {
             lineStyle: selectedChart.plotArea.format.border.lineStyle,
             color: selectedChart.plotArea.format.border.color,
@@ -233,7 +230,7 @@ async function saveChartStylePreset(targetPreset, styleName) {
           insideWidth: selectedChart.plotArea.insideWidth,
         },
         legend: {
-          fill: legendFillColor,
+          fill: legendFillColor.value,
           font: {
             name: selectedChart.legend.format.font.name,
             size: selectedChart.legend.format.font.size,
@@ -249,7 +246,6 @@ async function saveChartStylePreset(targetPreset, styleName) {
           },
           position: selectedChart.legend.position,
         },
-        seriesNameLevel: selectedChart.seriesNameLevel,
       };
 
       if (propertiesToLoad.includes("axes/categoryAxis")) {
@@ -381,11 +377,7 @@ async function loadChartStylePreset(targetPreset, styleName) {
       applyAxisProperties(currentChart, chartStyle);
 
       if (chartStyle.series && currentChart.series) {
-        context.trackedObjects.add(currentChart);
-
         await applySeriesProperties(currentChart, chartStyle);
-
-        context.trackedObjects.remove(currentChart);
       }
 
       await context.sync();
@@ -393,13 +385,13 @@ async function loadChartStylePreset(targetPreset, styleName) {
       popUpMessage("loadSuccess", "차트 서식을 적용했습니다.");
     });
   } catch (error) {
-    popUpMessage("loadFail", "차트 서식 적용에 실패하였습니다.");
+    popUpMessage("workFail", "차트 서식 적용에 실패하였습니다.");
   }
 }
 
 function applyBasicChartProperties(currentChart, chartStyle) {
   if (chartStyle.fill.color) {
-    currentChart.format.fill.setSolidColor(chartStyle.fill.color.m_value);
+    currentChart.format.fill.setSolidColor(chartStyle.fill.color);
   } else {
     currentChart.format.fill.clear();
   }
@@ -437,10 +429,8 @@ function applyBasicChartProperties(currentChart, chartStyle) {
 
 function applyLegendProperties(currentChart, chartStyle) {
   if (chartStyle.legend) {
-    if (chartStyle.legend.fill.color) {
-      currentChart.legend.format.fill.setSolidColor(
-        chartStyle.legend.fill.color.m_value,
-      );
+    if (chartStyle.legend.fill) {
+      currentChart.legend.format.fill.setSolidColor(chartStyle.legend.fill);
     } else {
       currentChart.legend.format.fill.clear();
     }
@@ -482,10 +472,8 @@ function applyLegendProperties(currentChart, chartStyle) {
 
 function applyPlotAreaProperties(currentChart, chartStyle) {
   if (chartStyle.plotArea) {
-    if (chartStyle.plotArea.fill.color) {
-      currentChart.plotArea.format.fill.setSolidColor(
-        chartStyle.plotArea.fill.color.m_value,
-      );
+    if (chartStyle.plotArea.fill) {
+      currentChart.plotArea.format.fill.setSolidColor(chartStyle.plotArea.fill);
     } else {
       currentChart.plotArea.format.fill.clear();
     }
