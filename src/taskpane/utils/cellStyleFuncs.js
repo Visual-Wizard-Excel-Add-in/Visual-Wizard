@@ -59,6 +59,14 @@ async function extractCellStyle(context, address) {
 
         for (const border in borders) {
           if (
+            mainBorders.includes(border) &&
+            borders[border].style === "None"
+          ) {
+            filteredBorders[border] = borders[border];
+            filteredBorders[border].color = "#D6D6D6";
+            filteredBorders[border].style = "Continuous";
+            filteredBorders[border].tintAndShade = 0;
+          } else if (
             mainBorders.includes(border) ||
             borders[border].style !== "None"
           ) {
