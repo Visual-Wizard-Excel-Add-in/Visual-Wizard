@@ -5,7 +5,6 @@ import { useStyles } from "../../utils/style";
 import useStore from "../../utils/store";
 import CustomDropdown from "../common/CustomDropdown";
 import {
-  SaveIcon,
   DeleteIcon,
   RecordStart,
   RecordStop,
@@ -95,54 +94,33 @@ function MacroRecord() {
   }
 
   return (
-    <>
-      <div className="flex items-center justify-between space-x-5">
-        <div className="flex items-center w-8/12 space-x-2">
-          <button
-            onClick={newPreset}
-            className={styles.buttons}
-            aria-label="plus"
-            type="button"
-          >
-            <PlusIcon />
-          </button>
-          <CustomDropdown
-            handleValue={(value) => setSelectMacroPreset(value)}
-            options={macroPresets.map((preset) => ({
-              name: preset,
-              value: preset,
-            }))}
-            placeholder="매크로"
-            selectedValue={selectMacroPreset}
-          />
-          <button
-            onClick={handleDeletePreset}
-            className={styles.buttons}
-            aria-label="delete"
-            type="button"
-          >
-            <DeleteIcon />
-          </button>
-          <button
-            onClick={() => {}}
-            className={styles.buttons}
-            aria-label="save"
-            type="button"
-          >
-            <SaveIcon />
-          </button>
-        </div>
-        <Button
-          as="button"
-          className="self-center"
-          onClick={() => macroPlay(selectMacroPreset)}
-          size="small"
+    <div className="flex items-center justify-between space-x-5">
+      <div className="flex items-center w-8/12 space-x-2">
+        <button
+          onClick={newPreset}
+          className={styles.buttons}
+          aria-label="plus"
+          type="button"
         >
-          실행
-        </Button>
-      </div>
-      <div className="flex items-center justify-between space-x-5">
-        <span className="h-6">매크로 녹화</span>
+          <PlusIcon />
+        </button>
+        <CustomDropdown
+          handleValue={(value) => setSelectMacroPreset(value)}
+          options={macroPresets.map((preset) => ({
+            name: preset,
+            value: preset,
+          }))}
+          placeholder="매크로"
+          selectedValue={selectMacroPreset}
+        />
+        <button
+          onClick={handleDeletePreset}
+          className={styles.buttons}
+          aria-label="delete"
+          type="button"
+        >
+          <DeleteIcon />
+        </button>
         <button
           onClick={controlMacroRecording}
           className={styles.buttons}
@@ -152,7 +130,15 @@ function MacroRecord() {
           {isRecording ? <RecordStop /> : <RecordStart color="red" />}
         </button>
       </div>
-    </>
+      <Button
+        as="button"
+        className="self-center"
+        onClick={() => macroPlay(selectMacroPreset)}
+        size="small"
+      >
+        실행
+      </Button>
+    </div>
   );
 }
 
