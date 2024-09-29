@@ -64,8 +64,6 @@ async function getCellValue() {
       }
     });
   } catch (error) {
-    popUpMessage("loadFail", "셀 정보를 불러오는데 실패했습니다.");
-
     throw new Error(error.message);
   }
 }
@@ -104,6 +102,21 @@ async function getTargetCellValue(targetCell) {
   });
 
   return targetValue;
+}
+
+async function getSelectRangeValue() {
+  let rangeValue = null;
+
+  await Excel.run(async (context) => {
+    const selectRange = context.workbook.getSelectedRange();
+
+    selectRange.load("values");
+    await context.sync();
+
+    [rangeValue] = selectRange.values;
+  });
+
+  return rangeValue;
 }
 
 let handleSelectionChange = null;
@@ -342,6 +355,7 @@ function popUpMessage(purpose = null, option = "") {
 export {
   registerSelectionChange,
   getCellValue,
+  getSelectRangeValue,
   updateState,
   splitCellAddress,
   extractReferenceCells,
