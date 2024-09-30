@@ -3,38 +3,32 @@ import { popUpMessage } from "./commonFuncs";
 async function executeFunction(selectedOption) {
   try {
     Excel.run(async (context) => {
-      const sheetName = "SelectExtract";
+      const optionSheetName = "SelectExtract";
       const completeSheetName = "TriggerComplete";
-      let sheet = context.workbook.worksheets.getItemOrNullObject(sheetName);
+      let optionSheet =
+        context.workbook.worksheets.getItemOrNullObject(optionSheetName);
       let completeSheet =
         context.workbook.worksheets.getItemOrNullObject(completeSheetName);
 
       await context.sync();
 
-      if (!sheet.isNullObject) {
-        sheet.delete();
+      if (!optionSheet.isNullObject || !completeSheet.isNullObject) {
+        optionSheet?.delete();
+        completeSheet?.delete();
         await context.sync();
       }
 
-      sheet = context.workbook.worksheets.add(sheetName);
-      await context.sync();
+      optionSheet = context.workbook.worksheets.add(optionSheetName);
 
-      const targetRange = sheet.getRange("A1");
-      await context.sync();
+      const targetRange = optionSheet.getRange("A1");
 
       targetRange.values = [[`${selectedOption}`]];
-      await context.sync();
-
-      if (!completeSheet.isNullObject) {
-        sheet.delete();
-        await context.sync();
-      }
 
       completeSheet = context.workbook.worksheets.add(completeSheetName);
       await context.sync();
 
       setTimeout(async () => {
-        sheet.delete();
+        optionSheet.delete();
         completeSheet.delete();
         await context.sync();
       }, 1000);
