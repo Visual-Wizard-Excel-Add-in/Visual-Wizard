@@ -314,7 +314,7 @@ async function applyWorksheetChange(context, action) {
     const range = sheet.getRange(action.address);
 
     if (typeof action.details.value === "object") {
-      range.values = [action.details.value];
+      range.values = action.details.value;
     } else {
       range.values = [[action.details.value]];
     }

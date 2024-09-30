@@ -113,7 +113,7 @@ async function getSelectRangeValue() {
     selectRange.load("values");
     await context.sync();
 
-    [rangeValue] = selectRange.values;
+    rangeValue = selectRange.values;
   });
 
   return rangeValue;
