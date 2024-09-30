@@ -5,7 +5,7 @@ async function getLastCellAddress() {
     const sheet = context.workbook.worksheets.getActiveWorksheet();
     const usedRange = sheet.getUsedRange();
 
-    usedRange.load(["values"]);
+    usedRange.load("values");
     await context.sync();
 
     let lastRowIndex = -1;
@@ -14,9 +14,13 @@ async function getLastCellAddress() {
     usedRange.values.forEach((row, rowIndex) => {
       row.forEach((value, colIndex) => {
         if (value !== "") {
-          if (rowIndex > lastRowIndex) lastRowIndex = rowIndex;
+          if (rowIndex > lastRowIndex) {
+            lastRowIndex = rowIndex;
+          }
 
-          if (colIndex > lastColIndex) lastColIndex = colIndex;
+          if (colIndex > lastColIndex) {
+            lastColIndex = colIndex;
+          }
         }
       });
     });
@@ -67,6 +71,7 @@ async function evaluateTestFormula(newFormula) {
               if (match.includes("!")) {
                 return match;
               }
+
               return `${originSheetName}!${match}`;
             },
           );
@@ -76,6 +81,7 @@ async function evaluateTestFormula(newFormula) {
       const formulaRange = testSheet.getRange("A1");
 
       formulaRange.formulas = [[sheetRefFormula]];
+
       formulaRange.load("values");
       await context.sync();
 
