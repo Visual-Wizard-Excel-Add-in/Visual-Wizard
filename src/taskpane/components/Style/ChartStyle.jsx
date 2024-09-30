@@ -18,12 +18,22 @@ function ChartStyle() {
   useEffect(() => {
     async function fetchPresets() {
       const savedPresets = await loadPresets();
+      const sortedPresets = Object.keys(savedPresets).sort((a, b) => {
+        const numA = parseInt(a.replace(/\D/g, ""), 10);
+        const numB = parseInt(b.replace(/\D/g, ""), 10);
 
-      setChartStylePresets(Object.keys(savedPresets));
+        return numA - numB;
+      });
+
+      setChartStylePresets(sortedPresets);
+
+      if (sortedPresets.length > 0 && !selectedChartPreset) {
+        setSelectedChartPreset(sortedPresets[0]);
+      }
     }
 
     fetchPresets();
-  }, []);
+  }, [selectedChartPreset]);
 
   async function loadPresets() {
     let presets = await OfficeRuntime.storage.getItem("chartStylePresets");
@@ -38,26 +48,32 @@ function ChartStyle() {
   }
 
   async function newPreset() {
-    let lastPresetNum = 0;
+    let presetNumbers = [];
 
     if (chartStylePresets.length > 0) {
-      lastPresetNum = Number(
-        chartStylePresets[chartStylePresets.length - 1].split("식")[1],
+      presetNumbers = chartStylePresets.map((preset) =>
+        parseInt(preset.replace(/\D/g, ""), 10),
       );
     }
 
-    let newPresetName = "차트 서식1";
-
-    if (chartStylePresets.includes("차트 서식1")) {
-      newPresetName = `차트 서식${lastPresetNum + 1}`;
+    let lastPresetNum = 1;
+    while (presetNumbers.includes(lastPresetNum)) {
+      lastPresetNum += 1;
     }
+
+    const newPresetName = `차트 서식${lastPresetNum}`;
 
     await addPreset("chartStylePresets", newPresetName);
 
     const savedPresets = await loadPresets();
+    const sortedPresets = Object.keys(savedPresets).sort((a, b) => {
+      const numA = parseInt(a.replace(/\D/g, ""), 10);
+      const numB = parseInt(b.replace(/\D/g, ""), 10);
 
-    setChartStylePresets(Object.keys(savedPresets));
+      return numA - numB;
+    });
 
+    setChartStylePresets(sortedPresets);
     setSelectedChartPreset(newPresetName);
   }
 
@@ -66,12 +82,20 @@ function ChartStyle() {
       return;
     }
 
+    const selectIndex = chartStylePresets.indexOf(selectedChartPreset);
+
     await deletePreset("chartStylePresets", selectedChartPreset);
 
-    const savedPresets = await loadPresets();
+    const savedPresets = Object.keys(await loadPresets());
+    const sortedPresets = savedPresets.sort((a, b) => {
+      const numA = +parseInt(a.replace(/\D/g, ""), 10);
+      const numB = +parseInt(b.replace(/\D/g, ""), 10);
 
-    setSelectedChartPreset("");
-    setChartStylePresets(Object.keys(savedPresets));
+      return numA - numB;
+    });
+
+    setChartStylePresets(Object.keys(sortedPresets));
+    setSelectedChartPreset(sortedPresets[selectIndex]);
   }
 
   return (

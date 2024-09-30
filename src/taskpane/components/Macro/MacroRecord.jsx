@@ -15,58 +15,31 @@ import { manageRecording, macroPlay } from "../../utils/macroFuncs";
 
 function MacroRecord() {
   const [macroPresets, setMacroPresets] = useState([]);
-  const [isRecording, setIsRecording, selectMacroPreset, setSelectMacroPreset] =
-    useStore((state) => [
-      state.isRecording,
-      state.setIsRecording,
-      state.selectMacroPreset,
-      state.setSelectMacroPreset,
-    ]);
+  const isRecording = useStore((state) => state.isRecording);
+  const setIsRecording = useStore((state) => state.setIsRecording);
+  const selectMacroPreset = useStore((state) => state.selectMacroPreset);
+  const setSelectMacroPreset = useStore((state) => state.setSelectMacroPreset);
   const styles = useStyles();
 
   useEffect(() => {
     async function fetchPresets() {
       const savedPresets = await loadPresets();
+      const sortedPresets = Object.keys(savedPresets).sort((a, b) => {
+        const numA = parseInt(a.replace(/\D/g, ""), 10);
+        const numB = parseInt(b.replace(/\D/g, ""), 10);
 
-      setMacroPresets(Object.keys(savedPresets));
+        return numA - numB;
+      });
+
+      setMacroPresets(sortedPresets);
+
+      if (sortedPresets.length > 0 && !selectMacroPreset) {
+        setSelectMacroPreset(sortedPresets[0]);
+      }
     }
 
     fetchPresets();
-  }, []);
-
-  async function newPreset() {
-    let lastPresetNum = 0;
-
-    if (macroPresets.length > 0) {
-      lastPresetNum = Number(
-        macroPresets[macroPresets.length - 1].split("로")[1],
-      );
-    }
-
-    if (macroPresets.includes("매크로1")) {
-      await addPreset("allMacroPresets", `매크로${lastPresetNum + 1}`);
-    } else {
-      await addPreset("allMacroPresets", "매크로1");
-    }
-
-    const savedPresets = await loadPresets();
-    const sortedPresets = Object.keys(savedPresets).sort((a, b) =>
-      a.localeCompare(b),
-    );
-
-    setMacroPresets(sortedPresets);
-  }
-
-  function controlMacroRecording() {
-    if (selectMacroPreset === "") {
-      popUpMessage("loadFail", "프리셋을 선택해주세요!");
-
-      return;
-    }
-
-    manageRecording(!isRecording, selectMacroPreset);
-    setIsRecording(!isRecording);
-  }
+  }, [selectMacroPreset]);
 
   async function loadPresets() {
     let presets = await OfficeRuntime.storage.getItem("allMacroPresets");
@@ -80,17 +53,66 @@ function MacroRecord() {
     return presets;
   }
 
+  async function newPreset() {
+    let presetNumbers = [];
+
+    if (macroPresets.length > 0) {
+      presetNumbers = macroPresets.map((preset) =>
+        parseInt(preset.replace(/\D/g, ""), 10),
+      );
+    }
+
+    let lastPresetNum = 1;
+    while (presetNumbers.includes(lastPresetNum)) {
+      lastPresetNum += 1;
+    }
+
+    const newPresetName = `매크로${lastPresetNum}`;
+
+    await addPreset("allMacroPresets", newPresetName);
+
+    const savedPresets = await loadPresets();
+    const sortedPresets = Object.keys(savedPresets).sort((a, b) => {
+      const numA = parseInt(a.replace(/\D/g, ""), 10);
+      const numB = parseInt(b.replace(/\D/g, ""), 10);
+
+      return numA - numB;
+    });
+
+    setMacroPresets(sortedPresets);
+    setSelectMacroPreset(newPresetName);
+  }
+
   async function handleDeletePreset() {
-    if (!setSelectMacroPreset) {
+    if (!selectMacroPreset) {
       return;
     }
 
+    const selectIndex = macroPresets.indexOf(selectMacroPreset);
+
     await deletePreset("allMacroPresets", selectMacroPreset);
 
-    const savedPresets = await loadPresets();
+    const savedPresets = Object.keys(await loadPresets());
+    const sortedPresets = savedPresets.sort((a, b) => {
+      const numA = +parseInt(a.replace(/\D/g, ""), 10);
+      const numB = +parseInt(b.replace(/\D/g, ""), 10);
 
-    setSelectMacroPreset("");
-    setMacroPresets(Object.keys(savedPresets));
+      return numA - numB;
+    });
+
+    setMacroPresets(Object.keys(sortedPresets));
+    setSelectMacroPreset(sortedPresets[selectIndex]);
+  }
+
+  function controlMacroRecording() {
+    if (selectMacroPreset === "") {
+      popUpMessage("loadFail", "프리셋을 선택해주세요!");
+
+      return;
+    }
+
+    manageRecording(!isRecording, selectMacroPreset);
+    setIsRecording(!isRecording);
   }
 
   return (

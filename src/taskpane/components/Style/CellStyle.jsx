@@ -13,20 +13,26 @@ import { addPreset, deletePreset } from "../../utils/commonFuncs";
 
 function CellStyle() {
   const [cellStylePresets, setCellStylePresets] = useState([]);
-  const [selectedStylePreset, setSelectedStylePreset] = useStore((state) => [
-    state.selectedStylePreset,
-    state.setSelectedStylePreset,
-  ]);
+  const selectedStylePreset = useStore((state) => state.selectedStylePreset);
+  const setSelectedStylePreset = useStore(
+    (state) => state.setSelectedStylePreset,
+  );
   const styles = useStyles();
 
   useEffect(() => {
     async function fetchPresets() {
       const savedPresets = await loadPresets();
+      const sortedPresets = Object.keys(savedPresets).sort((a, b) => {
+        const numA = parseInt(a.replace(/\D/g, ""), 10);
+        const numB = parseInt(b.replace(/\D/g, ""), 10);
 
-      setCellStylePresets(Object.keys(savedPresets));
+        return numA - numB;
+      });
 
-      if (Object.keys(savedPresets).length > 0 && !selectedStylePreset) {
-        setSelectedStylePreset(Object.keys(savedPresets)[0]);
+      setCellStylePresets(sortedPresets);
+
+      if (sortedPresets.length > 0 && !selectedStylePreset) {
+        setSelectedStylePreset(sortedPresets[0]);
       }
     }
 
@@ -46,29 +52,32 @@ function CellStyle() {
   }
 
   async function newPreset() {
-    let lastPresetNum = 0;
+    let presetNumbers = [];
 
     if (cellStylePresets.length > 0) {
-      lastPresetNum = Number(
-        cellStylePresets[cellStylePresets.length - 1].split("식")[1],
+      presetNumbers = cellStylePresets.map((preset) =>
+        parseInt(preset.replace(/\D/g, ""), 10),
       );
     }
 
-    let newPresetName = "셀 서식1";
-
-    if (cellStylePresets.includes("셀 서식1")) {
-      newPresetName = `셀 서식${lastPresetNum + 1}`;
+    let lastPresetNum = 1;
+    while (presetNumbers.includes(lastPresetNum)) {
+      lastPresetNum += 1;
     }
+
+    const newPresetName = `셀 서식${lastPresetNum}`;
 
     await addPreset("cellStylePresets", newPresetName);
 
     const savedPresets = await loadPresets();
-    const sortedPresets = Object.keys(savedPresets).sort((a, b) =>
-      a.localeCompare(b),
-    );
+    const sortedPresets = Object.keys(savedPresets).sort((a, b) => {
+      const numA = parseInt(a.replace(/\D/g, ""), 10);
+      const numB = parseInt(b.replace(/\D/g, ""), 10);
+
+      return numA - numB;
+    });
 
     setCellStylePresets(sortedPresets);
-
     setSelectedStylePreset(newPresetName);
   }
 
@@ -77,19 +86,27 @@ function CellStyle() {
       return;
     }
 
+    const selectIndex = cellStylePresets.indexOf(selectedStylePreset);
+
     await deletePreset("cellStylePresets", selectedStylePreset);
 
-    const savedPresets = await loadPresets();
+    const savedPresets = Object.keys(await loadPresets());
+    const sortedPresets = savedPresets.sort((a, b) => {
+      const numA = +parseInt(a.replace(/\D/g, ""), 10);
+      const numB = +parseInt(b.replace(/\D/g, ""), 10);
 
-    setSelectedStylePreset("");
-    setCellStylePresets(Object.keys(savedPresets));
+      return numA - numB;
+    });
+
+    setCellStylePresets(sortedPresets);
+    setSelectedStylePreset(sortedPresets[selectIndex]);
   }
 
   return (
     <div className="flex items-center justify-between space-x-5">
       <div className="flex items-center w-8/12 space-x-2">
         <button
-          onClick={newPreset}
+          onClick={() => newPreset()}
           className={styles.buttons}
           aria-label="plus"
           type="button"
