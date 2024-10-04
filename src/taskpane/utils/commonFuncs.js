@@ -10,12 +10,6 @@ async function updateCellInfo() {
     await Excel.run(async (context) => {
       const range = context.workbook.getSelectedRange();
 
-      const prevCellValue = useStore.getState().cellValue;
-      const prevCellAddress = useStore.getState().cellAddress;
-      const prevCellFormula = useStore.getState().cellFormula;
-      const prevCellFunctions = useStore.getState().cellFunctions;
-      const prevCellArguments = useStore.getState().cellArgument;
-
       range.load(["address", "formulas", "values", "numberFormat"]);
       await context.sync();
 
@@ -44,24 +38,32 @@ async function updateCellInfo() {
         ).toLocaleDateString();
       }
 
-      if (selectedCellAddress !== prevCellAddress) {
-        updateState("setCellAddress", selectedCellAddress);
-      }
 
-      if (selectedCellValue !== prevCellValue) {
-        updateState("setCellValue", selectedCellValue);
-      }
+      updateCellState();
 
-      if (selectedCellformula !== prevCellFormula) {
-        updateState("setCellFormula", selectedCellformula);
-      }
+      function updateCellState() {
+        const stateMapping = {
+          cellAddress: { value: selectCell.address, setter: "setCellAddress" },
+          cellValue: { value: selectCell.values, setter: "setCellValue" },
+          cellFormula: { value: selectCell.formula, setter: "setCellFormula" },
+          cellFunctions: {
+            value: formulaFunctions,
+            setter: "setCellFunctions",
+          },
+          cellArgument: { value: formulaArgs, setter: "setCellArguments" },
+        };
 
-      if (formulaFunctions !== prevCellFunctions) {
-        updateState("setCellFunctions", formulaFunctions);
-      }
+        Object.keys(stateMapping).forEach((state) => {
+          const { value, setter } = stateMapping[state];
 
-      if (formulaArgs !== prevCellArguments) {
-        updateState("setCellArguments", formulaArgs);
+          if (isChanged(value, useStore.getState()[state])) {
+            updateState(setter, value);
+          }
+        });
+
+        function isChanged(cellValue, state) {
+          return cellValue !== state;
+        }
       }
     });
   } catch (error) {
