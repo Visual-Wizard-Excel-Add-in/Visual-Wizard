@@ -1,4 +1,5 @@
-import CellInfo from "../classes/cellInfo";
+import CellInfo from "../classes/CellInfo";
+import Message from "../classes/Message";
 import useStore from "./store";
 
 function updateState(setStateFunc, newValue) {
@@ -284,53 +285,7 @@ async function deletePreset(presetCategory, presetName) {
 }
 
 function popUpMessage(purpose = null, option = "") {
-  updateState("setMessageList", getMessage());
-
-  function getMessage() {
-    switch (purpose) {
-      case "loadFail":
-        return {
-          type: "warning",
-          title: "Load Failed:",
-          body: `데이터를 불러오는데 실패했습니다.\n${option}`,
-        };
-
-      case "saveFail":
-        return {
-          type: "warning",
-          title: "Save Failed:",
-          body: `데이터를 저장하는데 실패했습니다.\n${option}`,
-        };
-
-      case "workFail":
-        return {
-          type: "warning",
-          title: "Work Failed",
-          body: `실행에 실패했습니다.\n${option}`,
-        };
-
-      case "saveSuccess":
-        return {
-          type: "success",
-          title: "Saved",
-          body: `데이터를 저장했습니다.\n${option}`,
-        };
-
-      case "loadSuccess":
-        return {
-          type: "success",
-          title: "Loaded",
-          body: `데이터를 불러왔습니다.\n${option}`,
-        };
-
-      default:
-        return {
-          type: "warning",
-          title: "Undefiend Error:",
-          body: `예상하지 못한 에러가 발생했습니다.\n${option}`,
-        };
-    }
-  }
+  updateState("setMessageList", new Message(purpose, option).body);
 }
 
 export {
