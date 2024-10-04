@@ -238,7 +238,7 @@ describe("commonFuncs", () => {
     });
   });
 
-  describe("getCellValue", () => {
+  describe("updateCellInfo", () => {
     beforeEach(() => {
       vi.resetAllMocks();
 
@@ -282,7 +282,7 @@ describe("commonFuncs", () => {
         "B2(Test Value)",
       ]);
 
-      await commonFuncs.getCellValue();
+      await commonFuncs.updateCellInfo();
 
       expect(mockSetState.setCellAddress).toHaveBeenCalledWith("Sheet1!A1");
       expect(mockSetState.setCellValue).toHaveBeenCalledWith("Test Value");
@@ -315,7 +315,7 @@ describe("commonFuncs", () => {
 
       mockExcel.run.mockImplementation((callback) => callback(mockContext));
 
-      await commonFuncs.getCellValue();
+      await commonFuncs.updateCellInfo();
 
       expect(mockSetState.setCellValue).toHaveBeenCalledWith("2021. 1. 1.");
     });

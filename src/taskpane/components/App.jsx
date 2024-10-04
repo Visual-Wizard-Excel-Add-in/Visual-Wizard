@@ -8,7 +8,7 @@ import Macro from "./Macro/Macro";
 import Validate from "./Validate/Validate";
 import Share from "./Share/Share";
 import { useStyles } from "../utils/style";
-import { registerSelectionChange, getCellValue } from "../utils/commonFuncs";
+import { registerSelectionChange, updateCellInfo } from "../utils/commonFuncs";
 import CustomMessageBar from "./common/CustomMessageBar";
 
 let handleSheetChange = null;
@@ -39,7 +39,7 @@ function App() {
 
       setSheetId(sheet.id);
 
-      registerSelectionChange(sheet.id, getCellValue);
+      registerSelectionChange(sheet.id, updateCellInfo);
 
       handleSheetChange = worksheets.onActivated.add((event) =>
         onWorksheetChanged(event),
@@ -66,7 +66,7 @@ function App() {
     if (currentSheetId !== sheetId) {
       setSheetId(currentSheetId);
 
-      registerSelectionChange(currentSheetId, getCellValue);
+      registerSelectionChange(currentSheetId, updateCellInfo);
     }
   }
 

@@ -4,7 +4,7 @@ function updateState(setStateFunc, newValue) {
   useStore.getState()[setStateFunc](newValue);
 }
 
-async function getCellValue() {
+async function updateCellInfo() {
   try {
     await Excel.run(async (context) => {
       const range = context.workbook.getSelectedRange();
@@ -354,7 +354,7 @@ function popUpMessage(purpose = null, option = "") {
 
 export {
   registerSelectionChange,
-  getCellValue,
+  updateCellInfo,
   getSelectRangeValue,
   updateState,
   splitCellAddress,
