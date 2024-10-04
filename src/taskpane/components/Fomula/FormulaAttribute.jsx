@@ -48,9 +48,10 @@ function FormulaAttribute() {
   const resultCellValue = getValueWithComma(cellValue);
 
   function getValueWithComma(value) {
-    if (typeof value !== "number") {
+    if (typeof +value !== "number") {
       return value;
     }
+
     const valueInStr = typeof value === "string" ? value : String(cellValue);
     let valueWithComma = null;
 
