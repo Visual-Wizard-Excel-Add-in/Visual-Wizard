@@ -1,19 +1,17 @@
 import { storeCellStyle, applyCellStyle } from "./cellStyleFuncs";
 import { getSelectRangeValue, popUpMessage } from "./commonFuncs";
+import useHandlerStore from "../store/handlerStore";
 
-let worksheetChangedHandler;
-let tableChangedHandler;
-let chartAddedHandler;
-let tableAddedHandler;
-let formatChangedHandler;
-let actions = [];
+const actions = [];
 
-async function removeHandler(handler) {
+async function removeHandler(handler, setter) {
   if (handler) {
     await Excel.run(handler.context, async (context) => {
       handler.remove();
       await context.sync();
     });
+
+    useHandlerStore.getState()[setter](null);
   } else {
     throw new Error(`No Exist ${handler} event`);
   }
@@ -26,53 +24,86 @@ async function manageRecording(isRecording, presetName) {
 
   await Excel.run(async (context) => {
     const sheet = context.workbook.worksheets.getActiveWorksheet();
-    const newTables = context.workbook.tables;
+    const { tables } = context.workbook;
+    const handlers = {
+      tableChangedHandler: {
+        target: tables,
+        eventName: "onChanged",
+        setter: "setTableChangedHandler",
+      },
+      chartAddedHandler: {
+        target: sheet.charts,
+        eventName: "onAdded",
+        setter: "setTableAddedHandler",
+      },
+      tableAddedHandler: {
+        target: sheet.tables,
+        eventName: "onAdded",
+        setter: "setChartAddedHandler",
+      },
+      formatChangedHandler: {
+        target: sheet,
+        eventName: "onFormatChanged",
+        setter: "setFormatChangedHandler",
+      },
+      worksheetChangedHandler: {
+        target: sheet,
+        eventName: "onChanged",
+        setter: "setWorksheetChangedHandler",
+      },
+    };
 
     if (isRecording) {
-      actions = [];
-      tableChangedHandler = newTables.onChanged.add((event) =>
-        onWorksheetChanged(event, presetName),
-      );
-      chartAddedHandler = sheet.charts.onAdded.add((event) =>
-        onWorksheetChanged(event, presetName),
-      );
-      tableAddedHandler = sheet.tables.onAdded.add((event) =>
-        onWorksheetChanged(event, presetName),
-      );
-      formatChangedHandler = sheet.onFormatChanged.add(async (event) =>
-        onWorksheetChanged(event, presetName),
-      );
-      worksheetChangedHandler = sheet.onChanged.add((event) =>
-        onWorksheetChanged(event, presetName),
-      );
+      addHandler();
 
-      let allMacroPresets =
-        await OfficeRuntime.storage.getItem("allMacroPresets");
-      allMacroPresets = allMacroPresets ? JSON.parse(allMacroPresets) : {};
+      const allMacroPresets = await getStorage("allMacroPresets");
       allMacroPresets[presetName] = { actions: [] };
 
-      await OfficeRuntime.storage.setItem(
-        "allMacroPresets",
-        JSON.stringify(allMacroPresets),
-      );
-      await context.sync();
-    } else {
-      await removeHandler(worksheetChangedHandler);
-      await removeHandler(tableChangedHandler);
-      await removeHandler(chartAddedHandler);
-      await removeHandler(tableAddedHandler);
-      await removeHandler(formatChangedHandler);
+      await setStorage("allMacroPresets", allMacroPresets);
 
-      worksheetChangedHandler = null;
-      tableChangedHandler = null;
-      chartAddedHandler = null;
-      tableAddedHandler = null;
-      formatChangedHandler = null;
+      await await context.sync();
+    } else {
+      await removeEventHandler();
 
       await saveMacro(presetName);
     }
+
+    function addHandler() {
+      Object.keys(handlers).forEach((handler) => {
+        const eventHandler = handlers[handler];
+
+        useHandlerStore
+          .getState()
+          [
+            eventHandler.setter
+          ](eventHandler.target[eventHandler.eventName].add((event) => onWorksheetChanged(event, presetName)));
+      });
+    }
+
+    async function removeEventHandler() {
+      const requests = Object.keys(handlers).map((handler) => {
+        return removeHandler(
+          useHandlerStore.getState()[handler],
+          handlers[handler].setter,
+        );
+      });
+
+      await Promise.allSettled(requests);
+    }
+
+    async function getStorage(data) {
+      const storageData = await OfficeRuntime.storage.getItem(data);
+
+      return storageData ? JSON.parse(storageData) : {};
+    }
+
+    async function setStorage(key, data) {
+      await OfficeRuntime.storage.setItem(key, JSON.stringify(data));
+    }
   }).catch((error) => {
     popUpMessage("workFail", `녹화를 시작할 수 없습니다. ${error.message}`);
+
+    throw new Error(error.message);
   });
 }
 
