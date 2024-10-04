@@ -108,8 +108,6 @@ async function manageRecording(isRecording, presetName) {
 }
 
 async function onWorksheetChanged(event, presetName) {
-  const action = { type: event.type };
-  let cellStyleData = null;
   let allMacroPresets = await OfficeRuntime.storage.getItem("allMacroPresets");
 
   allMacroPresets = allMacroPresets ? JSON.parse(allMacroPresets) : {};
@@ -118,7 +116,24 @@ async function onWorksheetChanged(event, presetName) {
     allMacroPresets[presetName] = { actions: [], cellStyles: {} };
   }
 
+  const action = { type: event.type };
+
   try {
+    await recordAction();
+  } catch (error) {
+    popUpMessage(
+      "workFail",
+      `기록 중 예상치 못한 에러가 발생했습니다. ${error.message}`,
+    );
+  }
+
+  if (action.chartType === "Unknown") {
+    popUpMessage("loadFail", "매크로 설정에서 차트 타입을 변경해주세요.");
+  }
+
+  actions.push(action);
+
+  async function recordAction() {
     switch (event.type) {
       case "WorksheetChanged":
         action.address = event.address;
@@ -131,12 +146,11 @@ async function onWorksheetChanged(event, presetName) {
 
       case "WorksheetFormatChanged":
         action.address = event.address;
-        cellStyleData = await storeCellStyle(
+        action.cellStyle = await storeCellStyle(
           event.address,
           "allMacroPresets",
           true,
         );
-        action.cellStyle = cellStyleData;
         break;
 
       case "TableChanged":
@@ -160,18 +174,7 @@ async function onWorksheetChanged(event, presetName) {
         popUpMessage("loadFail", "지원하지 않는 형식입니다.");
         break;
     }
-  } catch (error) {
-    popUpMessage(
-      "workFail",
-      `기록 중 예상치 못한 에러가 발생했습니다. ${error.message}`,
-    );
   }
-
-  if (action.chartType === "Unknown") {
-    popUpMessage("loadFail", "매크로 설정에서 차트 타입을 변경해주세요.");
-  }
-
-  actions.push(action);
 }
 
 async function saveMacro(presetName) {
@@ -300,6 +303,12 @@ async function macroPlay(presetName) {
       }
 
       for (const action of presetData.actions) {
+        await replayRecords(action);
+      }
+
+      await context.sync();
+
+      async function replayRecords(action) {
         switch (action.type) {
           case "WorksheetChanged":
             await applyWorksheetChange(context, action);
@@ -331,8 +340,6 @@ async function macroPlay(presetName) {
             break;
         }
       }
-
-      await context.sync();
     });
   } catch (error) {
     popUpMessage("workFail", "지원하는 타입의 기록인지 확인해주세요.");
