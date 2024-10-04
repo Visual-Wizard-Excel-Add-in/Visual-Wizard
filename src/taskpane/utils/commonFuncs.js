@@ -1,3 +1,4 @@
+import CellInfo from "../classes/cellInfo";
 import useStore from "./store";
 
 function updateState(setStateFunc, newValue) {
