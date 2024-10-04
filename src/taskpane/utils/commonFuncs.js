@@ -13,31 +13,15 @@ async function updateCellInfo() {
       range.load(["address", "formulas", "values", "numberFormat"]);
       await context.sync();
 
-      const selectedCellAddress = range.address;
-      const numberFormat = range.numberFormat[0][0];
-      let selectedCellValue = range.values[0][0];
-      let selectedCellformula = range.formulas[0][0];
+      const selectCell = new CellInfo(
+        range.address,
+        range.values[0][0],
+        range.formulas[0][0],
+        range.numberFormat[0][0],
+      );
 
-      if (
-        typeof selectedCellformula === "string" &&
-        !selectedCellformula.startsWith("=")
-      ) {
-        selectedCellformula = "";
-      }
-
-      const formulaFunctions = extractFunctionsFromFormula(selectedCellformula);
-      const formulaArgs = await extractArgsFromFormula(selectedCellformula);
-
-      if (
-        numberFormat &&
-        numberFormat.includes("yy") &&
-        selectedCellValue !== ""
-      ) {
-        selectedCellValue = new Date(
-          (selectedCellValue - 25569) * 86400 * 1000,
-        ).toLocaleDateString();
-      }
-
+      const formulaFunctions = extractFunctionsFromFormula(selectCell.formula);
+      const formulaArgs = await extractArgsFromFormula(selectCell.formula);
 
       updateCellState();
 
