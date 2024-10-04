@@ -284,11 +284,11 @@ async function deletePreset(presetCategory, presetName) {
 }
 
 function popUpMessage(purpose = null, option = "") {
-  let warningMessage = null;
+  let message = null;
 
   switch (purpose) {
     case "loadFail":
-      warningMessage = {
+      message = {
         type: "warning",
         title: "Load Failed:",
         body: `데이터를 불러오는데 실패했습니다.\n${option}`,
@@ -296,7 +296,7 @@ function popUpMessage(purpose = null, option = "") {
       break;
 
     case "saveFail":
-      warningMessage = {
+      message = {
         type: "warning",
         title: "Save Failed:",
         body: `데이터를 저장하는데 실패했습니다.\n${option}`,
@@ -304,7 +304,7 @@ function popUpMessage(purpose = null, option = "") {
       break;
 
     case "workFail":
-      warningMessage = {
+      message = {
         type: "warning",
         title: "Work Failed",
         body: `실행에 실패했습니다.\n${option}`,
@@ -312,7 +312,7 @@ function popUpMessage(purpose = null, option = "") {
       break;
 
     case "saveSuccess":
-      warningMessage = {
+      message = {
         type: "success",
         title: "Saved",
         body: `데이터를 저장했습니다.\n${option}`,
@@ -320,7 +320,7 @@ function popUpMessage(purpose = null, option = "") {
       break;
 
     case "loadSuccess":
-      warningMessage = {
+      message = {
         type: "success",
         title: "Loaded",
         body: `데이터를 불러왔습니다.\n${option}`,
@@ -328,7 +328,7 @@ function popUpMessage(purpose = null, option = "") {
       break;
 
     default:
-      warningMessage = {
+      message = {
         type: "warning",
         title: "Undefiend Error:",
         body: `예상하지 못한 에러가 발생했습니다.\n${option}`,
@@ -336,7 +336,7 @@ function popUpMessage(purpose = null, option = "") {
       break;
   }
 
-  updateState("setMessageList", warningMessage);
+  updateState("setMessageList", message);
 }
 
 export {
