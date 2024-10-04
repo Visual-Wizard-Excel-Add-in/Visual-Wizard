@@ -1,4 +1,4 @@
-import ProgressGraph from "./ProgressGraph";
+import ProgressGraph from "../classes/ProgressGraph";
 
 async function parseFormulaSteps(formula) {
   try {
