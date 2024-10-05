@@ -1,13 +1,13 @@
 import { useCallback, useState } from "react";
 
-import useStore from "../../utils/store";
+import usePublicStore from "../../store/publicStore";
 import FeatureTab from "../common/FeatureTab";
 import MacroRecord from "./MacroRecord";
 import MacroSetting from "./MacroSetting";
 import MacroNoticeBar from "./MacroNoticeBar";
 
 function Macro() {
-  const [openTab, setOpenTab] = useStore((state) => [
+  const [openTab, setOpenTab] = usePublicStore((state) => [
     state.openTab,
     state.setOpenTab,
   ]);

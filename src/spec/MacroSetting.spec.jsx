@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
 import MacroSetting from "../taskpane/components/Macro/MacroSetting";
-import useStore from "../taskpane/utils/store";
+import usePublicStore from "../taskpane/store/publicStore";
 
 global.OfficeRuntime = {
   storage: {
@@ -19,7 +19,7 @@ describe("MacroSetting", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    useStore.mockReturnValue({
+    usePublicStore.mockReturnValue({
       selectMacroPreset: "TestPreset",
     });
 

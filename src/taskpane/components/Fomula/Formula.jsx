@@ -1,14 +1,14 @@
 import { useCallback } from "react";
 
 import FeatureTab from "../common/FeatureTab";
-import useStore from "../../utils/store";
+import usePublicStore from "../../store/publicStore";
 import FormulaInformation from "./FormulaInfomation";
 import FormulaAttribute from "./FormulaAttribute";
 import FormulaOrder from "./FormulaOrder";
 
 function Fomula() {
-  const setOpenTab = useStore((state) => state.setOpenTab);
-  const openTab = useStore((state) => state.openTab);
+  const setOpenTab = usePublicStore((state) => state.setOpenTab);
+  const openTab = usePublicStore((state) => state.openTab);
   const features = [
     {
       name: "정보",

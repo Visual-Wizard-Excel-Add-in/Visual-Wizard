@@ -1,20 +1,22 @@
 import { useCallback } from "react";
 import { Switch } from "@fluentui/react-components";
 
-import useStore from "../../utils/store";
+import usePublicStore from "../../store/publicStore";
 import { highlightingCell } from "../../utils/cellStyleFuncs";
 import { groupCellsIntoRanges } from "../../utils/formulaFuncs";
 
 function FormulaAttribute() {
-  const isCellHighlighting = useStore((state) => state.isCellHighlighting);
-  const setIsCellHighlighting = useStore(
+  const isCellHighlighting = usePublicStore(
+    (state) => state.isCellHighlighting,
+  );
+  const setIsCellHighlighting = usePublicStore(
     (state) => state.setIsCellHighlighting,
   );
-  const cellFormula = useStore((state) => state.cellFormula);
-  const cellArguments = useStore((state) => state.cellArguments);
-  const cellAddress = useStore((state) => state.cellAddress);
-  const cellValue = useStore((state) => state.cellValue);
-  const cellFunctions = useStore((state) => state.cellFunctions);
+  const cellFormula = usePublicStore((state) => state.cellFormula);
+  const cellArguments = usePublicStore((state) => state.cellArguments);
+  const cellAddress = usePublicStore((state) => state.cellAddress);
+  const cellValue = usePublicStore((state) => state.cellValue);
+  const cellFunctions = usePublicStore((state) => state.cellFunctions);
 
   const handleHighlighting = useCallback(async () => {
     const newHighlightState = !isCellHighlighting;

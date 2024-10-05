@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 
 import FormulaInformation from "../taskpane/components/Fomula/FormulaInfomation";
-import useStore from "../taskpane/utils/store";
+import usePublicStore from "../taskpane/store/publicStore";
 import FORMULA_EXPLANATION from "../taskpane/utils/FORMULA_EXPLANATION";
 
 vi.mock("../taskpane/utils/store", () => ({
@@ -10,7 +10,7 @@ vi.mock("../taskpane/utils/store", () => ({
 
 describe("FormulaInformation", () => {
   beforeEach(() => {
-    useStore.mockReturnValue({
+    usePublicStore.mockReturnValue({
       cellFunctions: ["IF", "SUM", "AVERAGE"],
     });
   });
@@ -36,7 +36,7 @@ describe("FormulaInformation", () => {
   });
 
   it("If selected cell has no Formula, should show notice message.", () => {
-    useStore.mockReturnValue({
+    usePublicStore.mockReturnValue({
       cellFunctions: [],
     });
 

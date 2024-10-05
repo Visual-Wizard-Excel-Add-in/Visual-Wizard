@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button, Input, Divider } from "@fluentui/react-components";
 
-import useStore from "../../utils/store";
+import usePublicStore from "../../store/publicStore";
 import CustomDropdown from "../common/CustomDropdown";
 import {
   CHART_TYPE_LIST,
@@ -13,7 +13,7 @@ function MacroSetting() {
   const [storedMacro, setStoredMacro] = useState([]);
   const [modifiedActions, setModifiedActions] = useState({});
   const [selectChartType, setSelectChartType] = useState("");
-  const selectMacroPreset = useStore((state) => state.selectMacroPreset);
+  const selectMacroPreset = usePublicStore((state) => state.selectMacroPreset);
 
   useEffect(() => {
     async function fetchMacroPresets() {

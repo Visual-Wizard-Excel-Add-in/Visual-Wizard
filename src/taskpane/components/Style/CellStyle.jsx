@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@fluentui/react-components";
 
 import CustomDropdown from "../common/CustomDropdown";
-import useStore from "../../utils/store";
+import usePublicStore from "../../store/publicStore";
 import { useStyles } from "../../utils/style";
 import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
 import {
@@ -13,8 +13,10 @@ import { addPreset, deletePreset } from "../../utils/commonFuncs";
 
 function CellStyle() {
   const [cellStylePresets, setCellStylePresets] = useState([]);
-  const selectedStylePreset = useStore((state) => state.selectedStylePreset);
-  const setSelectedStylePreset = useStore(
+  const selectedStylePreset = usePublicStore(
+    (state) => state.selectedStylePreset,
+  );
+  const setSelectedStylePreset = usePublicStore(
     (state) => state.setSelectedStylePreset,
   );
   const styles = useStyles();

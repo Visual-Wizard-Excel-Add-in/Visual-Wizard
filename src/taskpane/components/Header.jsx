@@ -1,12 +1,12 @@
 import { useCallback } from "react";
 import { Tab, TabList } from "@fluentui/react-components";
 
-import useStore from "../utils/store";
+import usePublicStore from "../store/publicStore";
 import { useStyles } from "../utils/style";
 
 function Header() {
   const styles = useStyles();
-  const [setCategory, setOpenTab] = useStore((state) => [
+  const [setCategory, setOpenTab] = usePublicStore((state) => [
     state.setCategory,
     state.setOpenTab,
   ]);

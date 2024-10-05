@@ -9,12 +9,12 @@ import {
   Button,
 } from "@fluentui/react-components";
 
-import useStore from "../../utils/store";
+import usePublicStore from "../../store/publicStore";
 import { useStyles } from "../../utils/style";
 
 function CustomMessageBar() {
-  const messageList = useStore((state) => state.messageList);
-  const removeMessage = useStore((state) => state.removeMessage);
+  const messageList = usePublicStore((state) => state.messageList);
+  const removeMessage = usePublicStore((state) => state.removeMessage);
   const styles = useStyles();
   const messageId = useId();
 

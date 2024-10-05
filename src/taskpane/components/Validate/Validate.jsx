@@ -1,12 +1,12 @@
 import { useCallback } from "react";
 
-import useStore from "../../utils/store";
+import usePublicStore from "../../store/publicStore";
 import FeatureTab from "../common/FeatureTab";
 import ValidateTest from "./ValidateTest";
 import FormulaTest from "./FormulaTest";
 
 function Validate() {
-  const [openTab, setOpenTab] = useStore((state) => [
+  const [openTab, setOpenTab] = usePublicStore((state) => [
     state.openTab,
     state.setOpenTab,
   ]);

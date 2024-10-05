@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import useStore from "../utils/store";
+import usePublicStore from "../store/publicStore";
 import Header from "./Header";
 import Formula from "./Fomula/Formula";
 import Style from "./Style/Style";
@@ -14,10 +14,10 @@ import CustomMessageBar from "./common/CustomMessageBar";
 let handleSheetChange = null;
 
 function App() {
-  const category = useStore((state) => state.category);
-  const sheetId = useStore((state) => state.sheetId);
-  const setSheetId = useStore((state) => state.setSheetId);
-  const messageList = useStore((state) => state.messageList);
+  const category = usePublicStore((state) => state.category);
+  const sheetId = usePublicStore((state) => state.sheetId);
+  const setSheetId = usePublicStore((state) => state.setSheetId);
+  const messageList = usePublicStore((state) => state.messageList);
   const styles = useStyles();
 
   const categories = {

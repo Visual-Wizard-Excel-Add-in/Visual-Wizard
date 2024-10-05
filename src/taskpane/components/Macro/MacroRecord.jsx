@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@fluentui/react-components";
 
 import { useStyles } from "../../utils/style";
-import useStore from "../../utils/store";
+import usePublicStore from "../../store/publicStore";
 import CustomDropdown from "../common/CustomDropdown";
 import {
   DeleteIcon,
@@ -15,10 +15,12 @@ import { manageRecording, macroPlay } from "../../utils/macroFuncs";
 
 function MacroRecord() {
   const [macroPresets, setMacroPresets] = useState([]);
-  const isRecording = useStore((state) => state.isRecording);
-  const setIsRecording = useStore((state) => state.setIsRecording);
-  const selectMacroPreset = useStore((state) => state.selectMacroPreset);
-  const setSelectMacroPreset = useStore((state) => state.setSelectMacroPreset);
+  const isRecording = usePublicStore((state) => state.isRecording);
+  const setIsRecording = usePublicStore((state) => state.setIsRecording);
+  const selectMacroPreset = usePublicStore((state) => state.selectMacroPreset);
+  const setSelectMacroPreset = usePublicStore(
+    (state) => state.setSelectMacroPreset,
+  );
   const styles = useStyles();
 
   useEffect(() => {

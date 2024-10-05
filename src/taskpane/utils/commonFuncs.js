@@ -1,9 +1,9 @@
 import CellInfo from "../classes/CellInfo";
 import Message from "../classes/Message";
-import useStore from "./store";
+import usePublicStore from "../store/publicStore";
 
 function updateState(setStateFunc, newValue) {
-  useStore.getState()[setStateFunc](newValue);
+  usePublicStore.getState()[setStateFunc](newValue);
 }
 
 async function updateCellInfo() {
@@ -41,7 +41,7 @@ async function updateCellInfo() {
         Object.keys(stateMapping).forEach((state) => {
           const { value, setter } = stateMapping[state];
 
-          if (isChanged(value, useStore.getState()[state])) {
+          if (isChanged(value, usePublicStore.getState()[state])) {
             updateState(setter, value);
           }
         });

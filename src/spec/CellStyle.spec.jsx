@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 
 import CellStyle from "../taskpane/components/Style/CellStyle";
-import useStore from "../taskpane/utils/store";
+import usePublicStore from "../taskpane/store/publicStore";
 import {
   saveRangeStylePreset,
   loadRangeStylePreset,
@@ -34,7 +34,7 @@ describe("CellStyle", () => {
       setSelectedStylePreset: vi.fn(),
     };
 
-    useStore.mockReturnValue(mockStore);
+    usePublicStore.mockReturnValue(mockStore);
   });
 
   it("should create a new style preset", async () => {

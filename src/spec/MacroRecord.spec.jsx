@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 
 import MacroRecord from "../taskpane/components/Macro/MacroRecord";
-import useStore from "../taskpane/utils/store";
+import usePublicStore from "../taskpane/store/publicStore";
 import {
   addPreset,
   deletePreset,
@@ -38,7 +38,7 @@ describe("MacroRecord Component", () => {
       setSelectMacroPreset: vi.fn(),
     };
 
-    useStore.mockReturnValue(mockStore);
+    usePublicStore.mockReturnValue(mockStore);
   });
 
   afterEach(() => {

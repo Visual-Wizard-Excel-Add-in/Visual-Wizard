@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button, Input, Divider } from "@fluentui/react-components";
 
-import useStore from "../../utils/store";
+import usePublicStore from "../../store/publicStore";
 import { extractReferenceCells } from "../../utils/commonFuncs";
 import { evaluateTestFormula } from "../../utils/validateFuncs";
 import {
@@ -13,9 +13,9 @@ function FormulaTest() {
   const [args, setArgs] = useState([]);
   const [inputValues, setInputValues] = useState({});
   const [testResult, setTestResult] = useState(null);
-  const cellFormula = useStore((state) => state.cellFormula);
-  const cellValue = useStore((state) => state.cellValue);
-  const cellArguments = useStore((state) => state.cellArguments);
+  const cellFormula = usePublicStore((state) => state.cellFormula);
+  const cellValue = usePublicStore((state) => state.cellValue);
+  const cellArguments = usePublicStore((state) => state.cellArguments);
 
   useEffect(() => {
     const fetchArgs = async () => {
