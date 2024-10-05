@@ -1,18 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
-import { Button, Input, Divider } from "@fluentui/react-components";
+import { Button } from "@fluentui/react-components";
+import ActionDetails from "./ActionDetails";
+import MacroNoticeBar from "./MacroNoticeBar";
 
 import usePublicStore from "../../store/publicStore";
-import CustomDropdown from "../common/CustomDropdown";
-import {
-  CHART_TYPE_LIST,
-  translateChartTypeKOR,
-  translateChartTypeENG,
-} from "../../utils/chartTypeUtils";
 
 function MacroSetting() {
   const [storedMacro, setStoredMacro] = useState([]);
   const [modifiedActions, setModifiedActions] = useState({});
-  const [selectChartType, setSelectChartType] = useState("");
+  const [isShowNoticeBar, setIsShowNoticeBar] = useState(true);
   const selectMacroPreset = usePublicStore((state) => state.selectMacroPreset);
 
   useEffect(() => {
@@ -30,153 +26,6 @@ function MacroSetting() {
 
     fetchMacroPresets();
   }, [selectMacroPreset]);
-
-  function getMergedRange(action) {
-    let mergedRange = "";
-
-    if (action.dataRange[0].includes(":")) {
-      mergedRange = `${action.dataRange[0].split(":")[0]}:${action.dataRange[action.dataRange.length - 1].split(":")[1]}`;
-    } else {
-      mergedRange = `${action.dataRange[0]}:${action.dataRange[action.dataRange.length - 1]}`;
-    }
-
-    return mergedRange;
-  }
-
-  function renderActionType(action, index) {
-    let actionContent = null;
-
-    switch (action.type) {
-      case "WorksheetChanged":
-        actionContent = (
-          <div className="mb-3">
-            <p className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
-              {index + 1}. 셀 내용 변경
-            </p>
-            <p>
-              셀 주소:&nbsp;
-              <Input
-                onChange={(e) => handleChange(index, "address", e.target.value)}
-                placeholder={`${action.address ? action.address : ""}`}
-              />
-            </p>
-            <p>
-              입력값:&nbsp;&nbsp;
-              <Input
-                onChange={(e) =>
-                  handleChange(index, "details.value", e.target.value)
-                }
-                placeholder={`현재값: ${action.details.value ? action.details.value : ""}`}
-              />
-            </p>
-          </div>
-        );
-        break;
-
-      case "WorksheetFormatChanged":
-        actionContent = (
-          <span className="text-base font-bold bg-green-500 bg-opacity-20">
-            {index + 1}. 셀 서식 변경
-          </span>
-        );
-        break;
-
-      case "TableChanged":
-        actionContent = (
-          <span className="text-base font-bold bg-green-500 bg-opacity-20">
-            {index + 1}. 테이블 변경
-          </span>
-        );
-        break;
-
-      case "ChartAdded":
-        actionContent = (
-          <div>
-            <p className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
-              {index + 1}. 차트 추가
-            </p>
-            <div>
-              차트 타입:&nbsp;{" "}
-              <CustomDropdown
-                handleValue={(value) => {
-                  setSelectChartType(value);
-                  handleChange(
-                    index,
-                    "chartType",
-                    translateChartTypeENG(value),
-                  );
-                }}
-                options={CHART_TYPE_LIST.map((chartType) => ({
-                  name: chartType.name,
-                  value: chartType.value,
-                  label: chartType.label,
-                }))}
-                placeholder={translateChartTypeKOR(action.chartType)}
-                selectedValue={selectChartType}
-              />
-            </div>
-            <div className="my-2">
-              데이터 범위:&nbsp;
-              <Input
-                onChange={(e) =>
-                  handleChange(index, "dataRange", e.target.value)
-                }
-                placeholder={`현재값: ${getMergedRange(action)}`}
-              />
-            </div>
-          </div>
-        );
-        break;
-
-      case "TableAdded":
-        actionContent = (
-          <div>
-            <div className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
-              {index + 1}. 표 추가
-            </div>
-            <div className="my-2">
-              데이터 범위:&nbsp;
-              <Input
-                onChange={(e) => handleChange(index, "address", e.target.value)}
-                placeholder={action.address}
-              />
-            </div>
-          </div>
-        );
-        break;
-
-      default:
-        return "지원하지 않는 형식의 기록입니다.";
-    }
-
-    return (
-      <div key={`${action.type}-${index}`}>
-        {actionContent}
-        <Divider className="my-2" appearance="strong" />
-      </div>
-    );
-  }
-
-  function handleChange(index, fieldPath, value) {
-    setModifiedActions((prev) => {
-      const [mainField, subField] = fieldPath.split(".");
-      const updatedAction = {
-        ...prev[index],
-        [mainField]: { ...prev[index]?.[mainField] },
-      };
-
-      if (subField) {
-        updatedAction[mainField][subField] = value;
-      } else {
-        updatedAction[mainField] = value;
-      }
-
-      return {
-        ...prev,
-        [index]: updatedAction,
-      };
-    });
-  }
 
   const applyChanges = useCallback(async () => {
     const updatedActions = storedMacro.map((action, index) => {
@@ -218,7 +67,14 @@ function MacroSetting() {
           변경사항 적용
         </Button>
       </div>
-      {storedMacro.map((action, index) => renderActionType(action, index))}
+      {storedMacro.map((action, index) => (
+        <ActionDetails
+          key={`${action.type}-${index + 1}`}
+          action={action}
+          index={index}
+          setModifiedActions={setModifiedActions}
+        />
+      ))}
     </>
   );
 }
