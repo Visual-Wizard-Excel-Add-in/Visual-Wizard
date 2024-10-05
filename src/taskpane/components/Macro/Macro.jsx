@@ -1,17 +1,15 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 import usePublicStore from "../../store/publicStore";
 import FeatureTab from "../common/FeatureTab";
 import MacroRecord from "./MacroRecord";
 import MacroSetting from "./MacroSetting";
-import MacroNoticeBar from "./MacroNoticeBar";
 
 function Macro() {
   const [openTab, setOpenTab] = usePublicStore((state) => [
     state.openTab,
     state.setOpenTab,
   ]);
-  const [isShowNoticeBar, setIsShowNoticeBar] = useState(true);
   const features = [
     {
       name: "매크로 녹화",
@@ -28,25 +26,18 @@ function Macro() {
   }, []);
 
   return (
-    <>
-      <div className="mt-2">
-        {features.map((feature, index) => (
-          <FeatureTab
-            key={feature.name}
-            order={String(index + 1)}
-            featureName={feature.name}
-            openTab={openTab}
-            handleToggle={handleToggle}
-            featureContents={feature.component}
-          />
-        ))}
-      </div>
-      <div className="flex justify-center">
-        {isShowNoticeBar && (
-          <MacroNoticeBar setIsShowNoticeBar={setIsShowNoticeBar} />
-        )}
-      </div>
-    </>
+    <div className="mt-2">
+      {features.map((feature, index) => (
+        <FeatureTab
+          key={feature.name}
+          order={String(index + 1)}
+          featureName={feature.name}
+          openTab={openTab}
+          handleToggle={handleToggle}
+          featureContents={feature.component}
+        />
+      ))}
+    </div>
   );
 }
 

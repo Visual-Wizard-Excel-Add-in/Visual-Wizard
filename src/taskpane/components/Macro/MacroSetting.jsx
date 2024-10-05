@@ -61,6 +61,11 @@ function MacroSetting() {
 
   return (
     <>
+      <div className="flex justify-center">
+        {isShowNoticeBar && (
+          <MacroNoticeBar setIsShowNoticeBar={setIsShowNoticeBar} />
+        )}
+      </div>
       <div className="flex justify-between">
         선택한 프리셋: {selectMacroPreset}
         <Button as="button" onClick={applyChanges} size="small">
