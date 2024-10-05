@@ -3,50 +3,14 @@ import STYLE_OPTIONS_TO_LOAD from "./styleConstants";
 
 async function extractCellStyle(context, address) {
   try {
-    let targetRange = null;
-
-    if (typeof address === "string") {
-      targetRange = context.workbook.worksheets.getRanges(address);
-      await context.sync();
-    } else {
-      targetRange = address;
-    }
+    const targetRange = await determineTarget();
 
     const properties = targetRange.getCellProperties(STYLE_OPTIONS_TO_LOAD);
 
     await context.sync();
 
     const styleProperties = properties.value.map((row) =>
-      row.map((cell) => {
-        const { format } = cell;
-        const { borders } = format;
-        const mainBorders = ["bottom", "top", "left", "right"];
-        const filteredBorders = {};
-
-        for (const border in borders) {
-          if (
-            mainBorders.includes(border) &&
-            borders[border].style === "None"
-          ) {
-            filteredBorders[border] = borders[border];
-            filteredBorders[border].color = "#D6D6D6";
-            filteredBorders[border].style = "Continuous";
-            filteredBorders[border].tintAndShade = 0;
-          } else if (
-            mainBorders.includes(border) ||
-            borders[border].style !== "None"
-          ) {
-            filteredBorders[border] = borders[border];
-          }
-        }
-
-        return {
-          format: {
-            ...format,
-            borders: filteredBorders,
-          },
-        };
-      }),
+      row.map((cell) => getMainBorders(cell)),
     );
 
     await context.sync();
@@ -56,6 +20,45 @@ async function extractCellStyle(context, address) {
     popUpMessage("workFail", error.message);
 
     throw new Error(error.message);
+  }
+
+  async function determineTarget() {
+    if (typeof address === "string") {
+      const target = context.workbook.worksheets.getRanges(address);
+
+      await context.sync();
+
+      return target;
+    }
+    return address;
+  }
+
+  function getMainBorders(cell) {
+    const { format } = cell;
+    const { borders } = format;
+    const mainBorders = ["bottom", "top", "left", "right"];
+    const filteredBorders = {};
+
+    for (const border in borders) {
+      if (mainBorders.includes(border) && borders[border].style === "None") {
+        filteredBorders[border] = borders[border];
+        filteredBorders[border].color = "#D6D6D6";
+        filteredBorders[border].style = "Continuous";
+        filteredBorders[border].tintAndShade = 0;
+      } else if (
+        mainBorders.includes(border) ||
+        borders[border].style !== "None"
+      ) {
+        filteredBorders[border] = borders[border];
+      }
+    }
+
+    return {
+      format: {
+        ...format,
+        borders: filteredBorders,
+      },
+    };
   }
 }
 
