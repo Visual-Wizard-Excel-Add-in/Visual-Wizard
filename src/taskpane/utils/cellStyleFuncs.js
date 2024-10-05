@@ -1,4 +1,5 @@
 import { popUpMessage } from "./commonFuncs";
+import STYLE_OPTIONS_TO_LOAD from "./styleConstants";
 
 async function extractCellStyle(context, address) {
   try {
@@ -11,42 +12,7 @@ async function extractCellStyle(context, address) {
       targetRange = address;
     }
 
-    const properties = targetRange.getCellProperties({
-      address: true,
-      format: {
-        fill: {
-          color: true,
-        },
-        font: {
-          name: true,
-          color: true,
-          size: true,
-          bold: true,
-          italic: true,
-          underline: true,
-          strikethrough: true,
-        },
-        borders: {
-          color: true,
-          style: true,
-          weight: true,
-          tintAndShade: true,
-        },
-        horizontalAlignment: true,
-        verticalAlignment: true,
-        wrapText: true,
-        indentLevel: true,
-        readingOrder: true,
-        textOrientation: true,
-      },
-      numberFormat: true,
-      numberFormatLocal: true,
-
-      protection: {
-        locked: true,
-        formulaHidden: true,
-      },
-    });
+    const properties = targetRange.getCellProperties(STYLE_OPTIONS_TO_LOAD);
 
     await context.sync();
 
