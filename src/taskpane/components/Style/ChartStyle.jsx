@@ -104,7 +104,7 @@ function ChartStyle() {
         <button
           onClick={newPreset}
           className={styles.buttons}
-          aria-label="plus"
+          aria-label="add new preset"
           type="button"
         >
           <PlusIcon />
@@ -121,7 +121,7 @@ function ChartStyle() {
         <button
           onClick={handleDeletePreset}
           className={styles.buttons}
-          aria-label="delete"
+          aria-label="delete preset"
           type="button"
         >
           <DeleteIcon />
@@ -131,7 +131,7 @@ function ChartStyle() {
             saveChartStylePreset("chartStylePresets", selectedChartPreset)
           }
           className={styles.buttons}
-          aria-label="save"
+          aria-label="save button"
           type="button"
         >
           <SaveIcon />

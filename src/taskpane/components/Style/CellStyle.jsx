@@ -108,7 +108,7 @@ function CellStyle() {
         <button
           onClick={() => newPreset()}
           className={styles.buttons}
-          aria-label="plus"
+          aria-label="add new preset"
           type="button"
         >
           <PlusIcon />
@@ -125,7 +125,7 @@ function CellStyle() {
         <button
           className={styles.buttons}
           onClick={handleDeletePreset}
-          aria-label="delete"
+          aria-label="delete preset"
           type="button"
         >
           <DeleteIcon />
@@ -133,7 +133,7 @@ function CellStyle() {
         <button
           onClick={() => saveRangeStylePreset(selectedStylePreset)}
           className={styles.buttons}
-          aria-label="save"
+          aria-label="save button"
           type="button"
         >
           <SaveIcon />

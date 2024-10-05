@@ -121,7 +121,7 @@ function MacroRecord() {
         <button
           onClick={newPreset}
           className={styles.buttons}
-          aria-label="plus"
+          aria-label="add new preset"
           type="button"
         >
           <PlusIcon />
@@ -138,7 +138,7 @@ function MacroRecord() {
         <button
           onClick={handleDeletePreset}
           className={styles.buttons}
-          aria-label="delete"
+          aria-label="delete preset"
           type="button"
         >
           <DeleteIcon />
@@ -146,7 +146,7 @@ function MacroRecord() {
         <button
           onClick={controlMacroRecording}
           className={styles.buttons}
-          aria-label="record"
+          aria-label="record button"
           type="button"
         >
           {isRecording ? <RecordStop /> : <RecordStart color="red" />}

@@ -25,7 +25,7 @@ function MacroNoticeBar({ setIsShowNoticeBar }) {
           containerAction={
             <Button
               onClick={() => setIsShowNoticeBar(false)}
-              aria-label="dismiss"
+              aria-label="close message"
               appearance="transparent"
               icon={<DismissRegular />}
             />

@@ -41,7 +41,7 @@ function CustomMessageBar() {
               containerAction={
                 <Button
                   onClick={() => removeMessage(id)}
-                  aria-label="dismiss"
+                  aria-label="close message"
                   appearance="transparent"
                   icon={<DismissRegular />}
                 />
