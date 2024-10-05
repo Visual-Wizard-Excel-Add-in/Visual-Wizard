@@ -10,8 +10,9 @@ import {
   RecordStop,
   PlusIcon,
 } from "../../utils/icons";
-import { addPreset, deletePreset, popUpMessage } from "../../utils/commonFuncs";
+import { popUpMessage } from "../../utils/commonFuncs";
 import { manageRecording, macroPlay } from "../../utils/macroFuncs";
+import PresetHandler from "../../classes/PresetHandler";
 
 function MacroRecord() {
   const [macroPresets, setMacroPresets] = useState([]);
@@ -22,16 +23,11 @@ function MacroRecord() {
     (state) => state.setSelectMacroPreset,
   );
   const styles = useStyles();
+  const presets = new PresetHandler("allMacroPresets", "매크로");
 
   useEffect(() => {
     async function fetchPresets() {
-      const savedPresets = await loadPresets();
-      const sortedPresets = Object.keys(savedPresets).sort((a, b) => {
-        const numA = parseInt(a.replace(/\D/g, ""), 10);
-        const numB = parseInt(b.replace(/\D/g, ""), 10);
-
-        return numA - numB;
-      });
+      const sortedPresets = await presets.sorting();
 
       setMacroPresets(sortedPresets);
 
@@ -43,67 +39,16 @@ function MacroRecord() {
     fetchPresets();
   }, [selectMacroPreset]);
 
-  async function loadPresets() {
-    let presets = await OfficeRuntime.storage.getItem("allMacroPresets");
-
-    if (!presets) {
-      presets = {};
-    } else {
-      presets = JSON.parse(presets);
-    }
-
-    return presets;
-  }
-
   async function newPreset() {
-    let presetNumbers = [];
-
-    if (macroPresets.length > 0) {
-      presetNumbers = macroPresets.map((preset) =>
-        parseInt(preset.replace(/\D/g, ""), 10),
-      );
-    }
-
-    let lastPresetNum = 1;
-    while (presetNumbers.includes(lastPresetNum)) {
-      lastPresetNum += 1;
-    }
-
-    const newPresetName = `매크로${lastPresetNum}`;
-
-    await addPreset("allMacroPresets", newPresetName);
-
-    const savedPresets = await loadPresets();
-    const sortedPresets = Object.keys(savedPresets).sort((a, b) => {
-      const numA = parseInt(a.replace(/\D/g, ""), 10);
-      const numB = parseInt(b.replace(/\D/g, ""), 10);
-
-      return numA - numB;
-    });
-
-    setMacroPresets(sortedPresets);
-    setSelectMacroPreset(newPresetName);
+    setSelectMacroPreset(await presets.add(macroPresets));
+    setMacroPresets(await presets.sorting());
   }
 
   async function handleDeletePreset() {
-    if (!selectMacroPreset) {
-      return;
-    }
-
     const selectIndex = macroPresets.indexOf(selectMacroPreset);
 
-    await deletePreset("allMacroPresets", selectMacroPreset);
-
-    const savedPresets = Object.keys(await loadPresets());
-    const sortedPresets = savedPresets.sort((a, b) => {
-      const numA = +parseInt(a.replace(/\D/g, ""), 10);
-      const numB = +parseInt(b.replace(/\D/g, ""), 10);
-
-      return numA - numB;
-    });
-
-    setMacroPresets(Object.keys(sortedPresets));
-    setSelectMacroPreset(sortedPresets[selectIndex]);
+    setMacroPresets(Object.keys(await presets.delete(selectMacroPreset)));
+    setSelectMacroPreset((await presets.sorting())[selectIndex]);
   }
 
   function controlMacroRecording() {

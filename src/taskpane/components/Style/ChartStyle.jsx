@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button } from "@fluentui/react-components";
 
+import PresetHandler from "../../classes/PresetHandler";
 import { useStyles } from "../../utils/style";
 import CustomDropdown from "../common/CustomDropdown";
 import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
-import { addPreset, deletePreset } from "../../utils/commonFuncs";
 import {
   saveChartStylePreset,
   loadChartStylePreset,
@@ -14,16 +14,11 @@ function ChartStyle() {
   const [selectedChartPreset, setSelectedChartPreset] = useState("");
   const [chartStylePresets, setChartStylePresets] = useState([]);
   const styles = useStyles();
+  const presets = new PresetHandler("chartStylePresets", "차트 서식");
 
   useEffect(() => {
     async function fetchPresets() {
-      const savedPresets = await loadPresets();
-      const sortedPresets = Object.keys(savedPresets).sort((a, b) => {
-        const numA = parseInt(a.replace(/\D/g, ""), 10);
-        const numB = parseInt(b.replace(/\D/g, ""), 10);
-
-        return numA - numB;
-      });
+      const sortedPresets = await presets.sorting();
 
       setChartStylePresets(sortedPresets);
 
@@ -35,67 +30,16 @@ function ChartStyle() {
     fetchPresets();
   }, [selectedChartPreset]);
 
-  async function loadPresets() {
-    let presets = await OfficeRuntime.storage.getItem("chartStylePresets");
-
-    if (!presets) {
-      presets = {};
-    } else {
-      presets = JSON.parse(presets);
-    }
-
-    return presets;
-  }
-
   async function newPreset() {
-    let presetNumbers = [];
-
-    if (chartStylePresets.length > 0) {
-      presetNumbers = chartStylePresets.map((preset) =>
-        parseInt(preset.replace(/\D/g, ""), 10),
-      );
-    }
-
-    let lastPresetNum = 1;
-    while (presetNumbers.includes(lastPresetNum)) {
-      lastPresetNum += 1;
-    }
-
-    const newPresetName = `차트 서식${lastPresetNum}`;
-
-    await addPreset("chartStylePresets", newPresetName);
-
-    const savedPresets = await loadPresets();
-    const sortedPresets = Object.keys(savedPresets).sort((a, b) => {
-      const numA = parseInt(a.replace(/\D/g, ""), 10);
-      const numB = parseInt(b.replace(/\D/g, ""), 10);
-
-      return numA - numB;
-    });
-
-    setChartStylePresets(sortedPresets);
-    setSelectedChartPreset(newPresetName);
+    setSelectedChartPreset(await presets.add(chartStylePresets));
+    setChartStylePresets(await presets.sorting());
   }
 
-  async function handleDeletePreset() {
-    if (!selectedChartPreset) {
-      return;
-    }
-
+  async function deletePreset() {
     const selectIndex = chartStylePresets.indexOf(selectedChartPreset);
 
-    await deletePreset("chartStylePresets", selectedChartPreset);
-
-    const savedPresets = Object.keys(await loadPresets());
-    const sortedPresets = savedPresets.sort((a, b) => {
-      const numA = +parseInt(a.replace(/\D/g, ""), 10);
-      const numB = +parseInt(b.replace(/\D/g, ""), 10);
-
-      return numA - numB;
-    });
-
-    setChartStylePresets(Object.keys(sortedPresets));
-    setSelectedChartPreset(sortedPresets[selectIndex]);
+    setChartStylePresets(await presets.delete(selectedChartPreset));
+    setSelectedChartPreset((await presets.sorting())[selectIndex]);
   }
 
   return (
@@ -119,7 +63,7 @@ function ChartStyle() {
           selectedValue={selectedChartPreset}
         />
         <button
-          onClick={handleDeletePreset}
+          onClick={deletePreset}
           className={styles.buttons}
           aria-label="delete preset"
           type="button"

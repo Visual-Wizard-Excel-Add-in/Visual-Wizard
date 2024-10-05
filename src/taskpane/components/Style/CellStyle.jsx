@@ -9,7 +9,7 @@ import {
   saveRangeStylePreset,
   loadRangeStylePreset,
 } from "../../utils/cellStyleFuncs";
-import { addPreset, deletePreset } from "../../utils/commonFuncs";
+import PresetHandler from "../../classes/PresetHandler";
 
 function CellStyle() {
   const [cellStylePresets, setCellStylePresets] = useState([]);
@@ -20,16 +20,11 @@ function CellStyle() {
     (state) => state.setSelectedStylePreset,
   );
   const styles = useStyles();
+  const presets = new PresetHandler("cellStylePresets", "셀 서식");
 
   useEffect(() => {
     async function fetchPresets() {
-      const savedPresets = await loadPresets();
-      const sortedPresets = Object.keys(savedPresets).sort((a, b) => {
-        const numA = parseInt(a.replace(/\D/g, ""), 10);
-        const numB = parseInt(b.replace(/\D/g, ""), 10);
-
-        return numA - numB;
-      });
+      const sortedPresets = await presets.sorting();
 
       setCellStylePresets(sortedPresets);
 
@@ -41,67 +36,16 @@ function CellStyle() {
     fetchPresets();
   }, [selectedStylePreset]);
 
-  async function loadPresets() {
-    let presets = await OfficeRuntime.storage.getItem("cellStylePresets");
-
-    if (!presets) {
-      presets = {};
-    } else {
-      presets = JSON.parse(presets);
-    }
-
-    return presets;
-  }
-
   async function newPreset() {
-    let presetNumbers = [];
-
-    if (cellStylePresets.length > 0) {
-      presetNumbers = cellStylePresets.map((preset) =>
-        parseInt(preset.replace(/\D/g, ""), 10),
-      );
-    }
-
-    let lastPresetNum = 1;
-    while (presetNumbers.includes(lastPresetNum)) {
-      lastPresetNum += 1;
-    }
-
-    const newPresetName = `셀 서식${lastPresetNum}`;
-
-    await addPreset("cellStylePresets", newPresetName);
-
-    const savedPresets = await loadPresets();
-    const sortedPresets = Object.keys(savedPresets).sort((a, b) => {
-      const numA = parseInt(a.replace(/\D/g, ""), 10);
-      const numB = parseInt(b.replace(/\D/g, ""), 10);
-
-      return numA - numB;
-    });
-
-    setCellStylePresets(sortedPresets);
-    setSelectedStylePreset(newPresetName);
+    setSelectedStylePreset(await presets.add(cellStylePresets));
+    setCellStylePresets(await presets.sorting());
   }
 
-  async function handleDeletePreset() {
-    if (!selectedStylePreset) {
-      return;
-    }
-
+  async function deletePreset() {
     const selectIndex = cellStylePresets.indexOf(selectedStylePreset);
 
-    await deletePreset("cellStylePresets", selectedStylePreset);
-
-    const savedPresets = Object.keys(await loadPresets());
-    const sortedPresets = savedPresets.sort((a, b) => {
-      const numA = +parseInt(a.replace(/\D/g, ""), 10);
-      const numB = +parseInt(b.replace(/\D/g, ""), 10);
-
-      return numA - numB;
-    });
-
-    setCellStylePresets(sortedPresets);
-    setSelectedStylePreset(sortedPresets[selectIndex]);
+    setCellStylePresets(await presets.delete(selectedStylePreset));
+    setSelectedStylePreset((await presets.sorting())[selectIndex]);
   }
 
   return (
@@ -126,7 +70,7 @@ function CellStyle() {
         />
         <button
           className={styles.buttons}
-          onClick={handleDeletePreset}
+          onClick={deletePreset}
           aria-label="delete preset"
           type="button"
         >
