@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Switch } from "@fluentui/react-components";
 
 import { getLastCellAddress } from "../../utils/validateFuncs";
@@ -36,10 +36,10 @@ function ValidateTest() {
     };
   }, []);
 
-  const highlightError = useCallback(async () => {
+  const highlightError = async () => {
     await detectErrorCell(isError);
     setIsError((prev) => !prev);
-  }, [isError]);
+  };
 
   return (
     <div>

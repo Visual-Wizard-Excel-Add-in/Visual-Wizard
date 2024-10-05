@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@fluentui/react-components";
 import ActionDetails from "./ActionDetails";
 import MacroNoticeBar from "./MacroNoticeBar";
@@ -27,7 +27,7 @@ function MacroSetting() {
     fetchMacroPresets();
   }, [selectMacroPreset]);
 
-  const applyChanges = useCallback(async () => {
+  const applyChanges = async () => {
     const updatedActions = storedMacro.map((action, index) => {
       const modifiedAction = modifiedActions[index] || {};
 
@@ -57,7 +57,7 @@ function MacroSetting() {
       "allMacroPresets",
       JSON.stringify(allMacroPresets),
     );
-  }, [storedMacro, modifiedActions]);
+  };
 
   return (
     <>

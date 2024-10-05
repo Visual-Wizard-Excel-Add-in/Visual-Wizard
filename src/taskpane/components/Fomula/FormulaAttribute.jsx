@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { Switch } from "@fluentui/react-components";
 
 import usePublicStore from "../../store/publicStore";
@@ -12,19 +11,18 @@ function FormulaAttribute() {
   const setIsCellHighlighting = usePublicStore(
     (state) => state.setIsCellHighlighting,
   );
-  const cellFormula = usePublicStore((state) => state.cellFormula);
   const cellArguments = usePublicStore((state) => state.cellArguments);
   const cellAddress = usePublicStore((state) => state.cellAddress);
   const cellValue = usePublicStore((state) => state.cellValue);
   const cellFunctions = usePublicStore((state) => state.cellFunctions);
 
-  const handleHighlighting = useCallback(async () => {
+  const handleHighlighting = async () => {
     const newHighlightState = !isCellHighlighting;
 
     highlightingCell(newHighlightState, cellAddress);
 
     setIsCellHighlighting(newHighlightState);
-  }, [isCellHighlighting, cellFormula, cellAddress]);
+  };
 
   const groupedCellArguments =
     groupCellsIntoRanges(cellArguments.map((arg) => arg.split("(")[0])) || [];

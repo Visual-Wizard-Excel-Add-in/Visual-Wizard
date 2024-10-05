@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Button, Input, Divider } from "@fluentui/react-components";
 
 import usePublicStore from "../../store/publicStore";
@@ -42,7 +42,7 @@ function FormulaTest() {
     setInputValues((prevState) => ({ ...prevState, [arg]: value }));
   }
 
-  const handleExecute = useCallback(async () => {
+  const handleExecute = async () => {
     let newFormula = cellFormula;
 
     Object.entries(inputValues).forEach(([arg, value]) => {
@@ -52,7 +52,7 @@ function FormulaTest() {
     const result = await evaluateTestFormula(newFormula);
 
     setTestResult(result);
-  }, [cellFormula, inputValues]);
+  };
 
   return (
     <div>

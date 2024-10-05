@@ -1,5 +1,3 @@
-import { useCallback } from "react";
-
 import usePublicStore from "../../store/publicStore";
 import FeatureTab from "../common/FeatureTab";
 import Extraction from "./Extraction";
@@ -16,9 +14,9 @@ function Share() {
     },
   ];
 
-  const handleToggle = useCallback((event, data) => {
+  const handleToggle = (event, data) => {
     setOpenTab(data.openItems);
-  }, []);
+  };
 
   return (
     <div className="mt-2">

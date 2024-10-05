@@ -1,5 +1,3 @@
-import { useCallback } from "react";
-
 import usePublicStore from "../../store/publicStore";
 import FeatureTab from "../common/FeatureTab";
 import MacroRecord from "./MacroRecord";
@@ -21,9 +19,9 @@ function Macro() {
     },
   ];
 
-  const handleToggle = useCallback((event, data) => {
+  const handleToggle = (event, data) => {
     setOpenTab(data.openItems);
-  }, []);
+  };
 
   return (
     <div className="mt-2">

@@ -1,5 +1,3 @@
-import { useCallback } from "react";
-
 import FeatureTab from "../common/FeatureTab";
 import usePublicStore from "../../store/publicStore";
 import FormulaInformation from "./FormulaInfomation";
@@ -21,9 +19,9 @@ function Fomula() {
     { name: "순서", component: FormulaOrder },
   ];
 
-  const handleToggle = useCallback((event, data) => {
+  const handleToggle = (event, data) => {
     setOpenTab(data.openItems);
-  }, []);
+  };
 
   return (
     <div className="mt-2">
