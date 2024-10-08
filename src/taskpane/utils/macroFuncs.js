@@ -52,7 +52,7 @@ async function manageRecording(isRecording, presetName) {
 
       await setStorage("allMacroPresets", allMacroPresets);
 
-      await await context.sync();
+      await context.sync();
     } else {
       await removeEventHandler();
 
