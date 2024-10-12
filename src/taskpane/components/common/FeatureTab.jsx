@@ -22,6 +22,7 @@ function FeatureTab({
     if (openTab && openTab.includes(order)) {
       return styles.openedAccordion;
     }
+
     return styles.accordion;
   }
 
