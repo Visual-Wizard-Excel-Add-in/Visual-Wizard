@@ -1,6 +1,6 @@
 import CellInfo from "../classes/CellInfo";
-import Message from "../classes/Message";
 import usePublicStore from "../store/publicStore";
+import MESSAGE_LIST from "../constants/messageConstants";
 
 function updateState(setStateFunc, newValue) {
   usePublicStore.getState()[setStateFunc](newValue);

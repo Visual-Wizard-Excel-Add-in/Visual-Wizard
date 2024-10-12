@@ -1,10 +1,9 @@
 import { popUpMessage } from "./commonFuncs";
-import STYLE_OPTIONS_TO_LOAD from "./styleConstants";
+import STYLE_OPTIONS_TO_LOAD from "../constants/styleConstants";
 
 async function extractCellStyle(context, address) {
   try {
     const targetRange = await determineTarget();
-
     const properties = targetRange.getCellProperties(STYLE_OPTIONS_TO_LOAD);
 
     await context.sync();
@@ -30,6 +29,7 @@ async function extractCellStyle(context, address) {
 
       return target;
     }
+
     return address;
   }
 
@@ -333,7 +333,7 @@ async function highlightingCell(isCellHighlighting, resultCell) {
 
 async function saveRangeStylePreset(styleName) {
   try {
-    if (styleName === "") {
+    if (!styleName) {
       popUpMessage("saveFail", "프리셋을 정확히 선택해주세요!");
 
       return;
