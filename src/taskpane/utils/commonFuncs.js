@@ -284,8 +284,12 @@ async function deletePreset(presetCategory, presetName) {
   }
 }
 
-function popUpMessage(purpose = null, option = "") {
-  updateState("setMessageList", new Message(purpose, option).body);
+function popUpMessage(purpose = "default", option = "") {
+  const message = MESSAGE_LIST[purpose];
+
+  message.body += `\n${option}`;
+
+  updateState("setMessageList", message);
 }
 
 export {
