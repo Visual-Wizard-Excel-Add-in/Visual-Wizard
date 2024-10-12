@@ -1,4 +1,4 @@
-import { useEffect, useId } from "react";
+import { useEffect } from "react";
 import { DismissRegular } from "@fluentui/react-icons";
 import {
   MessageBar,
@@ -16,23 +16,30 @@ function CustomMessageBar() {
   const messageList = usePublicStore((state) => state.messageList);
   const removeMessage = usePublicStore((state) => state.removeMessage);
   const styles = useStyles();
-  const messageId = useId();
 
   useEffect(() => {
-    let removeTimer;
+    const timerList = [];
 
-    messageList.forEach((message) => {
-      removeTimer = setTimeout(() => removeMessage(message.id), 2500);
-    });
+    function setRemoveMessageTimer() {
+      messageList.forEach((message) => {
+        const timer = setTimeout(() => removeMessage(message.id), 2500);
 
-    return () => clearTimeout(removeTimer);
+        timerList.push(timer);
+      });
+    }
+
+    setRemoveMessageTimer();
+
+    return () => {
+      timerList.forEach((timer) => clearTimeout(timer));
+    };
   }, [messageList]);
 
   return (
     <div className="flex justify-center mt-1 whitespace-pre-wrap">
       <MessageBarGroup animate="both" className={styles.messageBarGroup}>
         {messageList.map(({ id, message }) => (
-          <MessageBar key={messageId} intent={message.type}>
+          <MessageBar key={id} intent={message.type}>
             <MessageBarBody className="whitespace-pre-wrap">
               <MessageBarTitle>{message.title}</MessageBarTitle>
               {message.body}
