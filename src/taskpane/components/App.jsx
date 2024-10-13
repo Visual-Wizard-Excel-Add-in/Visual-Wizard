@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback, useRef } from "react";
 
 import usePublicStore from "../store/publicStore";
 import Header from "./Header";
@@ -11,9 +11,8 @@ import { useStyles } from "../utils/style";
 import { registerSelectionChange, updateCellInfo } from "../utils/commonFuncs";
 import CustomMessageBar from "./common/CustomMessageBar";
 
-let handleSheetChange = null;
-
 function App() {
+  const globalSheetChangeHandler = useRef(null);
   const category = usePublicStore((state) => state.category);
   const sheetId = usePublicStore((state) => state.sheetId);
   const setSheetId = usePublicStore((state) => state.setSheetId);
@@ -29,46 +28,70 @@ function App() {
   };
   const CurrentCategory = categories[category] || null;
 
-  useEffect(() => {
-    Excel.run(async (context) => {
-      const { worksheets } = context.workbook;
-      const sheet = worksheets.getActiveWorksheet();
+  const onWorksheetChanged = useCallback(
+    async (event) => {
+      const currentSheetId = event.worksheetId;
 
-      sheet.load("id");
-      await context.sync();
-
-      setSheetId(sheet.id);
-
-      registerSelectionChange(sheet.id, updateCellInfo);
-
-      handleSheetChange = worksheets.onActivated.add((event) =>
-        onWorksheetChanged(event),
-      );
-
-      await context.sync();
-    });
-
-    return () => {
-      if (handleSheetChange !== null) {
-        Excel.run(handleSheetChange.context, async (context) => {
-          handleSheetChange?.remove();
-          await context.sync();
-        });
+      if (currentSheetId !== sheetId) {
+        setSheetId(currentSheetId);
       }
+    },
+    [sheetId, setSheetId],
+  );
 
-      handleSheetChange = null;
+  useEffect(() => {
+    const initializeSelectionEvent = async () => {
+      await Excel.run(async (context) => {
+        const { worksheets } = context.workbook;
+        const sheet = worksheets.getActiveWorksheet();
+
+        sheet.load("id");
+        await context.sync();
+
+        setSheetId(sheet.id);
+
+        if (sheetId) {
+          await registerSelectionChange(sheetId, updateCellInfo);
+        }
+      });
     };
-  }, []);
 
-  function onWorksheetChanged(event) {
-    const currentSheetId = event.worksheetId;
+    initializeSelectionEvent();
+  }, [sheetId]);
 
-    if (currentSheetId !== sheetId) {
-      setSheetId(currentSheetId);
+  useEffect(() => {
+    const removeExistingHandler = async () => {
+      if (globalSheetChangeHandler.current) {
+        try {
+          await Excel.run(
+            globalSheetChangeHandler.current.context,
+            async (context) => {
+              globalSheetChangeHandler.current.remove();
+              await context.sync();
+            },
+          );
+        } catch (error) {
+          throw new Error("핸들러 제거 중 오류:", error.message);
+        }
+      }
+    };
 
-      registerSelectionChange(currentSheetId, updateCellInfo);
-    }
-  }
+    const initializeSheetChange = async () => {
+      await Excel.run(async (context) => {
+        const { worksheets } = context.workbook;
+
+        globalSheetChangeHandler.current =
+          worksheets.onActivated.add(onWorksheetChanged);
+        await context.sync();
+      });
+    };
+
+    initializeSheetChange();
+
+    return async () => {
+      await removeExistingHandler();
+    };
+  }, [onWorksheetChanged]);
 
   return (
     <div className={styles.root}>
