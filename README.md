@@ -51,14 +51,16 @@
       - [5-1. 추출하기 기능](#5-1-추출하기-기능)
   - [**🔥 기술적 과제**](#-기술적-과제)
     - [**1. Excel과 Add-in과의 통신은 어떻게 이루어질까?**](#1-excel과-add-in과의-통신은-어떻게-이루어질까)
-      - 1-1. Add-in이란?
-      - 1-2. Excel과 Add-in의 데이터 교류 방법
-    - [**2. Office JS와 비동기성**](#2-office-js와-비동기성)
-      - 2-1. Excel 데이터 조회 및 관리
-      - 2-2. 비동기 작업의 관리
-  - [**🚨 기획 변경**](#-기획-변경)
-    - [1. 매크로 녹화 기능 구현 이슈**](#1-매크로-녹화-기능-구현-이슈)
-    - [2. 추출하기 기능 구현 이슈**](#2-추출하기-기능-구현-이슈)
+      - [1-1. Add-in이란?](#1-1-add-in이란)
+      - [1-2. Excel과 Add-in의 데이터 교류 방법](#1-2-excel과-add-in의-데이터-교류-방법)
+      - [1-3. Excel 데이터 조회 및 관리](#1-3-excel-데이터-조회-및-관리)
+      - [1-4. 비동기 작업의 관리](#1-4-비동기-작업의-관리)
+  - [**2. 함수들의 계산 순서는 어떻게 표현할 수 있을까?**](#2-함수들의-계산-순서는-어떻게-표현할-수-있을까)
+      - [2-1. Graph Node 클래스 구현](#2-1-graph-node-클래스-구현)
+      - [2-2. 위상 정렬 알고리즘 구현](#2-2-위상-정렬-알고리즘-구현)
+  - [**🚨 트러블 슈팅**](#-트러블-슈팅)
+    - [1. 매크로 녹화 기능 구현 이슈](#1-매크로-녹화-기능-구현-이슈)
+    - [2. 추출하기 기능 구현 이슈](#2-추출하기-기능-구현-이슈)
   - [**⌛️ 회고**](#️-회고)
 
 <br/>
@@ -297,17 +299,13 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
   - 작성한 Excel 문서의 특정 부분을 새로운 통합 문서로 추출할 수 있습니다.
   - `선택한 범위`, `현재 시트` 중 선택할 수 있습니다.
 
-  
   <br/>
   
   ## 🔥 기술적 과제
   
   ### **1. Excel과 Add-in과의 통신은 어떻게 이루어질까?**
   
-  <details>
-    <summary>
-      <strong>1-1. Add-in이란?</strong>
-    </summary>
+  #### 1-1. Add-in이란?
     
   Add-in이란 Excel과 같은 Office Application 내에서 다양한 추가기능을 제공하는 Web 기반 확장프로그램입니다.
   
@@ -324,12 +322,10 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
   </div>
   
   해당 사이드 패널은 웹 페이지 이므로 `JavaScript`, `HTML`, `CSS`를 통한 개발이 가능합니다.
-</details>
 
-<details>
-  <summary>
-    <strong>1-2. Excel과 Add-in의 데이터 교류 방법</strong>
-  </summary>
+  <br/>
+  
+  #### 1-2. Excel과 Add-in의 데이터 교류 방법
   
   Web과 Excel 간의 상호작용을 위해 **Office JavaScript API**(Office JS)를 활용해야 했습니다.
   
@@ -374,12 +370,10 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
   
   이러한 특징을 바탕으로 필요한 객체들의 속성과 메서드를 효율적으로 활용하기 위하여
   <a href="https://learn.microsoft.com/en-us/javascript/api/excel?view=excel-js-preview">Excel JavaScript API 공식 문서</a>를 참고하는데 가장 많은 시간을 할애했습니다.
-</details>
 
-<details>
-  <summary>
-    <strong>2-1. Excel 데이터 조회 및 관리</strong>
-  </summary>
+<br/>
+
+  #### 1-3. Excel 데이터 조회 및 관리
   
   Add-in 개발에 있어서 가장 신경 쓴 점은 Office JS에 적응하는 것이었습니다.<br/>
   Excel 데이터에 접근하기 위해선 Office JS의 함수와 메서드에 익숙해져야 했으며, 그 모두가 비동기적으로 이루어진다는 환경에 적응해야 했습니다.
@@ -430,12 +424,10 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
   <div align="center">
     <img width = "600" alt = "data Structure"  src = "https://github.com/user-attachments/assets/e499588b-e8b0-492b-9ea4-29f9f4b6ba91">
   </div>
-</details>
 
-<details>
-  <summary>
-    <strong>2-2. 비동기 작업의 관리</strong>
-  </summary>
+  <br/>
+
+  #### 1-4. 비동기 작업의 관리
   
   `async/ await` 구문을 효과적으로 사용해야 했으며, 예상치 못한 사태를 방지하기 위해 `try/ catch` 구문을 적극적으로 활용했습니다.
   
@@ -458,12 +450,36 @@ Visual Wizard와 함께 업무의 불필요한 수고를 줄여보세요!
   
   - **동기화 시점 최적화**: 필요한 시점에만 `context.sync()`를 호출하여 불필요한 동기화 작업을 최소화했습니다.
   - **의도치 않은 에러 처리**: `try/catch` 구문의 사용으로 의도치 않은 에러를 파악하고, 사용자에게 Message Box를 팝업하여 Error 사항을 인지할 수 있도록 적절히 처리했습니다.
-</details>
 
 <br/>
 
-### 2. 
+### **2. 함수들의 계산 순서는 어떻게 표현할 수 있을까?**
 
+사용자가 클릭한 Cell의 값이, 어떤 수식의 함수들을 통해 계산되어 최종적으로 선택한 Cell에 해당 값이 출력되는지 시각화 해주는 기능입니다.
+이를 위해, 수식 속의 함수들과 인자들을 DFS로 먼저 파싱하고, 의존성을 관리하기 위해 Graph Node로 구성했습니다.
+
+#### **2-1. Graph Node 클래스 구현**
+- **`Progress Graph`**
+https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/f8efe0428e399de5f12be26ad0b0b7a56692cf2f/src/taskpane/classes/ProgressGraph.js#L3-L47
+1. 해당 클래스를 구현한 후, 선택한 Cell의 수식을 함수별로 파싱합니다.
+2. 파싱 된 요소들을 DFS로 탐색하며, 중첩된 함수들을 `stack`으로 관리하며 재귀적으로 호출하면서 의존성과 해당 함수의 정보를 기록하는 객체를 생성합니다.
+3. 해당 객체에는 '주소', '함수명', '수식', '의존성 배열'로 구성합니다.
+4. 함수가 조건문일 경우엔 별도로 처리합니다.
+5. 최종적으로 계산 순서가 나온 후, 해당 객체들을 `Progress Graph` 클래스의 `addNode()`메서드로 등록합니다.
+
+<br/>
+
+#### 2-2. 위상 정렬 알고리즘 구현**
+  
+<img width="600" alt="topological algorithm" src = "https://github.com/user-attachments/assets/ba8801a1-5765-45c2-97d7-938dc028bb7e">
+
+위상 정렬 알고리즘이란 비순환하며 순서가 정해져 있는 작업을 차례대로 수행해야할 때 그 순서를 정해주는 알고리즘입니다,
+
+`Progress Graph` 클래스에 등록 된 `Node`들을 `Queue`방식으로 선입선출로 조회하고, 방문 여부를 기록하여 의존성을 참조하며 파싱합니다.
+
+https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/f8efe0428e399de5f12be26ad0b0b7a56692cf2f/src/taskpane/classes/ProgressGraph.js#L25-L46
+
+위와 같이 위상 정렬 알고리즘을 통해 함수들을 계산 순서대로 정렬 시켜 반환합니다.
 
 <br/>
 
