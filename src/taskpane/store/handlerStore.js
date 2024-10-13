@@ -1,6 +1,10 @@
 import { create } from "zustand";
 
 const useHandlerStore = create((set) => ({
+  selectionChangeHandler: null,
+  setSelectionChangeHandler: (handler) =>
+    set({ selectionChangeHandler: handler }),
+
   worksheetChangedHandler: null,
   setWorksheetChangedHandler: (handler) =>
     set({ worksheetChangedHandler: handler }),

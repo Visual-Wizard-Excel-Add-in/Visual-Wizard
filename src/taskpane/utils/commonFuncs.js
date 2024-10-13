@@ -102,24 +102,21 @@ async function getSelectRangeValue() {
   return rangeValue;
 }
 
-let handleSelectionChange = null;
-
 async function registerSelectionChange(sheetId, func) {
-  if (handleSelectionChange !== null) {
-    await Excel.run(handleSelectionChange.context, async (context) => {
-      handleSelectionChange?.remove();
-      await context.sync();
+  const selectionHandler = useHandlerStore.getState().selectionChangeHandler;
 
-      handleSelectionChange = null;
-    });
+  if (selectionHandler) {
+    removeHandler(selectionHandler, "setSelectionChangeHandler");
   }
 
   await Excel.run(async (context) => {
     const { workbook } = context;
     const sheet = workbook.worksheets.getItem(sheetId);
 
-    handleSelectionChange = sheet.onSelectionChanged.add(func);
+    const handler = sheet.onSelectionChanged.add(func);
     await context.sync();
+
+    useHandlerStore.getState().setSelectionChangeHandler(handler);
   });
 }
 
