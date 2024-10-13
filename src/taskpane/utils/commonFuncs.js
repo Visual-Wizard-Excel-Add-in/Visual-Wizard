@@ -14,15 +14,10 @@ async function updateCellInfo() {
       range.load(["address", "formulas", "values", "numberFormat"]);
       await context.sync();
 
-      const selectCell = new CellInfo(
-        range.address,
-        range.values[0][0],
-        range.formulas[0][0],
-        range.numberFormat[0][0],
-      );
 
       const formulaFunctions = extractFunctionsFromFormula(selectCell.formula);
       const formulaArgs = await extractArgsFromFormula(selectCell.formula);
+      const selectCell = new CellInfo(range);
 
       updateCellState();
 
