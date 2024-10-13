@@ -1,21 +1,12 @@
 import { storeCellStyle, applyCellStyle } from "./cellStyleFuncs";
-import { getSelectRangeValue, popUpMessage } from "./commonFuncs";
+import {
+  getSelectRangeValue,
+  popUpMessage,
+  removeHandler,
+} from "./commonFuncs";
 import useHandlerStore from "../store/handlerStore";
 
 const actions = [];
-
-async function removeHandler(handler, setter) {
-  if (handler) {
-    await Excel.run(handler.context, async (context) => {
-      handler.remove();
-      await context.sync();
-    });
-
-    useHandlerStore.getState()[setter](null);
-  } else {
-    throw new Error(`No Exist ${handler} event`);
-  }
-}
 
 async function manageRecording(isRecording, presetName) {
   if (presetName === "") {

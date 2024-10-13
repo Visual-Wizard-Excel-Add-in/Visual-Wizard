@@ -1,9 +1,25 @@
 import CellInfo from "../classes/CellInfo";
 import usePublicStore from "../store/publicStore";
+import useHandlerStore from "../store/handlerStore";
 import MESSAGE_LIST from "../constants/messageConstants";
 
 function updateState(setStateFunc, newValue) {
   usePublicStore.getState()[setStateFunc](newValue);
+}
+
+async function removeHandler(handler, setter) {
+  try {
+    if (handler) {
+      await Excel.run(handler.context, async (context) => {
+        handler.remove();
+        await context.sync();
+      });
+
+      useHandlerStore.getState()[setter](null);
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
 }
 
 async function updateCellInfo() {
