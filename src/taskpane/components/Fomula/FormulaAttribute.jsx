@@ -1,21 +1,15 @@
 import { Switch } from "@fluentui/react-components";
+import { useCallback, useEffect, useState } from "react";
 
 import usePublicStore from "../../store/publicStore";
+import { getTargetCellValue } from "../../utils/commonFuncs";
 import { highlightingCell } from "../../utils/cellStyleFuncs";
-import { groupCellsIntoRanges } from "../../utils/formulaFuncs";
 
 function FormulaAttribute() {
   const cellArguments = usePublicStore((state) => state.cellArguments);
   const cellAddress = usePublicStore((state) => state.cellAddress);
   const cellValue = usePublicStore((state) => state.cellValue);
   const cellFunctions = usePublicStore((state) => state.cellFunctions);
-  const groupedCellArguments =
-    groupCellsIntoRanges(cellArguments.map((arg) => arg.split("(")[0])) || [];
-
-  const formattedCellArguments = groupedCellArguments
-    .map((groupArg) => {
-      const matchingArg = cellArguments.find((cellArg) =>
-        cellArg.startsWith(groupArg),
   const isHighlight = usePublicStore((state) => state.isHighlight);
   const setIsHighlight = usePublicStore((state) => state.setIsHighlight);
   const [argsWithValue, setArgsWithValue] = useState("");
@@ -24,51 +18,44 @@ function FormulaAttribute() {
     return !+value ? value : new Intl.NumberFormat("ko-KR").format(value);
   }, []);
 
+  useEffect(() => {
+    const fetchArgsWithValue = async () => {
+      const results = await Promise.all(
+        cellArguments.map(
+          async (referCell) => await makeCellWithValue(referCell),
+        ),
       );
 
-      if (matchingArg && !groupArg.includes(":")) {
-        const value = matchingArg.split("(")[1].split(")")[0];
-        const valueWithComma = getValueWithComma(value);
+      setArgsWithValue(results.join(", "));
+    };
 
-        return `${groupArg}(${valueWithComma})`;
+    async function makeCellWithValue(referCell) {
+      const address =
+        referCell.split("!")[0] === cellAddress.split("!")[0]
+          ? referCell.split("!")[1]
+          : referCell;
+
+      if (!referCell.includes(":")) {
+        const valueWithComma = convertUnit(await getTargetCellValue(referCell));
+
+        return `${address}(${valueWithComma})`;
       }
 
-      return groupArg;
-    })
-    .join(", ");
-
-  const resultCellAddress = cellAddress.split("!")[1];
-  const resultCellValue = getValueWithComma(cellValue);
-
-  function getValueWithComma(value) {
-    if (typeof +value !== "number") {
-      return value;
+      return address;
     }
 
-    const valueInStr = typeof value === "string" ? value : String(cellValue);
-    let valueWithComma = null;
+    fetchArgsWithValue();
+  }, [cellArguments, convertUnit]);
 
-    let endIndex = valueInStr.length;
-    const valueArr = [];
-
-    for (let i = valueInStr.length - 1; i >= 0; i -= 1) {
-      if (endIndex - i === 3) {
-        valueArr.push(valueInStr.slice(i, endIndex));
-
-        endIndex = i;
-      } else if (i === 0) {
-        valueArr.push(valueInStr.slice(i, endIndex));
-      }
-    }
   const handleHighlighting = async () => {
     await highlightingCell(!isHighlight, cellAddress);
 
-    valueWithComma = valueArr.reverse().join(",");
     setIsHighlight();
   };
 
-    return valueWithComma;
-  }
+  const resultCellWithValue = argsWithValue
+    ? `${cellAddress.split("!")[1]}(${convertUnit(cellValue)})`
+    : "";
 
   return (
     <div>
@@ -85,7 +72,7 @@ function FormulaAttribute() {
             className="inline"
           />
           &nbsp;인수:&nbsp;
-          <span className="font-normal">{formattedCellArguments}</span>
+          <span className="font-normal">{argsWithValue}</span>
         </p>
         <p className="mb-2 font-bold">
           <img
@@ -94,11 +81,7 @@ function FormulaAttribute() {
             className="inline"
           />
           &nbsp;결과:&nbsp;
-          <span className="font-normal">
-            {cellFunctions.length !== 0
-              ? `${resultCellAddress}(${resultCellValue})`
-              : null}
-          </span>
+          <span className="font-normal">{resultCellWithValue}</span>
         </p>
       </div>
     </div>
