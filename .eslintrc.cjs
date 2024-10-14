@@ -52,6 +52,7 @@ module.exports = {
     "no-restricted-syntax": "off",
     "no-cond-assign": "off",
     "no-await-in-loop": "off",
+    "no-return-await": "off",
   },
   settings: {
     react: {
