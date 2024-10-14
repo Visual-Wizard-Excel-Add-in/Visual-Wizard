@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { Button } from "@fluentui/react-components";
 
 import usePublicStore from "../../store/publicStore";
 import CustomPopover from "../common/CustomPopover";
@@ -34,7 +33,7 @@ function FormulaOrder() {
   return (
     <div>
       {formulaSteps && formulaSteps.length !== 0 ? (
-        FormulaSteps(formulaSteps)
+        <FormulaSteps steps={formulaSteps} />
       ) : (
         <div>수식이 입력된 셀을 선택해주세요.</div>
       )}
@@ -42,25 +41,23 @@ function FormulaOrder() {
   );
 }
 
-function Trigger(Contents) {
-  return <Button>{Contents}</Button>;
-}
-
-function FormulaSteps(steps) {
-  return steps.map((step, index) => {
-    const { functionName } = step;
-    const description = <FormulaOrderDescription step={step} />;
-
-    return (
-      <div key={`${step.address}-${step.functionName}`}>
-        <span>{index + 1}. </span>
-        <CustomPopover
-          position="after"
-          triggerContents={Trigger(functionName)}
-          PopoverContents={description}
-        />
-      </div>
-    );
-  });
-}
 export default FormulaOrder;
+
+function FormulaSteps({ steps }) {
+  return (
+    <>
+      {steps.map((step, index) => {
+        return (
+          <div key={`${step.address}-${step.functionName}`}>
+            <span>{index + 1}. </span>
+            <CustomPopover
+              position="after"
+              triggerContents={step.functionName}
+              PopoverContents={<FormulaOrderDetail step={step} />}
+            />
+          </div>
+        );
+      })}
+    </>
+  );
+}
