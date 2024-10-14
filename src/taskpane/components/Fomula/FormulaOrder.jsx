@@ -5,6 +5,7 @@ import usePublicStore from "../../store/publicStore";
 import CustomPopover from "../common/CustomPopover";
 import FormulaOrderDescription from "./FormulaOrderDescription";
 import { parseFormulaSteps } from "../../utils/formulaFuncs";
+import { popUpMessage } from "../../utils/commonFuncs";
 
 function FormulaOrder() {
   const cellFormula = usePublicStore((state) => state.cellFormula);
@@ -13,47 +14,27 @@ function FormulaOrder() {
 
   useEffect(() => {
     async function fetchFormulaSteps() {
-      if (cellFormula) {
-        try {
+      try {
+        if (cellFormula) {
           const result = await parseFormulaSteps(cellFormula);
 
           setFormulaSteps(result);
-        } catch (error) {
+        } else {
           setFormulaSteps([]);
         }
-      } else {
+      } catch (error) {
         setFormulaSteps([]);
+        popUpMessage("load Failed", error.message);
       }
     }
 
     fetchFormulaSteps();
   }, [cellFormula]);
 
-  function trigger(text) {
-    return <Button>{text}</Button>;
-  }
-
-  function renderFormulaSteps(steps) {
-    return steps.map((step, index) => {
-      const func = step.functionName;
-      const description = <FormulaOrderDescription step={step} />;
-      return (
-        <div key={`${step.address}-${step.functionName}`}>
-          <span>{index + 1}. </span>
-          <CustomPopover
-            position="after"
-            triggerContents={trigger(func)}
-            PopoverContents={description}
-          />
-        </div>
-      );
-    });
-  }
-
   return (
     <div>
       {formulaSteps && formulaSteps.length !== 0 ? (
-        renderFormulaSteps(formulaSteps)
+        FormulaSteps(formulaSteps)
       ) : (
         <div>수식이 입력된 셀을 선택해주세요.</div>
       )}
@@ -61,4 +42,25 @@ function FormulaOrder() {
   );
 }
 
+function Trigger(Contents) {
+  return <Button>{Contents}</Button>;
+}
+
+function FormulaSteps(steps) {
+  return steps.map((step, index) => {
+    const { functionName } = step;
+    const description = <FormulaOrderDescription step={step} />;
+
+    return (
+      <div key={`${step.address}-${step.functionName}`}>
+        <span>{index + 1}. </span>
+        <CustomPopover
+          position="after"
+          triggerContents={Trigger(functionName)}
+          PopoverContents={description}
+        />
+      </div>
+    );
+  });
+}
 export default FormulaOrder;
