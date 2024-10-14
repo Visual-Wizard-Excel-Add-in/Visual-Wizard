@@ -1,31 +1,35 @@
 class CellInfo {
   constructor(cell) {
-    this.address = cell.address;
-    this.scale = cell.address.includes(":") ? "range" : "cell";
-    [[this.values]] = cell.values;
-    [[this.formula]] = cell.formulas;
     [[this.numberFormat]] = cell.numberFormat;
+    [[this.formula]] = cell.formulas;
+    [[this.values]] = cell.values;
+    this.address = cell.address;
   }
 
-  isDate() {
+  get values() {
+    return this._values;
+  }
+
+  set values(cellValues) {
     if (this.numberFormat && this.numberFormat.includes("yy")) {
-      return true;
+      const dateValue = (cellValues - 25569) * 86400 * 1000;
+      this._values = new Intl.DateTimeFormat("ko-KR").format(dateValue);
+    } else {
+      this._values = cellValues;
     }
-
-    return false;
   }
 
-  get date() {
-    return Date((this.values - 25569) * 86400 * 1000).toLocaleDateString();
+  get formula() {
+    return this._formula;
   }
 
-  // isFormula() {
-  //   if (typeof this.formula === "string" && !this.formula.startsWith("=")) {
-  //     return false;
-  //   }
-
-  //   return true;
-  // }
+  set formula(cellFormula) {
+    if (typeof this.formula === "string" && !this.formula.startsWith("=")) {
+      this._formula = "";
+    } else {
+      this._formula = cellFormula;
+    }
+  }
 }
 
 export default CellInfo;
