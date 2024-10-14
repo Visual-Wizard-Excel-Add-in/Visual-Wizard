@@ -4,7 +4,7 @@ import { Switch } from "@fluentui/react-components";
 import { getLastCellAddress } from "../../utils/validateFuncs";
 import { detectErrorCell } from "../../utils/cellStyleFuncs";
 
-function ValidateTest() {
+function Validation() {
   const [isError, setIsError] = useState(true);
   const [lastCell, setLastCell] = useState("");
 
@@ -52,4 +52,4 @@ function ValidateTest() {
   );
 }
 
-export default ValidateTest;
+export default Validation;

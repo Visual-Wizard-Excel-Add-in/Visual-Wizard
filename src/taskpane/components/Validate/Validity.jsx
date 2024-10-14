@@ -1,9 +1,9 @@
 import usePublicStore from "../../store/publicStore";
 import FeatureTab from "../common/FeatureTab";
-import ValidateTest from "./ValidateTest";
+import Validation from "./Validation";
 import FormulaTest from "./FormulaTest";
 
-function Validate() {
+function Validity() {
   const [openTab, setOpenTab] = usePublicStore((state) => [
     state.openTab,
     state.setOpenTab,
@@ -11,7 +11,7 @@ function Validate() {
   const features = [
     {
       name: "유효성 검사",
-      component: ValidateTest,
+      component: Validation,
     },
     {
       name: "수식 테스트",
@@ -39,4 +39,4 @@ function Validate() {
   );
 }
 
-export default Validate;
+export default Validity;

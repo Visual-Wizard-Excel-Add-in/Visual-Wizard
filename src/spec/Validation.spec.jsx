@@ -6,7 +6,7 @@ import {
   act,
 } from "@testing-library/react";
 
-import ValidateTest from "../taskpane/components/Validate/ValidateTest";
+import Validation from "../taskpane/components/Validate/Validation";
 import { getLastCellAddress } from "../taskpane/utils/validateFuncs";
 import { detectErrorCell } from "../taskpane/utils/cellStyleFuncs";
 
@@ -41,7 +41,7 @@ describe("ValidateTest", () => {
     const fetchLastCellAddress = vi.fn().mockResolvedValue("A1");
     getLastCellAddress.mockImplementation(fetchLastCellAddress);
 
-    render(<ValidateTest />);
+    render(<Validation />);
 
     await waitFor(() => {
       expect(fetchLastCellAddress).toHaveBeenCalled();
@@ -54,7 +54,7 @@ describe("ValidateTest", () => {
   });
 
   it("When toggle the '에러 셀 검사' button, highlightError function should called", async () => {
-    render(<ValidateTest />);
+    render(<Validation />);
 
     const highlightButton = screen.getByLabelText("에러 셀 검사");
 

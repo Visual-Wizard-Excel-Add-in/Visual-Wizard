@@ -5,7 +5,7 @@ import Header from "./Header";
 import Formula from "./Fomula/Formula";
 import Style from "./Style/Style";
 import Macro from "./Macro/Macro";
-import Validate from "./Validate/Validate";
+import Validity from "./Validate/Validity";
 import Share from "./Share/Share";
 import { useStyles } from "../utils/style";
 import { registerSelectionChange, updateCellInfo } from "../utils/commonFuncs";
@@ -23,7 +23,7 @@ function App() {
     Formula: <Formula />,
     Style: <Style />,
     Macro: <Macro />,
-    Validate: <Validate />,
+    Validity: <Validity />,
     Share: <Share />,
   };
   const CurrentCategory = categories[category] || null;
