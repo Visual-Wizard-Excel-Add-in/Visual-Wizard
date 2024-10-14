@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 
 import usePublicStore from "../../store/publicStore";
+import FormulaOrderDetail from "./FormulaOrderDetail";
 import CustomPopover from "../common/CustomPopover";
-import FormulaOrderDescription from "./FormulaOrderDescription";
 import { parseFormulaSteps } from "../../utils/formulaFuncs";
 import { popUpMessage } from "../../utils/commonFuncs";
 
