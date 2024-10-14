@@ -10,9 +10,8 @@ const usePublicStore = create((set) => ({
   isRecording: false,
   setIsRecording: (recordState) => set({ isRecording: recordState }),
 
-  isCellHighlighting: false,
-  setIsCellHighlighting: () =>
-    set((state) => ({ isCellHighlighting: !state.isCellHighlighting })),
+  isHighlight: false,
+  setIsHighlight: () => set((state) => ({ isHighlight: !state.isHighlight })),
 
   selectedStylePreset: "",
   setSelectedStylePreset: (preset) => set({ selectedStylePreset: preset }),

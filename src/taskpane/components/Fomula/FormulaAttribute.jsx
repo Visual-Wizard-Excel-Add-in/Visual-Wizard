@@ -5,25 +5,10 @@ import { highlightingCell } from "../../utils/cellStyleFuncs";
 import { groupCellsIntoRanges } from "../../utils/formulaFuncs";
 
 function FormulaAttribute() {
-  const isCellHighlighting = usePublicStore(
-    (state) => state.isCellHighlighting,
-  );
-  const setIsCellHighlighting = usePublicStore(
-    (state) => state.setIsCellHighlighting,
-  );
   const cellArguments = usePublicStore((state) => state.cellArguments);
   const cellAddress = usePublicStore((state) => state.cellAddress);
   const cellValue = usePublicStore((state) => state.cellValue);
   const cellFunctions = usePublicStore((state) => state.cellFunctions);
-
-  const handleHighlighting = async () => {
-    const newHighlightState = !isCellHighlighting;
-
-    highlightingCell(newHighlightState, cellAddress);
-
-    setIsCellHighlighting(newHighlightState);
-  };
-
   const groupedCellArguments =
     groupCellsIntoRanges(cellArguments.map((arg) => arg.split("(")[0])) || [];
 
@@ -31,6 +16,14 @@ function FormulaAttribute() {
     .map((groupArg) => {
       const matchingArg = cellArguments.find((cellArg) =>
         cellArg.startsWith(groupArg),
+  const isHighlight = usePublicStore((state) => state.isHighlight);
+  const setIsHighlight = usePublicStore((state) => state.setIsHighlight);
+  const [argsWithValue, setArgsWithValue] = useState("");
+
+  const convertUnit = useCallback((value) => {
+    return !+value ? value : new Intl.NumberFormat("ko-KR").format(value);
+  }, []);
+
       );
 
       if (matchingArg && !groupArg.includes(":")) {
@@ -67,8 +60,12 @@ function FormulaAttribute() {
         valueArr.push(valueInStr.slice(i, endIndex));
       }
     }
+  const handleHighlighting = async () => {
+    await highlightingCell(!isHighlight, cellAddress);
 
     valueWithComma = valueArr.reverse().join(",");
+    setIsHighlight();
+  };
 
     return valueWithComma;
   }

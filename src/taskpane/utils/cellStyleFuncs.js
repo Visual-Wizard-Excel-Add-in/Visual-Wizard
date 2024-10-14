@@ -62,7 +62,7 @@ async function extractCellStyle(context, address) {
   }
 }
 
-async function storeCellStyle(cellAddress, allPresets, isCellHighlighting) {
+async function storeCellStyle(cellAddress, allPresets, isHighlight) {
   let cellStyleToReturn = null;
 
   try {
@@ -77,11 +77,11 @@ async function storeCellStyle(cellAddress, allPresets, isCellHighlighting) {
 
       const cellStyle = await extractCellStyle(context, cell);
 
-      if (parsedPresets[cellAddress] && !isCellHighlighting) {
+      if (parsedPresets[cellAddress] && !isHighlight) {
         return;
       }
 
-      if (!parsedPresets[cellAddress] && isCellHighlighting) {
+      if (!parsedPresets[cellAddress] && isHighlight) {
         parsedPresets[cellAddress] = cellStyle;
       }
 
@@ -109,7 +109,7 @@ async function storeCellStyle(cellAddress, allPresets, isCellHighlighting) {
 async function applyCellStyle(
   cellAddress,
   allPresets,
-  isCellHighlighting,
+  isHighlight,
   actionCellStyle = null,
 ) {
   try {
@@ -133,7 +133,7 @@ async function applyCellStyle(
         cellStyle = parsedPresets[cellAddress];
       }
 
-      if (cellStyle && !isCellHighlighting) {
+      if (cellStyle && !isHighlight) {
         cell.setCellProperties(cellStyle);
 
         await context.sync();
@@ -153,7 +153,7 @@ async function applyCellStyle(
   }
 }
 
-async function detectErrorCell(isCellHighlighting) {
+async function detectErrorCell(isHighlight) {
   try {
     await Excel.run(async (context) => {
       const sheet = context.workbook.worksheets.getActiveWorksheet();
@@ -191,7 +191,7 @@ async function detectErrorCell(isCellHighlighting) {
       for (const cell of errorCells) {
         const cellAddress = cell.address;
 
-        if (isCellHighlighting) {
+        if (isHighlight) {
           await storeCellStyle(cellAddress, "allCellStyles", true);
         } else {
           await applyCellStyle(cellAddress, "allCellStyles", false);
@@ -201,7 +201,7 @@ async function detectErrorCell(isCellHighlighting) {
       }
 
       for (const cell of errorCells) {
-        if (isCellHighlighting) {
+        if (isHighlight) {
           cell.format.fill.color = "red";
 
           const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
@@ -224,7 +224,7 @@ async function detectErrorCell(isCellHighlighting) {
   }
 }
 
-async function highlightingCell(isCellHighlighting, resultCell) {
+async function highlightingCell(isHighlight, resultCell) {
   await Excel.run(async (context) => {
     const worksheet = context.workbook.worksheets.getActiveWorksheet();
     const selectRange = context.workbook.getSelectedRange();
@@ -281,15 +281,11 @@ async function highlightingCell(isCellHighlighting, resultCell) {
       },
     };
 
-    if (isCellHighlighting) {
-      await storeCellStyle(resultCell, "allCellStyles", isCellHighlighting);
+    if (isHighlight) {
+      await storeCellStyle(resultCell, "allCellStyles", isHighlight);
 
       for (let i = 0; i < argsAddress.length; i += 1) {
-        await storeCellStyle(
-          argsAddress[i],
-          "allCellStyles",
-          isCellHighlighting,
-        );
+        await storeCellStyle(argsAddress[i], "allCellStyles", isHighlight);
       }
 
       const rangesToLoad = argsAddress.map((address) => {
@@ -318,10 +314,10 @@ async function highlightingCell(isCellHighlighting, resultCell) {
         [{ format: { ...resultFill, ...highlightBorder } }],
       ]);
     } else {
-      await applyCellStyle(resultCell, "allCellStyles", isCellHighlighting);
+      await applyCellStyle(resultCell, "allCellStyles", isHighlight);
 
       const requests = argsAddress.map(async (targetRange) => {
-        await applyCellStyle(targetRange, "allCellStyles", isCellHighlighting);
+        await applyCellStyle(targetRange, "allCellStyles", isHighlight);
       });
 
       await Promise.allSettled(requests);
