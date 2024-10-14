@@ -15,6 +15,14 @@ function Header() {
     setOpenTab([]);
   };
 
+  const tabs = [
+    { name: "수식", value: "Formula" },
+    { name: "서식", value: "Style" },
+    { name: "매크로", value: "Macro" },
+    { name: "유효성", value: "Validity" },
+    { name: "공유하기", value: "Share" },
+  ];
+
   return (
     <div className={`sticky top-0 z-10 ${styles.list}`}>
       <TabList
@@ -22,21 +30,11 @@ function Header() {
         appearance="subtle"
         onTabSelect={selectCategory}
       >
-        <Tab value="Formula" className="h-6">
-          수식
-        </Tab>
-        <Tab value="Style" className="h-6">
-          서식
-        </Tab>
-        <Tab value="Macro" className="h-6">
-          매크로
-        </Tab>
-        <Tab value="Validate" className="h-6">
-          유효성
-        </Tab>
-        <Tab value="Share" className="h-6">
-          공유하기
-        </Tab>
+        {tabs.map((tab) => (
+          <Tab value={tab.value} key={tab.value} className="h-6">
+            {tab.name}
+          </Tab>
+        ))}
       </TabList>
     </div>
   );
