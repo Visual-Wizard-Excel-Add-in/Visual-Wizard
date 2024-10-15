@@ -4,6 +4,8 @@ class CellInfo {
     [[this.formula]] = cell.formulas;
     [[this.values]] = cell.values;
     this.address = cell.address;
+    this.arguments = cell.arguments;
+    this.functions = getFunctions(this.formula);
   }
 
   get values() {
@@ -11,9 +13,10 @@ class CellInfo {
   }
 
   set values(cellValues) {
-    if (this.numberFormat && this.numberFormat.includes("yy")) {
-      const dateValue = (cellValues - 25569) * 86400 * 1000;
-      this._values = new Intl.DateTimeFormat("ko-KR").format(dateValue);
+    if (isDate(this.numberFormat)) {
+      this._values = new Intl.DateTimeFormat("ko-KR").format(
+        (cellValues - 25569) * 86400 * 1000,
+      );
     } else {
       this._values = cellValues;
     }
@@ -33,3 +36,20 @@ class CellInfo {
 }
 
 export default CellInfo;
+
+function getFunctions(formula) {
+  const regex = /([A-Z]+)\(/g;
+  const result = [
+    ...new Set([...formula.matchAll(regex)].map((match) => match[1])),
+  ];
+
+  return result;
+}
+
+function isDate(numberFormat) {
+  return (
+    numberFormat?.includes("yy") ||
+    numberFormat.includes("mm") ||
+    numberFormat.includes("dd")
+  );
+}

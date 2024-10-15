@@ -31,8 +31,6 @@ async function removeHandler(handler, setter) {
 async function loadCellInfo() {
 
 
-      const formulaFunctions = extractFunctionsFromFormula(selectCell.formula);
-      const formulaArgs = await extractArgsFromFormula(selectCell.formula);
       const selectCell = new CellInfo(range);
 
       updateCellState();
@@ -42,12 +40,7 @@ async function loadCellInfo() {
           cellAddress: { value: selectCell.address, setter: "setCellAddress" },
           cellValue: { value: selectCell.values, setter: "setCellValue" },
           cellFormula: { value: selectCell.formula, setter: "setCellFormula" },
-          cellFunctions: {
-            value: formulaFunctions,
-            setter: "setCellFunctions",
-          },
-          cellArgument: { value: formulaArgs, setter: "setCellArguments" },
-        };
+    range.arguments = argumentsList();
 
         Object.keys(stateMapping).forEach((state) => {
           const { value, setter } = stateMapping[state];
@@ -90,11 +83,16 @@ async function getTargetCellValue(targetCell) {
 
     const numberFormat = cell.numberFormat[0][0];
     let targetCellValue = cell.values[0][0];
+    function argumentsList() {
+      if (range.formulas[0][0]) {
+        return precedents.addresses[0].split(",");
+      }
 
     if (numberFormat && numberFormat.includes("yy") && targetCellValue !== "") {
       targetCellValue = new Date(
         (targetCellValue - 25569) * 86400 * 1000,
       ).toLocaleDateString();
+      return [];
     }
 
     return targetCellValue;
@@ -122,6 +120,13 @@ async function getTargetCellValue(targetCell) {
   if (selectionHandler) {
     removeHandler(selectionHandler, "setSelectionChangeHandler");
 async function updateCellInfo() {
+    cellFunctions: {
+      value: cellInfo.functions,
+      setter: "setCellFunctions",
+    },
+    cellArgument: { value: cellInfo.arguments, setter: "setCellArguments" },
+  };
+
   }
 
   await Excel.run(async (context) => {
