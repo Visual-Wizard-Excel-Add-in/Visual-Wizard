@@ -8,7 +8,7 @@ import Macro from "./Macro/Macro";
 import Validity from "./Validate/Validity";
 import Share from "./Share/Share";
 import { useStyles } from "../utils/style";
-import { registerSelectionChange, updateCellInfo } from "../utils/commonFuncs";
+import { addOnSelectionChange, updateCellInfo } from "../utils/commonFuncs";
 import CustomMessageBar from "./common/CustomMessageBar";
 
 function App() {
@@ -51,7 +51,7 @@ function App() {
         setSheetId(sheet.id);
 
         if (sheetId) {
-          await registerSelectionChange(sheetId, updateCellInfo);
+          await addOnSelectionChange(sheetId, updateCellInfo);
         }
       });
     };

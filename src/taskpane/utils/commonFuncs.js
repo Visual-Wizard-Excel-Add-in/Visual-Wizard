@@ -1,6 +1,6 @@
-import CellInfo from "../classes/CellInfo";
 import usePublicStore from "../store/publicStore";
 import useHandlerStore from "../store/handlerStore";
+import CellInfo from "../classes/CellInfo";
 import MESSAGE_LIST from "../constants/messageConstants";
 
 function updateState(setStateFunc, newValue) {
@@ -22,13 +22,13 @@ async function removeHandler(handler, setter) {
   }
 }
 
-async function updateCellInfo() {
   try {
     await Excel.run(async (context) => {
       const range = context.workbook.getSelectedRange();
 
       range.load(["address", "formulas", "values", "numberFormat"]);
       await context.sync();
+async function loadCellInfo() {
 
 
       const formulaFunctions = extractFunctionsFromFormula(selectCell.formula);
@@ -57,9 +57,9 @@ async function updateCellInfo() {
           }
         });
 
-        function isChanged(cellValue, state) {
           return cellValue !== state;
         }
+    function precedentsOrNull() {
       }
     });
   } catch (error) {
@@ -103,7 +103,6 @@ async function getTargetCellValue(targetCell) {
   return targetValue;
 }
 
-async function getSelectRangeValue() {
   let rangeValue = null;
 
   await Excel.run(async (context) => {
@@ -118,11 +117,11 @@ async function getSelectRangeValue() {
   return rangeValue;
 }
 
-async function registerSelectionChange(sheetId, func) {
   const selectionHandler = useHandlerStore.getState().selectionChangeHandler;
 
   if (selectionHandler) {
     removeHandler(selectionHandler, "setSelectionChangeHandler");
+async function updateCellInfo() {
   }
 
   await Excel.run(async (context) => {
@@ -136,16 +135,17 @@ async function registerSelectionChange(sheetId, func) {
   });
 }
 
-function splitCellAddress(address) {
   const match = address.match(/\$?([A-Z]+)\$?([0-9]+)/);
 
   if (!match) {
     throw new Error(`Invalid cell address: ${address}`);
+  function isStateChanged(cellValue, state) {
   }
 
   return [match[1], parseInt(match[2], 10)];
 }
 
+async function targetCellValue(targetCell) {
 
 
 
@@ -177,11 +177,13 @@ function splitCellAddress(address) {
   }
 }
 
+async function selectRangeValues() {
 
 
 
 }
 
+async function addOnSelectionChange(sheetId, func) {
 
 
 
@@ -196,10 +198,11 @@ function popUpMessage(purpose = "default", option = "") {
 }
 
 export {
-  registerSelectionChange,
+  addOnSelectionChange,
   updateCellInfo,
-  getSelectRangeValue,
+  selectRangeValues,
   updateState,
-  getTargetCellValue,
+  targetCellValue,
   popUpMessage,
+  removeHandler,
 };

@@ -1,9 +1,5 @@
 import { storeCellStyle, applyCellStyle } from "./cellStyleFuncs";
-import {
-  getSelectRangeValue,
-  popUpMessage,
-  removeHandler,
-} from "./commonFuncs";
+import { selectRangeValues, popUpMessage, removeHandler } from "./commonFuncs";
 import useHandlerStore from "../store/handlerStore";
 
 const actions = [];
@@ -131,7 +127,7 @@ async function onWorksheetChanged(event, presetName) {
         action.details = {
           value: event.details
             ? event.details.valueAfter
-            : await getSelectRangeValue(),
+            : await selectRangeValues(),
         };
         break;
 

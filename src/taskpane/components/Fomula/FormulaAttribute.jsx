@@ -2,7 +2,7 @@ import { Switch } from "@fluentui/react-components";
 import { useCallback, useEffect, useState } from "react";
 
 import usePublicStore from "../../store/publicStore";
-import { getTargetCellValue } from "../../utils/commonFuncs";
+import { targetCellValue } from "../../utils/commonFuncs";
 import { highlightingCell } from "../../utils/cellStyleFuncs";
 
 function FormulaAttribute() {
@@ -36,7 +36,7 @@ function FormulaAttribute() {
           : referCell;
 
       if (!referCell.includes(":")) {
-        const valueWithComma = convertUnit(await getTargetCellValue(referCell));
+        const valueWithComma = convertUnit(await targetCellValue(referCell));
 
         return `${address}(${valueWithComma})`;
       }
