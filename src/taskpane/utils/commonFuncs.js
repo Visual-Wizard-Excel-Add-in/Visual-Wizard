@@ -22,104 +22,52 @@ async function removeHandler(handler, setter) {
   }
 }
 
-  try {
-    await Excel.run(async (context) => {
-      const range = context.workbook.getSelectedRange();
-
-      range.load(["address", "formulas", "values", "numberFormat"]);
-      await context.sync();
 async function loadCellInfo() {
+  return await Excel.run(async (context) => {
+    const range = context.workbook.getSelectedRange();
+    const isNull = range.getUsedRangeOrNullObject();
 
-
-      const selectCell = new CellInfo(range);
-
-      updateCellState();
-
-      function updateCellState() {
-        const stateMapping = {
-          cellAddress: { value: selectCell.address, setter: "setCellAddress" },
-          cellValue: { value: selectCell.values, setter: "setCellValue" },
-          cellFormula: { value: selectCell.formula, setter: "setCellFormula" },
-    range.arguments = argumentsList();
-
-        Object.keys(stateMapping).forEach((state) => {
-          const { value, setter } = stateMapping[state];
-
-          if (isChanged(value, usePublicStore.getState()[state])) {
-            updateState(setter, value);
-          }
-        });
-
-          return cellValue !== state;
-        }
-    function precedentsOrNull() {
-      }
-    });
-  } catch (error) {
-    throw new Error(error.message);
-  }
-}
-
-async function getTargetCellValue(targetCell) {
-  const targetValue = await Excel.run(async (context) => {
-    const parts = targetCell.split("!");
-    const sheetName = parts.length > 1 ? parts[0] : undefined;
-    const normalizedAddress =
-      parts.length > 1
-        ? parts[1].replace(/\$/g, "")
-        : parts[0].replace(/\$/g, "");
-
-    const sheet = sheetName
-      ? context.workbook.worksheets.getItem(sheetName)
-      : context.workbook.worksheets.getActiveWorksheet();
-    const cell = sheet.getRange(normalizedAddress);
-
-    cell.load(["values", "numberFormat"]);
+    range.load(["address", "formulas", "values", "numberFormat"]);
     await context.sync();
 
-    if (cell.values[0][0] === "") {
-      return null;
+    const precedents = precedentsOrNull();
+
+    if (range.formulas[0][0]) {
+      precedents.load("addresses");
+      await context.sync();
     }
 
-    const numberFormat = cell.numberFormat[0][0];
-    let targetCellValue = cell.values[0][0];
+    range.arguments = argumentsList();
+
+    const result = new CellInfo(range);
+
+    return result;
+
+    function precedentsOrNull() {
+      if (isNull.isNullObject) {
+        return null;
+      }
+
+      return range.getDirectPrecedents();
+    }
+
     function argumentsList() {
       if (range.formulas[0][0]) {
         return precedents.addresses[0].split(",");
       }
 
-    if (numberFormat && numberFormat.includes("yy") && targetCellValue !== "") {
-      targetCellValue = new Date(
-        (targetCellValue - 25569) * 86400 * 1000,
-      ).toLocaleDateString();
       return [];
     }
-
-    return targetCellValue;
   });
-
-  return targetValue;
 }
 
-  let rangeValue = null;
-
-  await Excel.run(async (context) => {
-    const selectRange = context.workbook.getSelectedRange();
-
-    selectRange.load("values");
-    await context.sync();
-
-    rangeValue = selectRange.values;
-  });
-
-  return rangeValue;
-}
-
-  const selectionHandler = useHandlerStore.getState().selectionChangeHandler;
-
-  if (selectionHandler) {
-    removeHandler(selectionHandler, "setSelectionChangeHandler");
 async function updateCellInfo() {
+  const cellInfo = await loadCellInfo();
+
+  const stateMapping = {
+    cellAddress: { value: cellInfo.address, setter: "setCellAddress" },
+    cellValue: { value: cellInfo.values, setter: "setCellValue" },
+    cellFormula: { value: cellInfo.formula, setter: "setCellFormula" },
     cellFunctions: {
       value: cellInfo.functions,
       setter: "setCellFunctions",
@@ -127,36 +75,47 @@ async function updateCellInfo() {
     cellArgument: { value: cellInfo.arguments, setter: "setCellArguments" },
   };
 
+  for (const state in stateMapping) {
+    if (Object.hasOwn(stateMapping, state)) {
+      const { value, setter } = stateMapping[state];
+
+      if (isStateChanged(value, state)) {
+        updateState(setter, value);
+      }
+    }
   }
 
-  await Excel.run(async (context) => {
-    const { workbook } = context;
-    const sheet = workbook.worksheets.getItem(sheetId);
-
-    const handler = sheet.onSelectionChanged.add(func);
-    await context.sync();
-
-    useHandlerStore.getState().setSelectionChangeHandler(handler);
-  });
-}
-
-  const match = address.match(/\$?([A-Z]+)\$?([0-9]+)/);
-
-  if (!match) {
-    throw new Error(`Invalid cell address: ${address}`);
   function isStateChanged(cellValue, state) {
+    return cellValue !== usePublicStore.getState()[state];
   }
-
-  return [match[1], parseInt(match[2], 10)];
 }
 
 async function targetCellValue(targetCell) {
+  try {
+    return await Excel.run(async (context) => {
+      const cell = sheet().getRange(address());
 
+      cell.load(["values", "numberFormat"]);
+      await context.sync();
 
+      let result = "";
 
+      if (isDateFormat(cell)) {
+        result = dateValue(cell);
+      } else {
+        [[result]] = cell.values;
       }
 
+      return result;
 
+      function sheet() {
+        return sheetName()
+          ? context.workbook.worksheets.getItem(sheetName())
+          : context.workbook.worksheets.getActiveWorksheet();
+      }
+    });
+  } catch (error) {
+    throw new Error(error);
   }
 
   function address() {
@@ -164,11 +123,21 @@ async function targetCellValue(targetCell) {
       return targetCell.split("!")[1];
     }
 
+    return targetCell.split("!")[0];
   }
 
+  function sheetName() {
+    if (targetCell.split("!").length > 1) {
+      return targetCell.split("!")[0].replaceAll("'", "");
+    }
 
+    return null;
   }
 
+  function dateValue(cell) {
+    return new Intl.DateTimeFormat("ko-KR").format(
+      (cell.values[0][0] - 25569) * 86400 * 1000,
+    );
   }
 
   function isDateFormat(cell) {
@@ -183,15 +152,35 @@ async function targetCellValue(targetCell) {
 }
 
 async function selectRangeValues() {
+  return await Excel.run(async (context) => {
+    let result = null;
+    const selectRange = context.workbook.getSelectedRange();
 
+    selectRange.load("values");
+    await context.sync();
 
+    result = selectRange.values;
 
+    return result;
+  });
 }
 
 async function addOnSelectionChange(sheetId, func) {
+  const existHandler = useHandlerStore.getState().selectionChangeHandler;
 
+  if (existHandler) {
+    removeHandler(existHandler, "setSelectionChangeHandler");
+  }
 
+  await Excel.run(async (context) => {
+    const { workbook } = context;
+    const sheet = workbook.worksheets.getItem(sheetId);
 
+    const newHandler = sheet.onSelectionChanged.add(func);
+    await context.sync();
+
+    useHandlerStore.getState().setSelectionChangeHandler(newHandler);
+  });
 }
 
 function popUpMessage(purpose = "default", option = "") {
