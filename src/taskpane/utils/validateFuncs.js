@@ -91,7 +91,7 @@ async function evaluateTestFormula(newFormula) {
       await context.sync();
     });
 
-    return testResult;
+    return new Intl.NumberFormat("ko-KR").format(testResult);
   } catch (e) {
     popUpMessage(
       "workFail",
