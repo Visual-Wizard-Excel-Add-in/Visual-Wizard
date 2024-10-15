@@ -83,95 +83,6 @@ async function getFormulaDetail(funcName, args) {
   return formulaStepInfo;
 }
 
-function groupCellsIntoRanges(cells) {
-  if (cells.length === 0) return [];
-
-  const sortedCells = cells.sort((a, b) => {
-    const colA = a.match(/[A-Z]+/)[0];
-    const colB = b.match(/[A-Z]+/)[0];
-    const rowA = parseInt(a.match(/\d+/)[0], 10);
-    const rowB = parseInt(b.match(/\d+/)[0], 10);
-
-    if (colA === colB) {
-      return rowA - rowB;
-    }
-
-    return colA.localeCompare(colB);
-  });
-
-  const ranges = [];
-  let startCell = sortedCells[0];
-  let endCell = sortedCells[0];
-
-  for (let i = 1; i < sortedCells.length; i += 1) {
-    const currentCell = sortedCells[i];
-    const [currentColumn, currentRow] = [
-      currentCell.match(/[A-Z]+/)[0],
-      parseInt(currentCell.match(/\d+/)[0], 10),
-    ];
-    const [endColumn, endRow] = [
-      endCell.match(/[A-Z]+/)[0],
-      parseInt(endCell.match(/\d+/)[0], 10),
-    ];
-
-    if (
-      (currentColumn === endColumn && currentRow === endRow + 1) ||
-      (currentRow === endRow &&
-        currentColumn.charCodeAt(0) === endColumn.charCodeAt(0) + 1)
-    ) {
-      endCell = currentCell;
-    } else {
-      ranges.push(
-        startCell === endCell ? startCell : `${startCell}:${endCell}`,
-      );
-
-      startCell = currentCell;
-      endCell = currentCell;
-    }
-  }
-
-  ranges.push(startCell === endCell ? startCell : `${startCell}:${endCell}`);
-
-  const individualCells = ranges.filter((range) => !range.includes(":"));
-  const rangeCells = ranges.filter((range) => range.includes(":"));
-
-  const mergedRanges = [];
-  let currentRange = rangeCells.length > 0 ? rangeCells[0] : null;
-
-  for (let i = 1; i < rangeCells.length; i += 1) {
-    const [startRange, endRange] = currentRange.split(":");
-    const [nextStartRange, nextEndRange] = rangeCells[i].split(":");
-
-    const currentStartCol = startRange.match(/[A-Z]+/)[0];
-    const currentEndCol = endRange.match(/[A-Z]+/)[0];
-    const nextStartCol = nextStartRange.match(/[A-Z]+/)[0];
-    const nextEndCol = nextEndRange.match(/[A-Z]+/)[0];
-
-    const currentStartRow = parseInt(startRange.match(/\d+/)[0], 10);
-    const currentEndRow = parseInt(endRange.match(/\d+/)[0], 10);
-    const nextStartRow = parseInt(nextStartRange.match(/\d+/)[0], 10);
-    const nextEndRow = parseInt(nextEndRange.match(/\d+/)[0], 10);
-
-    if (
-      currentEndCol.charCodeAt(0) + 1 === nextStartCol.charCodeAt(0) &&
-      nextStartRow >= currentStartRow &&
-      nextEndRow <= currentEndRow
-    ) {
-      currentRange = `${currentStartCol}${currentStartRow}:${nextEndCol}${nextEndRow}`;
-    } else {
-      mergedRanges.push(currentRange);
-
-      currentRange = rangeCells[i];
-    }
-  }
-
-  if (currentRange) {
-    mergedRanges.push(currentRange);
-  }
-
-  return [...individualCells, ...mergedRanges];
-}
-
 function getArgs(formula, startIndex) {
   let depth = 1;
   let currentArg = "";
@@ -328,8 +239,6 @@ function getConditionFuncInfo(funcName, args, formulaOrderInfo) {
 export {
   getFormulaDetail as processFunction,
   parseFormulaSteps,
-  parseNestedFormula,
-  groupCellsIntoRanges,
   getArgs,
   splitArgs,
 };
