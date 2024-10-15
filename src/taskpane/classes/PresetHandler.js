@@ -1,5 +1,3 @@
-import { addPreset, deletePreset } from "../utils/commonFuncs";
-
 class PresetHandler {
   constructor(listName, presetName) {
     this.listName = listName;
@@ -68,3 +66,35 @@ class PresetHandler {
 }
 
 export default PresetHandler;
+
+async function addPreset(presetCategory, presetName) {
+  let savePreset = await OfficeRuntime.storage.getItem(presetCategory);
+
+  if (!savePreset) {
+    savePreset = {};
+  } else {
+    savePreset = JSON.parse(savePreset);
+  }
+
+  savePreset[presetName] = {};
+
+  await OfficeRuntime.storage.setItem(
+    presetCategory,
+    JSON.stringify(savePreset),
+  );
+}
+
+async function deletePreset(presetCategory, presetName) {
+  let currentPresets = await OfficeRuntime.storage.getItem(presetCategory);
+
+  if (currentPresets) {
+    currentPresets = JSON.parse(currentPresets);
+
+    delete currentPresets[presetName];
+
+    await OfficeRuntime.storage.setItem(
+      presetCategory,
+      JSON.stringify(currentPresets),
+    );
+  }
+}
