@@ -146,118 +146,35 @@ function splitCellAddress(address) {
   return [match[1], parseInt(match[2], 10)];
 }
 
-function extractReferenceCells(formula) {
-  const argAddresses = [];
-  const argRegex = /((?:[^!]+!)?\$?[A-Z]+\$?[0-9]+(?::\$?[A-Z]+\$?[0-9]+)?)/g;
-  let match;
 
-  while ((match = argRegex.exec(formula)) !== null) {
-    const parts = match[0].split("!");
-    const normalizedAddress = parts[parts.length - 1].replace(/\$/g, "");
 
-    if (normalizedAddress.includes(":")) {
-      const [startCell, endCell] = normalizedAddress.split(":");
-      const cellsInRange = getCellsInRange(startCell, endCell);
 
-      argAddresses.push(...cellsInRange);
-    } else {
-      argAddresses.push(normalizedAddress);
-    }
-  }
-
-  return argAddresses;
-}
-
-async function extractArgsFromFormula(formula) {
-  const argSet = new Set();
-  const argCellRegex =
-    /([A-Z]+[0-9]+|\$?[A-Z]+\$?[0-9]+(:\$?[A-Z]+\$?[0-9]+)?)/g;
-  const results = [];
-  const matches = formula.match(argCellRegex);
-
-  if (matches) {
-    for (const matchedArg of matches) {
-      if (matchedArg.includes(":")) {
-        const [startCell, endCell] = matchedArg.split(":");
-        const cellsInRange = getCellsInRange(startCell, endCell);
-
-        for (const cell of cellsInRange) {
-          if (!argSet.has(cell)) {
-            const value = await getTargetCellValue(cell);
-
-            argSet.add(cell);
-            results.push(`${cell}(${value})`);
-          }
-        }
-      } else if (!argSet.has(matchedArg)) {
-        const value = await getTargetCellValue(matchedArg);
-
-        argSet.add(matchedArg);
-        results.push(`${matchedArg}(${value})`);
       }
-    }
+
+
   }
 
-  return results;
-}
-
-function extractFunctionsFromFormula(formula) {
-  const functionNames = [];
-  const regex = /([A-Z]+)\(/g;
-  let match;
-
-  while ((match = regex.exec(formula)) !== null) {
-    if (!functionNames.includes(match[1])) {
-      functionNames.push(match[1]);
-    }
-  }
-
-  return functionNames;
-}
-
-function getCellsInRange(startCell, endCell) {
-  const cells = [];
-  const startColumn = startCell.match(/[A-Z]+/)[0];
-  const startRow = parseInt(startCell.match(/[0-9]+/)[0], 10);
-  const endColumn = endCell.match(/[A-Z]+/)[0];
-  const endRow = parseInt(endCell.match(/[0-9]+/)[0], 10);
-  let currentColumn = startColumn;
-
-  while (currentColumn <= endColumn) {
-    for (let row = startRow; row <= endRow; row += 1) {
-      cells.push(`${currentColumn}${row}`);
+  function address() {
+    if (sheetName()) {
+      return targetCell.split("!")[1];
     }
 
-    if (currentColumn === endColumn) {
-      break;
-    }
-
-    currentColumn = nextColumn(currentColumn);
   }
 
-  return cells;
-}
 
-function nextColumn(col) {
-  if (col === "Z") {
-    return "AA";
   }
 
-  if (col.length === 1) {
-    return String.fromCharCode(col.charCodeAt(0) + 1);
   }
 
-  let lastChar = col.slice(-1);
-  let restChars = col.slice(0, -1);
+  function isDateFormat(cell) {
+    const [[numberFormat]] = cell.numberFormat;
 
-  if (lastChar === "Z") {
-    restChars = nextColumn(restChars);
-    lastChar = "A";
-  } else {
-    lastChar = String.fromCharCode(lastChar.charCodeAt(0) + 1);
+    return (
+      numberFormat?.includes("yy") ||
+      numberFormat.includes("dd") ||
+      numberFormat.includes("mm")
+    );
   }
-
-  return restChars + lastChar;
 }
 
 
@@ -283,12 +200,6 @@ export {
   updateCellInfo,
   getSelectRangeValue,
   updateState,
-  splitCellAddress,
-  extractReferenceCells,
-  getCellsInRange,
-  nextColumn,
   getTargetCellValue,
-  extractArgsFromFormula,
-  extractFunctionsFromFormula,
   popUpMessage,
 };

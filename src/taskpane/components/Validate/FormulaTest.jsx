@@ -2,12 +2,7 @@ import { useState, useEffect } from "react";
 import { Button, Input, Divider } from "@fluentui/react-components";
 
 import usePublicStore from "../../store/publicStore";
-import { extractReferenceCells } from "../../utils/commonFuncs";
 import { evaluateTestFormula } from "../../utils/validateFuncs";
-import {
-  groupCellsIntoRanges,
-  parseFormulaSteps,
-} from "../../utils/formulaFuncs";
 
 function FormulaTest() {
   const [args, setArgs] = useState([]);
@@ -16,19 +11,19 @@ function FormulaTest() {
   const cellFormula = usePublicStore((state) => state.cellFormula);
   const cellValue = usePublicStore((state) => state.cellValue);
   const cellArguments = usePublicStore((state) => state.cellArguments);
+  const cellAddress = usePublicStore((state) => state.cellAddress);
 
   useEffect(() => {
     const fetchArgs = async () => {
       if (cellFormula) {
-        const formulaSteps = await parseFormulaSteps(cellFormula);
-        const allArgs = formulaSteps.flatMap((step) => {
-          const addresses = extractReferenceCells(step.address);
-
-          return groupCellsIntoRanges(addresses);
+        const pureArgs = cellArguments.map((cellArg) => {
+          if (cellArg.split("!")[0] === cellAddress.split("!")[0]) {
+            return cellArg.split("!")[1];
+          }
+          return cellArg;
         });
-        const uniqueArgs = [...new Set(allArgs)];
 
-        setArgs(uniqueArgs);
+        setArgs(pureArgs);
       } else {
         setArgs([]);
       }
@@ -69,8 +64,7 @@ function FormulaTest() {
       <Divider className="my-2" appearance="strong" />
       {args.map((arg, index) => (
         <p key={arg} className="mb-2">
-          {index + 1}. 인자:
-          {cellArguments?.find((detailArg) => detailArg.includes(arg)) || arg}
+          {`${index + 1}. ${arg}`}
           <br />
           <Input
             className="mt-1"
