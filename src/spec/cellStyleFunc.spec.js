@@ -4,8 +4,8 @@ import {
   applyCellStyle,
   detectErrorCell,
   highlightingCell,
-  saveRangeStylePreset,
-  loadRangeStylePreset,
+  copyRangeStyle,
+  pasteRangeStyle,
 } from "../taskpane/utils/cellStyleFuncs";
 import {
   saveChartStylePreset,
@@ -721,7 +721,7 @@ describe("cellStyleFunc", () => {
 
       global.updateState = vi.fn();
 
-      await saveRangeStylePreset(styleName);
+      await copyRangeStyle(styleName);
 
       expect(OfficeRuntime.storage.setItem).toHaveBeenCalledWith(
         "cellStylePresets",
@@ -738,7 +738,7 @@ describe("cellStyleFunc", () => {
     });
 
     it("should display a warning if the style name is empty", async () => {
-      await saveRangeStylePreset("");
+      await copyRangeStyle("");
 
       expect(cellCommonUtils.updateState).toHaveBeenCalledWith(
         "setMessageList",
@@ -863,7 +863,7 @@ describe("cellStyleFunc", () => {
         JSON.stringify({ [styleName]: mockPreset }),
       );
 
-      await loadRangeStylePreset(styleName);
+      await pasteRangeStyle(styleName);
 
       expect(global.Excel.run).toHaveBeenCalled();
       expect(appliedCell.format.font.bold).toBe(true);
@@ -875,7 +875,7 @@ describe("cellStyleFunc", () => {
 
       OfficeRuntime.storage.getItem.mockResolvedValueOnce(JSON.stringify({}));
 
-      await loadRangeStylePreset(styleName);
+      await pasteRangeStyle(styleName);
 
       expect(cellCommonUtils.updateState).toHaveBeenCalledWith(
         "setMessageList",

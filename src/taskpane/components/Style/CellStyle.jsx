@@ -2,13 +2,10 @@ import { useEffect, useState } from "react";
 import { Button } from "@fluentui/react-components";
 
 import CustomDropdown from "../common/CustomDropdown";
-import { useStyles } from "../../utils/style";
 import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
-import {
-  saveRangeStylePreset,
-  loadRangeStylePreset,
-} from "../../utils/cellStyleFuncs";
+import { useStyles } from "../../utils/style";
 import PresetHandler from "../../classes/PresetHandler";
+import { copyRangeStyle, pasteRangeStyle } from "../../utils/cellStyleFuncs";
 
 function CellStyle() {
   const [selectPreset, setSelectPreset] = useState("");
@@ -19,21 +16,21 @@ function CellStyle() {
   useEffect(() => {
     fetchPresets();
 
-      setCellStylePresets(sortedPresets);
+    async function fetchPresets() {
+      setCellStylePresets(await presets.sort());
 
-      if (sortedPresets.length > 0 && !selectedStylePreset) {
-        setSelectedStylePreset(sortedPresets[0]);
+      if ((await presets.sort()).length > 0 && !selectPreset) {
         setSelectPreset((await presets.sort())[0]);
       }
     }
   }, [selectPreset]);
 
-  async function newPreset() {
+  async function newPresetHandler() {
     setSelectPreset(await presets.add(cellStylePresets));
     setCellStylePresets(await presets.sort());
   }
 
-  async function deletePreset() {
+  async function deletePresetHandler() {
     const selectIndex = cellStylePresets.indexOf(selectPreset);
     const leftPresets = await presets.delete(selectPreset);
 
@@ -45,7 +42,7 @@ function CellStyle() {
     <div className="flex items-center justify-between space-x-5">
       <div className="flex items-center w-8/12 space-x-2">
         <button
-          onClick={() => newPreset()}
+          onClick={() => newPresetHandler()}
           className={styles.buttons}
           aria-label="add new preset"
           type="button"
@@ -63,14 +60,14 @@ function CellStyle() {
         />
         <button
           className={styles.buttons}
-          onClick={deletePreset}
+          onClick={deletePresetHandler}
           aria-label="delete preset"
           type="button"
         >
           <DeleteIcon />
         </button>
         <button
-          onClick={() => saveRangeStylePreset(selectPreset)}
+          onClick={() => copyRangeStyle(selectPreset)}
           className={styles.buttons}
           aria-label="save button"
           type="button"
@@ -81,7 +78,7 @@ function CellStyle() {
       <Button
         as="button"
         className="self-center w-7"
-        onClick={() => loadRangeStylePreset(selectPreset)}
+        onClick={() => pasteRangeStyle(selectPreset)}
         size="small"
       >
         적용

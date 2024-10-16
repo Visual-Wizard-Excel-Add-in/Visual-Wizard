@@ -9,8 +9,8 @@ import {
 import CellStyle from "../taskpane/components/Style/CellStyle";
 import usePublicStore from "../taskpane/store/publicStore";
 import {
-  saveRangeStylePreset,
-  loadRangeStylePreset,
+  copyRangeStyle,
+  pasteRangeStyle,
 } from "../taskpane/utils/cellStyleFuncs";
 import { addPreset, deletePreset } from "../taskpane/utils/commonFuncs";
 
@@ -102,7 +102,7 @@ describe("CellStyle", () => {
     fireEvent.click(screen.getByLabelText("save"));
 
     await waitFor(() => {
-      expect(saveRangeStylePreset).toHaveBeenCalledWith(
+      expect(copyRangeStyle).toHaveBeenCalledWith(
         mockStore.selectedStylePreset,
       );
     });
@@ -116,7 +116,7 @@ describe("CellStyle", () => {
     fireEvent.click(screen.getByText("적용"));
 
     await waitFor(() => {
-      expect(loadRangeStylePreset).toHaveBeenCalledWith("셀 서식1");
+      expect(pasteRangeStyle).toHaveBeenCalledWith("셀 서식1");
     });
   });
 });

@@ -327,9 +327,9 @@ async function highlightingCell(isHighlight, resultCell) {
   });
 }
 
-async function saveRangeStylePreset(styleName) {
+async function copyRangeStyle(presetName) {
   try {
-    if (!styleName) {
+    if (!presetName) {
       popUpMessage("saveFail", "프리셋을 정확히 선택해주세요!");
 
       return;
@@ -345,8 +345,8 @@ async function saveRangeStylePreset(styleName) {
         cellStylePresets = JSON.parse(cellStylePresets);
       }
 
-      if (cellStylePresets[styleName]) {
-        delete cellStylePresets[styleName];
+      if (cellStylePresets[presetName]) {
+        delete cellStylePresets[presetName];
       }
 
       const range = context.workbook.getSelectedRange();
@@ -357,7 +357,7 @@ async function saveRangeStylePreset(styleName) {
       const cellAddress = range.address.split("!")[1];
       const cellStyles = await extractCellStyle(context, range);
 
-      cellStylePresets[styleName] = [cellStyles, cellAddress];
+      cellStylePresets[presetName] = [cellStyles, cellAddress];
 
       await OfficeRuntime.storage.setItem(
         "cellStylePresets",
@@ -373,7 +373,7 @@ async function saveRangeStylePreset(styleName) {
   }
 }
 
-async function loadRangeStylePreset(styleName) {
+async function pasteRangeStyle(styleName) {
   try {
     await Excel.run(async (context) => {
       const selectRange = context.workbook.getSelectedRange();
@@ -424,7 +424,7 @@ export {
   storeCellStyle,
   applyCellStyle,
   highlightingCell,
-  saveRangeStylePreset,
-  loadRangeStylePreset,
+  copyRangeStyle,
+  pasteRangeStyle,
   detectErrorCell,
 };
