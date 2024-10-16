@@ -26,7 +26,6 @@ function App() {
     Validity: <Validity />,
     Share: <Share />,
   };
-  const CurrentCategory = categories[category] || null;
 
   const onWorksheetChanged = useCallback(
     async (event) => {
@@ -97,7 +96,7 @@ function App() {
     <div className={styles.root}>
       <Header />
       {messageList.length !== 0 && <CustomMessageBar />}
-      {CurrentCategory || ""}
+      {categories[category] || ""}
     </div>
   );
 }
