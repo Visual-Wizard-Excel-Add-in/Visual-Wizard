@@ -9,8 +9,8 @@ import {
 import ChartStyle from "../taskpane/components/Style/ChartStyle";
 import { addPreset, deletePreset } from "../taskpane/utils/commonFuncs";
 import {
-  saveChartStylePreset,
-  loadChartStylePreset,
+  copyChartStylePreset,
+  pasteChartStylePreset,
 } from "../taskpane/utils/chartStyleFuncs";
 
 vi.mock("../taskpane/utils/commonFuncs");
@@ -97,7 +97,7 @@ describe("ChartStyle", () => {
     fireEvent.click(screen.getByLabelText("save"));
 
     await waitFor(() => {
-      expect(saveChartStylePreset).toHaveBeenCalledWith(
+      expect(copyChartStylePreset).toHaveBeenCalledWith(
         "chartStylePresets",
         "",
       );
@@ -110,7 +110,7 @@ describe("ChartStyle", () => {
     fireEvent.click(screen.getByText("적용"));
 
     await waitFor(() => {
-      expect(loadChartStylePreset).toHaveBeenCalledWith(
+      expect(pasteChartStylePreset).toHaveBeenCalledWith(
         "chartStylePresets",
         "",
       );
