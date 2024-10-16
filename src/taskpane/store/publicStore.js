@@ -13,9 +13,6 @@ const usePublicStore = create((set) => ({
   isHighlight: false,
   setIsHighlight: () => set((state) => ({ isHighlight: !state.isHighlight })),
 
-  selectedStylePreset: "",
-  setSelectedStylePreset: (preset) => set({ selectedStylePreset: preset }),
-
   messageList: [],
   setMessageList: (message) =>
     set((state) => ({
