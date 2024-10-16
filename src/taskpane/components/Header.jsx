@@ -5,17 +5,15 @@ import { useStyles } from "../utils/style";
 
 function Header() {
   const styles = useStyles();
-  const [setCategory, setOpenTab] = usePublicStore((state) => [
-    state.setCategory,
-    state.setOpenTab,
-  ]);
+  const setCategory = usePublicStore((state) => state.setCategory);
+  const setOpenTab = usePublicStore((state) => state.setOpenTab);
 
   const selectCategory = (event, data) => {
     setCategory(data.value);
     setOpenTab([]);
   };
 
-  const tabs = [
+  const TABS = [
     { name: "수식", value: "Formula" },
     { name: "서식", value: "Style" },
     { name: "매크로", value: "Macro" },
@@ -30,7 +28,7 @@ function Header() {
         appearance="subtle"
         onTabSelect={selectCategory}
       >
-        {tabs.map((tab) => (
+        {TABS.map((tab) => (
           <Tab value={tab.value} key={tab.value} className="h-6">
             {tab.name}
           </Tab>
