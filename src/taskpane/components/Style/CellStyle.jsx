@@ -17,8 +17,6 @@ function CellStyle() {
   const presets = new PresetHandler("cellStylePresets", "셀 서식");
 
   useEffect(() => {
-    async function fetchPresets() {
-      const sortedPresets = await presets.sorting();
     fetchPresets();
 
       setCellStylePresets(sortedPresets);
@@ -31,8 +29,8 @@ function CellStyle() {
   }, [selectPreset]);
 
   async function newPreset() {
-    setCellStylePresets(await presets.sorting());
     setSelectPreset(await presets.add(cellStylePresets));
+    setCellStylePresets(await presets.sort());
   }
 
   async function deletePreset() {

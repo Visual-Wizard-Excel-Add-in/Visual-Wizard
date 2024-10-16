@@ -2,64 +2,58 @@ class PresetHandler {
   constructor(listName, presetName) {
     this.listName = listName;
     this.presetName = presetName;
-    this.presets = null;
+    this.presets = this.load();
   }
 
-  async loadStorage() {
-    const preset = await OfficeRuntime.storage.getItem(this.listName);
-
-    return preset;
-  }
-
-  async loadPresets() {
-    this.presets = await this.loadStorage(this.listName);
+  async load() {
+    const existingData = await loadStorage(this.listName);
 
     if (!this.presets) {
       this.presets = {};
     } else {
-      this.presets = JSON.parse(this.presets);
+      this.presets = JSON.parse(existingData);
     }
 
     return this.presets;
   }
 
-  async add(presetList) {
-    let presetNumbers = [];
-
-    if (presetList.length > 0) {
-      presetNumbers = presetList.map((preset) =>
-        parseInt(preset.replace(/\D/g, ""), 10),
-      );
-    }
-
-    let lastPresetNum = 1;
-
-    while (presetNumbers.includes(lastPresetNum)) {
-      lastPresetNum += 1;
-    }
-
-    const newPresetName = `${this.presetName}${lastPresetNum}`;
-
-    await addPreset(this.listName, newPresetName);
-
-    return newPresetName;
-  }
-
-  async sorting() {
-    const sortedPresets = Object.keys(await this.loadPresets()).sort((a, b) => {
+  async sort() {
+    const result = Object.keys(await this.load()).sort((a, b) => {
       const numA = parseInt(a.replace(/\D/g, ""), 10);
       const numB = parseInt(b.replace(/\D/g, ""), 10);
 
       return numA - numB;
     });
 
-    return sortedPresets;
+    return result;
+  }
+
+  async add(presetList) {
+    let existOrderNums = [];
+
+    if (presetList.length > 0) {
+      existOrderNums = presetList.map((preset) =>
+        parseInt(preset.replace(/\D/g, ""), 10),
+      );
+    }
+
+    let newOrderNum = 1;
+
+    while (existOrderNums.includes(newOrderNum)) {
+      newOrderNum += 1;
+    }
+
+    const newPresetName = `${this.presetName}${newOrderNum}`;
+
+    await addPreset(this.listName, newPresetName);
+
+    return newPresetName;
   }
 
   async delete(selectPreset) {
     await deletePreset(this.listName, selectPreset);
 
-    const sortedPresets = await this.sorting();
+    const sortedPresets = await this.sort();
 
     return sortedPresets;
   }
@@ -68,13 +62,9 @@ class PresetHandler {
 export default PresetHandler;
 
 async function addPreset(presetCategory, presetName) {
-  let savePreset = await OfficeRuntime.storage.getItem(presetCategory);
-
-  if (!savePreset) {
-    savePreset = {};
-  } else {
-    savePreset = JSON.parse(savePreset);
-  }
+  const savePreset = (await loadStorage(presetCategory))
+    ? JSON.parse(await loadStorage(presetCategory))
+    : {};
 
   savePreset[presetName] = {};
 
@@ -85,11 +75,11 @@ async function addPreset(presetCategory, presetName) {
 }
 
 async function deletePreset(presetCategory, presetName) {
-  let currentPresets = await OfficeRuntime.storage.getItem(presetCategory);
+  const currentPresets = JSON.parse(
+    await OfficeRuntime.storage.getItem(presetCategory),
+  );
 
   if (currentPresets) {
-    currentPresets = JSON.parse(currentPresets);
-
     delete currentPresets[presetName];
 
     await OfficeRuntime.storage.setItem(
@@ -97,4 +87,10 @@ async function deletePreset(presetCategory, presetName) {
       JSON.stringify(currentPresets),
     );
   }
+}
+
+async function loadStorage(presetCategory) {
+  const preset = await OfficeRuntime.storage.getItem(presetCategory);
+
+  return preset;
 }

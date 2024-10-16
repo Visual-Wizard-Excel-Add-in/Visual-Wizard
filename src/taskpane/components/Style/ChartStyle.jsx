@@ -18,7 +18,7 @@ function ChartStyle() {
 
   useEffect(() => {
     async function fetchPresets() {
-      const sortedPresets = await presets.sorting();
+      const sortedPresets = await presets.sort();
 
       setChartStylePresets(sortedPresets);
 
@@ -32,14 +32,14 @@ function ChartStyle() {
 
   async function newPreset() {
     setSelectedChartPreset(await presets.add(chartStylePresets));
-    setChartStylePresets(await presets.sorting());
+    setChartStylePresets(await presets.sort());
   }
 
   async function deletePreset() {
     const selectIndex = chartStylePresets.indexOf(selectedChartPreset);
 
     setChartStylePresets(await presets.delete(selectedChartPreset));
-    setSelectedChartPreset((await presets.sorting())[selectIndex]);
+    setSelectedChartPreset((await presets.sort())[selectIndex]);
   }
 
   return (

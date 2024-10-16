@@ -27,7 +27,7 @@ function MacroRecord() {
 
   useEffect(() => {
     async function fetchPresets() {
-      const sortedPresets = await presets.sorting();
+      const sortedPresets = await presets.sort();
 
       setMacroPresets(sortedPresets);
 
@@ -41,14 +41,14 @@ function MacroRecord() {
 
   async function newPreset() {
     setSelectMacroPreset(await presets.add(macroPresets));
-    setMacroPresets(await presets.sorting());
+    setMacroPresets(await presets.sort());
   }
 
   async function handleDeletePreset() {
     const selectIndex = macroPresets.indexOf(selectMacroPreset);
 
     setMacroPresets(Object.keys(await presets.delete(selectMacroPreset)));
-    setSelectMacroPreset((await presets.sorting())[selectIndex]);
+    setSelectMacroPreset((await presets.sort())[selectIndex]);
   }
 
   function controlMacroRecording() {
