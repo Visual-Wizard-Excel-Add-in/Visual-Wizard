@@ -1,92 +1,83 @@
 import { popUpMessage } from "./commonFuncs";
 import STYLE_OPTIONS_TO_LOAD from "../constants/styleConstants";
 
-async function extractCellStyle(context, address) {
+async function extractCellStyle(context, rangeObject) {
   try {
-    const targetRange = await determineTarget();
-    const properties = targetRange.getCellProperties(STYLE_OPTIONS_TO_LOAD);
+    const rawProperties = rangeObject.getCellProperties(STYLE_OPTIONS_TO_LOAD);
 
     await context.sync();
 
-    const styleProperties = properties.value.map((row) =>
-      row.map((cell) => getMainBorders(cell)),
+    const result = rawProperties.value.map((row) =>
+      row.map((cell) => filterBorders(cell)),
     );
 
-    await context.sync();
-
-    return styleProperties;
+    return result;
   } catch (error) {
     popUpMessage("workFail", error.message);
 
     throw new Error(error.message);
   }
 
-  async function determineTarget() {
-    if (typeof address === "string") {
-      const target = context.workbook.worksheets.getRanges(address);
-
-      await context.sync();
-
-      return target;
-    }
-
-    return address;
-  }
-
-  function getMainBorders(cell) {
+  function filterBorders(cell) {
     const { format } = cell;
-    const { borders } = format;
     const mainBorders = ["bottom", "top", "left", "right"];
     const filteredBorders = {};
 
-    for (const border in borders) {
-      if (mainBorders.includes(border) && borders[border].style === "None") {
-        filteredBorders[border] = borders[border];
-        filteredBorders[border].color = "#D6D6D6";
-        filteredBorders[border].style = "Continuous";
-        filteredBorders[border].tintAndShade = 0;
-      } else if (
-        mainBorders.includes(border) ||
-        borders[border].style !== "None"
-      ) {
-        filteredBorders[border] = borders[border];
-      }
-    }
+    Object.keys(format.borders).map((border) => nomalizeEmptyBorders(border));
 
-    return {
+    const result = {
       format: {
         ...format,
         borders: filteredBorders,
       },
     };
-  }
-}
-
 async function storeCellStyle(cellAddress, allPresets, isHighlight) {
 
   try {
     await Excel.run(async (context) => {
       const sheet = context.workbook.worksheets.getActiveWorksheet();
       const cell = sheet.getRange(cellAddress);
+    return result;
 
       const allSavedPresets = await OfficeRuntime.storage.getItem(allPresets);
       const parsedPresets = allSavedPresets
         ? { ...JSON.parse(allSavedPresets) }
         : {};
+    function nomalizeEmptyBorders(border) {
+      if (isEmptyMainBorder()) {
+        filteredBorders[border] = { ...format.borders[border] };
 
       const cellStyle = await extractCellStyle(context, cell);
+        const mainBorder = filteredBorders[border];
 
       if (parsedPresets[cellAddress] && !isHighlight) {
         return;
+        mainBorder.color = "#D6D6D6";
+        mainBorder.style = "Continuous";
+        mainBorder.tintAndShade = 0;
+      } else if (isStyledBorder()) {
+        filteredBorders[border] = format.borders[border];
       }
 
       if (!parsedPresets[cellAddress] && isHighlight) {
         parsedPresets[cellAddress] = cellStyle;
+      function isEmptyMainBorder() {
+        return (
+          mainBorders.includes(border) &&
+          format.borders[border].style === "None"
+        );
       }
 
+      function isStyledBorder() {
+        return (
+          mainBorders.includes(border) ||
+          format.borders[border].style !== "None"
         );
       }
     }
+  }
+}
+
   } catch (error) {
     popUpMessage("saveFail", error.message);
 
