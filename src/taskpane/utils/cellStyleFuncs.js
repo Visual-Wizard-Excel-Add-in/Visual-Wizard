@@ -31,27 +31,15 @@ async function extractCellStyle(context, rangeObject) {
         borders: filteredBorders,
       },
     };
-async function storeCellStyle(cellAddress, allPresets, isHighlight) {
 
-  try {
-    await Excel.run(async (context) => {
-      const sheet = context.workbook.worksheets.getActiveWorksheet();
-      const cell = sheet.getRange(cellAddress);
     return result;
 
-      const allSavedPresets = await OfficeRuntime.storage.getItem(allPresets);
-      const parsedPresets = allSavedPresets
-        ? { ...JSON.parse(allSavedPresets) }
-        : {};
     function nomalizeEmptyBorders(border) {
       if (isEmptyMainBorder()) {
         filteredBorders[border] = { ...format.borders[border] };
 
-      const cellStyle = await extractCellStyle(context, cell);
         const mainBorder = filteredBorders[border];
 
-      if (parsedPresets[cellAddress] && !isHighlight) {
-        return;
         mainBorder.color = "#D6D6D6";
         mainBorder.style = "Continuous";
         mainBorder.tintAndShade = 0;
@@ -59,8 +47,6 @@ async function storeCellStyle(cellAddress, allPresets, isHighlight) {
         filteredBorders[border] = format.borders[border];
       }
 
-      if (!parsedPresets[cellAddress] && isHighlight) {
-        parsedPresets[cellAddress] = cellStyle;
       function isEmptyMainBorder() {
         return (
           mainBorders.includes(border) &&
@@ -78,57 +64,98 @@ async function storeCellStyle(cellAddress, allPresets, isHighlight) {
   }
 }
 
+async function storeCellStyle(address, PresetType, isHighlight) {
+  if (!isHighlight) {
+    return;
+  }
+
+  try {
+    await Excel.run(async (context) => {
+      const sheet = context.workbook.worksheets.getActiveWorksheet();
+      const cell = sheet.getRange(address);
+      const loadedPresets = await loadPreset();
+
+      loadedPresets[address] = await extractCellStyle(context, cell);
+
+      await OfficeRuntime.storage.setItem(
+        PresetType,
+        JSON.stringify(loadedPresets),
+      );
+    });
   } catch (error) {
     popUpMessage("saveFail", error.message);
 
     throw new Error(error.message);
   }
+
+  async function loadPreset() {
+    const existingData = JSON.parse(
+      await OfficeRuntime.storage.getItem(PresetType),
+    );
+
+    if (existingData) {
+      const result = { ...existingData };
+
+      return result;
+    }
+
+    return {};
+  }
 }
 
 async function applyCellStyle(
-  cellAddress,
-  allPresets,
+  address,
+  presetType,
   isHighlight,
   actionCellStyle = null,
 ) {
-  try {
-    await Excel.run(async (context) => {
+  await Excel.run(async (context) => {
+    try {
       const sheet = context.workbook.worksheets.getActiveWorksheet();
-      const cell = sheet.getRange(cellAddress);
-      const allSavedPresets = await OfficeRuntime.storage.getItem(allPresets);
-      let cellStyle = {};
+      const cell = sheet.getRange(address);
+      const cellStyle = await loadCellStyle();
 
-      if (!allSavedPresets) {
+      await applyStyle(cell, cellStyle, context);
+    } catch (e) {
+      popUpMessage("loadFail", e.message);
+
+      throw new Error(e.message);
+    }
+  });
+
+  async function applyStyle(cell, cellStyle, context) {
+    if (cellStyle && !isHighlight && actionCellStyle) {
+      cell.setCellProperties(cellStyle);
+      await context.sync();
+    } else {
+      cell.setCellProperties(cellStyle[address]);
+      await context.sync();
+
+      delete cellStyle[address];
+
+      await OfficeRuntime.storage.setItem(
+        presetType,
+        JSON.stringify(cellStyle),
+      );
+    }
+  }
+
+  async function loadCellStyle() {
+    let result = {};
+
+    if (actionCellStyle) {
+      result = actionCellStyle;
+    } else {
+      const loadedPresets = await OfficeRuntime.storage.getItem(presetType);
+
+      if (!loadedPresets) {
         popUpMessage("loadFail", "저장된 프리셋이 없습니다!");
-
-        throw new Error("No any saved presets found.");
       }
 
-      const parsedPresets = JSON.parse(allSavedPresets);
+      result = JSON.parse(loadedPresets);
+    }
 
-      if (allPresets === "allMacroPresets") {
-        cellStyle = actionCellStyle;
-      } else {
-        cellStyle = parsedPresets[cellAddress];
-      }
-
-      if (cellStyle && !isHighlight) {
-        cell.setCellProperties(cellStyle);
-
-        await context.sync();
-
-        delete parsedPresets[cellAddress];
-
-        await OfficeRuntime.storage.setItem(
-          allPresets,
-          JSON.stringify(parsedPresets),
-        );
-      }
-    });
-  } catch (e) {
-    popUpMessage("loadFail", e.message);
-
-    throw new Error(e.message);
+    return result;
   }
 }
 
@@ -137,46 +164,21 @@ async function detectErrorCell(isHighlight) {
     await Excel.run(async (context) => {
       const sheet = context.workbook.worksheets.getActiveWorksheet();
       const range = sheet.getUsedRange();
-      const errorTypes = Object.values(Excel.ErrorCellValueType).map((error) =>
-        error.toUpperCase(),
-      );
 
-      range.load("values, address");
+      range.load("values");
       await context.sync();
 
-      const errorCells = [];
+      const errorCells = findError(range, errorType, errorList());
 
-      if (range.values) {
-        range.values.forEach((row, rowIndex) => {
-          row.forEach((cell, colIndex) => {
-            const parsedCellValue =
-              typeof cell === "string" &&
-              cell?.split("#")[1]?.split("!")[0].split("/").join("")
-                ? cell?.split("#")[1]?.split("!")[0].split("/").join("")
-                : null;
-
-            if (errorTypes.includes(parsedCellValue)) {
-              const cellRange = range.getCell(rowIndex, colIndex);
-
-              errorCells.push(cellRange);
-            }
-          });
-        });
-      }
-
-      errorCells.forEach(async (cell) => cell.load("address"));
+      errorCells.forEach((cell) => cell.load("address"));
       await context.sync();
 
       for (const cell of errorCells) {
-        const cellAddress = cell.address;
-
         if (isHighlight) {
-          await storeCellStyle(cellAddress, "allCellStyles", true);
+          await storeCellStyle(cell.address, "allCellStyles", isHighlight);
         } else {
-          await applyCellStyle(cellAddress, "allCellStyles", false);
+          await applyCellStyle(cell.address, "allCellStyles", isHighlight);
         }
-
-        await context.sync();
       }
 
       for (const cell of errorCells) {
@@ -187,6 +189,7 @@ async function detectErrorCell(isHighlight) {
 
           edges.forEach((edge) => {
             const border = cell.format.borders.getItem(edge);
+
             border.color = "green";
             border.style = Excel.BorderLineStyle.continuous;
             border.weight = Excel.BorderWeight.thick;
@@ -195,11 +198,44 @@ async function detectErrorCell(isHighlight) {
 
         await context.sync();
       }
+
+      function errorType(cell) {
+        return cell?.split("#")[1]?.split("!")[0].split("/").join("");
+      }
     });
   } catch (error) {
     popUpMessage("workFail", error.message);
 
     throw new Error(error.message);
+  }
+
+  function errorList() {
+    return Object.values(Excel.ErrorCellValueType).map((error) =>
+      error.toUpperCase(),
+    );
+  }
+
+  function findError(range, errorType, errorTypes) {
+    const result = [];
+
+    if (range.values) {
+      range.values.forEach((row, rowIndex) => {
+        row.forEach((cell, colIndex) => {
+          const cellValue =
+            typeof cell === "string" && errorType(cell)
+              ? errorType(cell)
+              : null;
+
+          if (errorTypes.includes(cellValue)) {
+            const cellRange = range.getCell(rowIndex, colIndex);
+
+            result.push(cellRange);
+          }
+        });
+      });
+    }
+
+    return result;
   }
 }
 
