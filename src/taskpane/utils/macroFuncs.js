@@ -1,4 +1,4 @@
-import { storeCellStyle, applyCellStyle } from "./cellStyleFuncs";
+import { extractCellStyle, applyCellStyle } from "./cellStyleFuncs";
 import { selectRangeValues, popUpMessage, removeHandler } from "./commonFuncs";
 import useHandlerStore from "../store/handlerStore";
 
@@ -133,11 +133,7 @@ async function onWorksheetChanged(event, presetName) {
 
       case "WorksheetFormatChanged":
         action.address = event.address;
-        action.cellStyle = await storeCellStyle(
-          event.address,
-          "allMacroPresets",
-          true,
-        );
+        action.cellStyle = await recordCellStyle();
         break;
 
       case "TableChanged":
@@ -161,6 +157,15 @@ async function onWorksheetChanged(event, presetName) {
         popUpMessage("loadFail", "지원하지 않는 형식입니다.");
         break;
     }
+  }
+
+  async function recordCellStyle() {
+    return await Excel.run(async (context) => {
+      const sheet = context.workbook.worksheets.getActiveWorksheet();
+      const cell = sheet.getRange(event.address);
+
+      return await extractCellStyle(context, cell);
+    });
   }
 }
 

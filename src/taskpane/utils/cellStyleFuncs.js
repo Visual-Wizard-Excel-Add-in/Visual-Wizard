@@ -63,7 +63,6 @@ async function extractCellStyle(context, address) {
 }
 
 async function storeCellStyle(cellAddress, allPresets, isHighlight) {
-  let cellStyleToReturn = null;
 
   try {
     await Excel.run(async (context) => {
@@ -85,25 +84,14 @@ async function storeCellStyle(cellAddress, allPresets, isHighlight) {
         parsedPresets[cellAddress] = cellStyle;
       }
 
-      if (allPresets === "allMacroPresets") {
-        cellStyleToReturn = cellStyle;
-      } else {
-        await OfficeRuntime.storage.setItem(
-          allPresets,
-          JSON.stringify(parsedPresets),
         );
       }
-    });
-
-    if (allPresets === "allMacroPresets") {
-      return cellStyleToReturn;
     }
   } catch (error) {
     popUpMessage("saveFail", error.message);
 
     throw new Error(error.message);
   }
-  return null;
 }
 
 async function applyCellStyle(
@@ -427,4 +415,5 @@ export {
   copyRangeStyle,
   pasteRangeStyle,
   detectErrorCell,
+  extractCellStyle,
 };
