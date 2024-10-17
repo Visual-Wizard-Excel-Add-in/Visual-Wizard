@@ -75,15 +75,13 @@ async function updateCellInfo() {
     cellArgument: { value: cellInfo.arguments, setter: "setCellArguments" },
   };
 
-  for (const state in stateMapping) {
-    if (Object.hasOwn(stateMapping, state)) {
-      const { value, setter } = stateMapping[state];
+  Object.keys(stateMapping).forEach((state) => {
+    const { value, setter } = stateMapping[state];
 
-      if (isStateChanged(value, state)) {
-        updateState(setter, value);
-      }
+    if (isStateChanged(value, state)) {
+      updateState(setter, value);
     }
-  }
+  });
 
   function isStateChanged(cellValue, state) {
     return cellValue !== usePublicStore.getState()[state];
