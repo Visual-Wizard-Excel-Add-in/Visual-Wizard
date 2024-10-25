@@ -30,31 +30,37 @@ async function loadCellInfo() {
     range.load(["address", "formulas", "values", "numberFormat"]);
     await context.sync();
 
-    const precedents = precedentsOrNull();
+    const precedents = await precedentsOrNull(range, isNull);
+    await context.sync();
 
-    if (range.formulas[0][0]) {
-      precedents.load("addresses");
-      await context.sync();
-    }
+    range.arguments = argumentsList(range, precedents);
 
     range.arguments = argumentsList();
 
     const result = new CellInfo(range);
+async function precedentsOrNull(range, isNull) {
+  let result = null;
 
+  if (isNull.isNullObject) {
     return result;
+  }
 
-    function precedentsOrNull() {
-      if (isNull.isNullObject) {
-        return null;
-      }
+  result = range.getDirectPrecedents();
 
-      return range.getDirectPrecedents();
+  if (result && range.formulas[0][0]) {
+    try {
+      result.load("addresses");
+    } catch (e) {
+      return result;
     }
+  }
 
     function argumentsList() {
       if (range.formulas[0][0]) {
         return precedents.addresses[0].split(",");
       }
+  return result;
+}
 
       return [];
     }
