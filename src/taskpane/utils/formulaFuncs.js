@@ -28,13 +28,13 @@ async function parseNestedFormula(formula) {
     if (!["DATE", "YEAR", "MONTH", "DAY"].includes(funcName.toUpperCase())) {
       const step = await getFormulaDetail(funcName, args);
 
-      if (step) {
-        if (stack.length > 0) {
-          step.dependencies = [stack[stack.length - 1]];
-        }
-        steps.push(step);
-        stack.push(step);
+    if (step) {
+      if (stack.length > 0) {
+        step.dependencies = [stack[stack.length - 1]];
       }
+
+      steps.push(step);
+      stack.push(step);
     }
   }
 
@@ -87,10 +87,8 @@ function getArgs(formula, startIndex) {
   let depth = 1;
   let currentArg = "";
   let inString = false;
-
   for (let i = startIndex; i < formula.length; i += 1) {
     const char = formula[i];
-
     if (char === '"' && formula[i - 1] !== "\\") {
       inString = !inString;
     }
