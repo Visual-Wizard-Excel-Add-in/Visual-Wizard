@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   storeCellStyle,
-  applyCellStyle,
+  restoreCellStyle,
   detectErrorCell,
   highlightingCell,
   copyRangeStyle,
@@ -381,7 +381,7 @@ describe("cellStyleFunc", () => {
         JSON.stringify(mockPreset),
       );
 
-      await applyCellStyle(cellAddress, "cellStylePresets", false);
+      await restoreCellStyle(cellAddress, "cellStylePresets", false);
 
       expect(global.Excel.run).toHaveBeenCalled();
 
@@ -433,7 +433,7 @@ describe("cellStyleFunc", () => {
       OfficeRuntime.storage.getItem.mockResolvedValueOnce(null);
 
       await expect(
-        applyCellStyle("A1", "cellStylePresets", false),
+        restoreCellStyle("A1", "cellStylePresets", false),
       ).rejects.toThrow("No any saved presets found.");
     });
 
@@ -450,7 +450,7 @@ describe("cellStyleFunc", () => {
         JSON.stringify(mockPreset),
       );
 
-      await applyCellStyle(cellAddress, "cellStylePresets", false);
+      await restoreCellStyle(cellAddress, "cellStylePresets", false);
 
       expect(global.OfficeRuntime.storage.setItem).toHaveBeenCalledWith(
         "cellStylePresets",
@@ -470,7 +470,7 @@ describe("cellStyleFunc", () => {
         JSON.stringify(mockPreset),
       );
 
-      await applyCellStyle(cellAddress, "cellStylePresets", false);
+      await restoreCellStyle(cellAddress, "cellStylePresets", false);
 
       const workbook = await global.Excel.run.mock.results[0].value;
       const sheet = workbook.worksheets.getActiveWorksheet();
@@ -487,7 +487,7 @@ describe("cellStyleFunc", () => {
       OfficeRuntime.storage.getItem.mockResolvedValueOnce(null);
 
       await expect(
-        applyCellStyle(cellAddress, allPresets, false),
+        restoreCellStyle(cellAddress, allPresets, false),
       ).rejects.toThrow("No any saved presets found.");
     });
   });

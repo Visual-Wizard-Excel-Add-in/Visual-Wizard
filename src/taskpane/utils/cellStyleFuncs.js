@@ -107,7 +107,7 @@ async function storeCellStyle(address, PresetType, isHighlight) {
   }
 }
 
-async function applyCellStyle(
+async function restoreCellStyle(
   address,
   presetType,
   isHighlight,
@@ -183,7 +183,7 @@ async function detectErrorCell(isHighlight) {
         if (isHighlight) {
           await storeCellStyle(...cellData);
         } else {
-          await applyCellStyle(...cellData);
+          await restoreCellStyle(...cellData);
         }
       }
 
@@ -304,10 +304,10 @@ async function highlightingCell(isHighlight, resultCell) {
         ],
       ]);
     } else {
-      await applyCellStyle(resultCell, "allCellStyles", isHighlight);
+      await restoreCellStyle(resultCell, "allCellStyles", isHighlight);
 
       const requests = argsAddress.map(async (targetRange) => {
-        await applyCellStyle(targetRange, "allCellStyles", isHighlight);
+        await restoreCellStyle(targetRange, "allCellStyles", isHighlight);
       });
 
       await Promise.allSettled(requests);
@@ -412,7 +412,7 @@ async function pasteRangeStyle(styleName) {
 
 export {
   storeCellStyle,
-  applyCellStyle,
+  restoreCellStyle,
   highlightingCell,
   copyRangeStyle,
   pasteRangeStyle,

@@ -1,4 +1,4 @@
-import { extractCellStyle, applyCellStyle } from "./cellStyleFuncs";
+import { extractCellStyle, restoreCellStyle } from "./cellStyleFuncs";
 import { selectRangeValues, popUpMessage, removeHandler } from "./commonFuncs";
 import useHandlerStore from "../store/handlerStore";
 
@@ -307,7 +307,7 @@ async function macroPlay(presetName) {
             break;
 
           case "WorksheetFormatChanged":
-            await applyCellStyle(
+            await restoreCellStyle(
               action.address,
               "allMacroPresets",
               false,
