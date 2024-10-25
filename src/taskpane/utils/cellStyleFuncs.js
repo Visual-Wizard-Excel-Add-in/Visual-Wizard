@@ -1,3 +1,4 @@
+import usePublicStore from "../store/publicStore";
 import { popUpMessage } from "./commonFuncs";
 import {
   STYLE_OPTIONS_TO_LOAD,
@@ -246,11 +247,9 @@ async function highlightingCell(isHighlight, resultCell) {
   await Excel.run(async (context) => {
     const worksheet = context.workbook.worksheets.getActiveWorksheet();
     const selectRange = context.workbook.getSelectedRange();
-    const getPrecedents = selectRange.getDirectPrecedents();
-    const argsAddress = [];
+    const argsAddress = usePublicStore.getState().cellArguments;
 
     selectRange.load("address");
-    getPrecedents.areas.load("address");
 
     await context.sync();
 
