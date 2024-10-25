@@ -172,7 +172,7 @@ async function detectErrorCell(isHighlight) {
       range.load("values");
       await context.sync();
 
-      const errorCells = findError(range, errorType, errorList());
+      const errorCells = findError(range, errorList());
 
       errorCells.forEach((cell) => cell.load("address"));
       await context.sync();
@@ -203,14 +203,15 @@ async function detectErrorCell(isHighlight) {
         await context.sync();
       }
 
-      function errorType(cell) {
-        return cell?.split("#")[1]?.split("!")[0].split("/").join("");
-      }
     });
   } catch (error) {
     popUpMessage("workFail", error.message);
 
     throw new Error(error.message);
+  }
+
+  function errorType(cell) {
+    return cell?.split("#")[1]?.split("!")[0].split("/").join("");
   }
 
   function errorList() {
@@ -219,7 +220,7 @@ async function detectErrorCell(isHighlight) {
     );
   }
 
-  function findError(range, errorType, errorTypes) {
+  function findError(range, errorTypes) {
     const result = [];
 
     if (range.values) {
