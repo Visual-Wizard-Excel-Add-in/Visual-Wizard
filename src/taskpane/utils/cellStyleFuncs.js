@@ -178,10 +178,12 @@ async function detectErrorCell(isHighlight) {
       await context.sync();
 
       for (const cell of errorCells) {
+        const cellData = [cell.address, "allCellStyles", isHighlight];
+
         if (isHighlight) {
-          await storeCellStyle(cell.address, "allCellStyles", isHighlight);
+          await storeCellStyle(...cellData);
         } else {
-          await applyCellStyle(cell.address, "allCellStyles", isHighlight);
+          await applyCellStyle(...cellData);
         }
       }
 
