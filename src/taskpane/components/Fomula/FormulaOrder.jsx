@@ -12,22 +12,22 @@ function FormulaOrder() {
   const setFormulaSteps = usePublicStore((state) => state.setFormulaSteps);
 
   useEffect(() => {
-    async function fetchFormulaSteps() {
-      try {
-        if (cellFormula) {
-          const result = await parseFormulaSteps(cellFormula);
-
-          setFormulaSteps(result);
-        } else {
-          setFormulaSteps([]);
-        }
-      } catch (error) {
-        setFormulaSteps([]);
-        popUpMessage("load Failed", error.message);
-      }
+    try {
+      fetchFormulaSteps();
+    } catch (error) {
+      setFormulaSteps([]);
+      popUpMessage("load Failed", error.message);
     }
 
-    fetchFormulaSteps();
+    async function fetchFormulaSteps() {
+      if (cellFormula) {
+        const result = await parseFormulaSteps(cellFormula);
+
+        setFormulaSteps(result);
+      } else {
+        setFormulaSteps([]);
+      }
+    }
   }, [cellFormula]);
 
   return (
