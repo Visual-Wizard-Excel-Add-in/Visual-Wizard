@@ -187,24 +187,11 @@ async function detectErrorCell(isHighlight) {
         }
       }
 
-      for (const cell of errorCells) {
-        if (isHighlight) {
-          cell.format.fill.color = "red";
-
-          const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
-
-          edges.forEach((edge) => {
-            const border = cell.format.borders.getItem(edge);
-
-            border.color = "green";
-            border.style = Excel.BorderLineStyle.continuous;
-            border.weight = Excel.BorderWeight.thick;
-          });
-        }
-
-        await context.sync();
+      if (isHighlight) {
+        highlightError(errorCells);
       }
 
+      await context.sync();
     });
   } catch (error) {
     popUpMessage("workFail", error.message);
@@ -243,6 +230,22 @@ async function detectErrorCell(isHighlight) {
     }
 
     return result;
+  }
+
+  function highlightError(errorCells) {
+    errorCells.forEach((cell) => {
+      cell.format.fill.color = "red";
+
+      const edges = ["EdgeBottom", "EdgeLeft", "EdgeTop", "EdgeRight"];
+
+      edges.forEach((edge) => {
+        const border = cell.format.borders.getItem(edge);
+
+        border.color = "green";
+        border.style = Excel.BorderLineStyle.continuous;
+        border.weight = Excel.BorderWeight.thick;
+      });
+    });
   }
 }
 
