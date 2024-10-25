@@ -262,19 +262,11 @@ async function highlightingCell(isHighlight, resultCell) {
     if (isHighlight) {
       await storeCellStyle(resultCell, "allCellStyles", isHighlight);
 
-      for (let i = 0; i < argsAddress.length; i += 1) {
-        await storeCellStyle(argsAddress[i], "allCellStyles", isHighlight);
-      }
-
-      const rangesToLoad = argsAddress.map((address) => {
-        const targetRange = worksheet.getRange(address);
-
-        targetRange.load("values");
-
-        return targetRange;
-      });
-
-      await context.sync();
+      await Promise.allSettled(
+        argsAddress.map(async (address) => {
+          await storeCellStyle(address, "allCellStyles", isHighlight);
+        }),
+      );
 
       const requests = rangesToLoad.map(async (targetRange) => {
         const argsStyle = targetRange.values;
