@@ -2,7 +2,9 @@ import ProgressGraph from "../classes/ProgressGraph";
 
 async function parseFormulaSteps(formula) {
   try {
-    if (!formula) return [];
+    if (!formula) {
+      return [];
+    }
 
     const steps = await parseNestedFormula(formula);
     const validSteps = steps.filter((step) => step !== undefined);
@@ -25,8 +27,7 @@ async function parseNestedFormula(formula) {
     const argsStartIndex = regex.lastIndex;
     const args = getArgs(formula, argsStartIndex);
 
-    if (!["DATE", "YEAR", "MONTH", "DAY"].includes(funcName.toUpperCase())) {
-      const step = await getFormulaDetail(funcName, args);
+    const step = await getFormulaDetail(funcName, args);
 
     if (step) {
       if (stack.length > 0) {
@@ -38,21 +39,17 @@ async function parseNestedFormula(formula) {
     }
   }
 
-  return steps.reverse();
+  return steps;
 }
 
 async function getFormulaDetail(funcName, args) {
   const argList = [];
   const cellAddresses = new Set();
   const referenceRegex =
-    /((?:[^!]+!)?\$?[A-Z]+\$?[0-9]+(?::\$?[A-Z]+\$?[0-9]+)?|\d+(\.\d+)?|"[^"]*"|TRUE|FALSE|[^,()]+)/g;
+    /((?:[^!]+!)?\$?[A-Z]+\$?[0-9]+(?::\$?[A-Z]+\$?[0-9]+)?|\d+(\.\d+)?|"[^"]*"|TRUE|FALSE|[^,()<>]+)/g;
   const onlyCellRegex =
     /((?:[^!]+!)?\$?[A-Z]+\$?[0-9]+(?::\$?[A-Z]+\$?[0-9]+)?)/;
   let argMatch = null;
-
-  if (["DATE", "YEAR", "MONTH", "DAY"].includes(funcName.toUpperCase())) {
-    return null;
-  }
 
   const argsArray = args.split(",");
 
@@ -65,7 +62,7 @@ async function getFormulaDetail(funcName, args) {
   for (const arg of argList) {
     if (arg.match(onlyCellRegex)) {
       const parts = arg.split("!");
-      const normalizedAddress = parts[parts.length - 1].replace(/\$/g, "");
+      const normalizedAddress = parts[parts.length - 1].replaceAll("$", "");
 
       cellAddresses.add(normalizedAddress);
     }
@@ -147,7 +144,7 @@ function sortCalculationOrder(steps) {
   });
 
   steps.forEach((step) => {
-    if (step && step.dependencies) {
+    if (step.dependencies) {
       step.dependencies.forEach((dep) => {
         orderGraph.addDependency(dep, step);
       });
