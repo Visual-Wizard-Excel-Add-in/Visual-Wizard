@@ -1,5 +1,8 @@
 import { popUpMessage } from "./commonFuncs";
-import STYLE_OPTIONS_TO_LOAD from "../constants/styleConstants";
+import {
+  STYLE_OPTIONS_TO_LOAD,
+  HIGHLIGHT_STYLES,
+} from "../constants/styleConstants";
 
 async function extractCellStyle(context, rangeObject) {
   try {
@@ -251,51 +254,6 @@ async function highlightingCell(isHighlight, resultCell) {
 
     await context.sync();
 
-    for (let i = 0; i < getPrecedents.areas.items.length; i += 1) {
-      if (getPrecedents.areas.items[i].address.includes(",")) {
-        getPrecedents.areas.items[i].address
-          .split(",")
-          .forEach((address) => argsAddress.push(address));
-      } else {
-        argsAddress.push(getPrecedents.areas.items[i].address);
-      }
-    }
-
-    const resultFill = {
-      fill: {
-        color: "#3d33ff",
-      },
-    };
-    const argsFill = {
-      fill: {
-        color: "#28f925",
-      },
-    };
-    const highlightBorder = {
-      borders: {
-        bottom: {
-          color: "red",
-          weight: Excel.BorderWeight.thick,
-          style: Excel.BorderLineStyle.continuous,
-        },
-        top: {
-          color: "red",
-          weight: Excel.BorderWeight.thick,
-          style: Excel.BorderLineStyle.continuous,
-        },
-        left: {
-          color: "red",
-          weight: Excel.BorderWeight.thick,
-          style: Excel.BorderLineStyle.continuous,
-        },
-        right: {
-          color: "red",
-          weight: Excel.BorderWeight.thick,
-          style: Excel.BorderLineStyle.continuous,
-        },
-      },
-    };
-
     if (isHighlight) {
       await storeCellStyle(resultCell, "allCellStyles", isHighlight);
 
@@ -317,7 +275,12 @@ async function highlightingCell(isHighlight, resultCell) {
         const argsStyle = targetRange.values;
 
         const argsHighilighStyle = argsStyle.map((row) =>
-          row.map(() => ({ format: { ...argsFill, ...highlightBorder } })),
+          row.map(() => ({
+            format: {
+              ...HIGHLIGHT_STYLES.argsFill,
+              borders: HIGHLIGHT_STYLES.borders,
+            },
+          })),
         );
 
         return targetRange.setCellProperties(argsHighilighStyle);
@@ -326,7 +289,14 @@ async function highlightingCell(isHighlight, resultCell) {
       await Promise.allSettled(requests);
 
       selectRange.setCellProperties([
-        [{ format: { ...resultFill, ...highlightBorder } }],
+        [
+          {
+            format: {
+              ...HIGHLIGHT_STYLES.resultFill,
+              borders: HIGHLIGHT_STYLES.borders,
+            },
+          },
+        ],
       ]);
     } else {
       await applyCellStyle(resultCell, "allCellStyles", isHighlight);

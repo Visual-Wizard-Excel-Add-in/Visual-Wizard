@@ -35,4 +35,35 @@ const STYLE_OPTIONS_TO_LOAD = {
   },
 };
 
-export default STYLE_OPTIONS_TO_LOAD;
+const HIGHLIGHT_STYLES = {
+  resultFill: {
+    fill: { color: "#3d33ff" },
+  },
+  argsFill: {
+    fill: { color: "#28f925" },
+  },
+  borders: {
+    bottom: {
+      color: "red",
+      weight: Excel.BorderWeight.thick,
+      style: Excel.BorderLineStyle.continuous,
+    },
+    top: {
+      color: "red",
+      weight: Excel.BorderWeight.thick,
+      style: Excel.BorderLineStyle.continuous,
+    },
+    left: {
+      color: "red",
+      weight: Excel.BorderWeight.thick,
+      style: Excel.BorderLineStyle.continuous,
+    },
+    right: {
+      color: "red",
+      weight: Excel.BorderWeight.thick,
+      style: Excel.BorderLineStyle.continuous,
+    },
+  },
+};
+
+export { STYLE_OPTIONS_TO_LOAD, HIGHLIGHT_STYLES };
