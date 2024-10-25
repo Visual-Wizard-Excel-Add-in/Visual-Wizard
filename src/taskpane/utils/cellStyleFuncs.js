@@ -268,23 +268,22 @@ async function highlightingCell(isHighlight, resultCell) {
         }),
       );
 
-      const requests = rangesToLoad.map(async (targetRange) => {
-        const argsStyle = targetRange.values;
+      await highlightArgCells();
 
-        const argsHighilighStyle = argsStyle.map((row) =>
-          row.map(() => ({
-            format: {
-              ...HIGHLIGHT_STYLES.argsFill,
-              borders: HIGHLIGHT_STYLES.borders,
-            },
-          })),
-        );
+      highlightResultCell();
+    } else {
+      await restoreCellStyle(resultCell, "allCellStyles", isHighlight);
 
-        return targetRange.setCellProperties(argsHighilighStyle);
-      });
+      await Promise.allSettled(
+        argsAddress.map(async (address) => {
+          await restoreCellStyle(address, "allCellStyles", isHighlight);
+        }),
+      );
+    }
 
-      await Promise.allSettled(requests);
+    await context.sync();
 
+    function highlightResultCell() {
       selectRange.setCellProperties([
         [
           {
@@ -295,17 +294,34 @@ async function highlightingCell(isHighlight, resultCell) {
           },
         ],
       ]);
-    } else {
-      await restoreCellStyle(resultCell, "allCellStyles", isHighlight);
-
-      const requests = argsAddress.map(async (targetRange) => {
-        await restoreCellStyle(targetRange, "allCellStyles", isHighlight);
-      });
-
-      await Promise.allSettled(requests);
     }
 
-    await context.sync();
+    async function highlightArgCells() {
+      const rangesToLoad = argsAddress.map((address) => {
+        const targetRange = worksheet.getRange(address);
+
+        targetRange.load("values");
+
+        return targetRange;
+      });
+
+      await context.sync();
+
+      await Promise.allSettled(
+        rangesToLoad.map(async (targetRange) => {
+          const argsHighilighStyle = targetRange.values.map((row) =>
+            row.map(() => ({
+              format: {
+                ...HIGHLIGHT_STYLES.argsFill,
+                borders: HIGHLIGHT_STYLES.borders,
+              },
+            })),
+          );
+
+          return targetRange.setCellProperties(argsHighilighStyle);
+        }),
+      );
+    }
   });
 }
 
