@@ -63,9 +63,11 @@ function argumentsList(range, precedents) {
   const formula = range.formulas[0][0];
 
   if (precedents && formula) {
-    return precedents.addresses[0]
-      .split(",")
-      .map((arg) => arg.replaceAll("'", ""));
+    return precedents.addresses
+      .map((address) =>
+        address.split(",").map((arg) => arg.replaceAll("'", "")),
+      )
+      .flat();
   }
 
   if (formula.includes("(")) {
