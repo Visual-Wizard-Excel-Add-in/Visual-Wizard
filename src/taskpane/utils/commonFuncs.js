@@ -35,9 +35,10 @@ async function loadCellInfo() {
 
     range.arguments = argumentsList(range, precedents);
 
-    range.arguments = argumentsList();
+    return new CellInfo(range);
+  });
+}
 
-    const result = new CellInfo(range);
 async function precedentsOrNull(range, isNull) {
   let result = null;
 
@@ -55,16 +56,23 @@ async function precedentsOrNull(range, isNull) {
     }
   }
 
-    function argumentsList() {
-      if (range.formulas[0][0]) {
-        return precedents.addresses[0].split(",");
-      }
   return result;
 }
 
-      return [];
-    }
-  });
+function argumentsList(range, precedents) {
+  const formula = range.formulas[0][0];
+
+  if (precedents && formula) {
+    return precedents.addresses[0]
+      .split(",")
+      .map((arg) => arg.replaceAll("'", ""));
+  }
+
+  if (formula.includes("(")) {
+    return range.formulas[0][0].split("(")[1].split(")")[0].split(",").trim();
+  }
+
+  return [];
 }
 
 async function updateCellInfo() {
