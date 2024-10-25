@@ -126,7 +126,7 @@ async function targetCellValue(targetCell) {
 
   function sheetName() {
     if (targetCell.split("!").length > 1) {
-      return targetCell.split("!")[0].replaceAll("'", "");
+      return targetCell.split("!")[0];
     }
 
     return null;
