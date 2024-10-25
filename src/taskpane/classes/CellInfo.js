@@ -3,7 +3,7 @@ class CellInfo {
     [[this.numberFormat]] = cell.numberFormat;
     [[this.formula]] = cell.formulas;
     [[this.values]] = cell.values;
-    this.address = cell.address;
+    this.address = cell.address.replaceAll("'", "");
     this.arguments = cell.arguments;
     this.functions = getFunctions(this.formula);
   }
