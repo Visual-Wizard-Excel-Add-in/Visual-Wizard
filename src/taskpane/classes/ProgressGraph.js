@@ -6,7 +6,7 @@ class ProgressGraph {
   }
 
   addNode(node) {
-    const key = node.formula || node.address;
+    const key = node.formula;
 
     if (!this.nodes.has(key)) {
       this.nodes.set(key, new ProgressGraphNode(node));
