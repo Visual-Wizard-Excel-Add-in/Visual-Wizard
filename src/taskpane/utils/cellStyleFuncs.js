@@ -335,17 +335,6 @@ async function copyRangeStyle(presetName) {
 
     await Excel.run(async (context) => {
       let cellStylePresets =
-        await OfficeRuntime.storage.getItem("cellStylePresets");
-
-      if (!cellStylePresets) {
-        cellStylePresets = {};
-      } else {
-        cellStylePresets = JSON.parse(cellStylePresets);
-      }
-
-      if (cellStylePresets[presetName]) {
-        delete cellStylePresets[presetName];
-      }
 
       const range = context.workbook.getSelectedRange();
 
@@ -368,6 +357,20 @@ async function copyRangeStyle(presetName) {
     popUpMessage("saveFail", error.message);
 
     throw new Error(error.message);
+  }
+
+  async function loadPresets() {
+    let result = JSON.parse(
+      await OfficeRuntime.storage.getItem("cellStylePresets"),
+    );
+
+    if (result) {
+      delete result[presetName];
+    } else {
+      result = {};
+    }
+
+    return result;
   }
 }
 
