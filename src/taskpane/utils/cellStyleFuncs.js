@@ -334,7 +334,7 @@ async function copyRangeStyle(presetName) {
     }
 
     await Excel.run(async (context) => {
-      let cellStylePresets =
+      const styleList = loadPresets();
 
       const range = context.workbook.getSelectedRange();
 
@@ -344,11 +344,11 @@ async function copyRangeStyle(presetName) {
       const cellAddress = range.address.split("!")[1];
       const cellStyles = await extractCellStyle(context, range);
 
-      cellStylePresets[presetName] = [cellStyles, cellAddress];
+      styleList[presetName] = [cellStyles, cellAddress];
 
       await OfficeRuntime.storage.setItem(
         "cellStylePresets",
-        JSON.stringify(cellStylePresets),
+        JSON.stringify(styleList),
       );
 
       popUpMessage("saveSuccess");
