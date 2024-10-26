@@ -392,8 +392,6 @@ async function pasteRangeStyle(presetName) {
       }
 
       const selectRange = context.workbook.getSelectedRange();
-
-      selectRange.load(["address"]);
       const sourceSheet = context.workbook.worksheets.add("StyleSheet");
       await context.sync();
 
