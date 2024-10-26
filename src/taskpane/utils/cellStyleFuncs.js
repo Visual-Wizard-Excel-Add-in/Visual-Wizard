@@ -383,9 +383,9 @@ async function pasteRangeStyle(presetName) {
     await Excel.run(async (context) => {
       await checkDuplicate();
 
-      const [savedCellStyles, savedCellAddress] = stylePresets[presetName];
+      const [savedStyles, savedAddress] = stylePresets[presetName];
 
-      if (!savedCellStyles) {
+      if (!savedStyles) {
         popUpMessage("loadFail", "저장된 서식이 없습니다!");
 
         throw new Error("Preset not found");
@@ -393,13 +393,10 @@ async function pasteRangeStyle(presetName) {
 
       const selectRange = context.workbook.getSelectedRange();
       const sourceSheet = context.workbook.worksheets.add("StyleSheet");
+      const sourceRange = sourceSheet.getRange(savedAddress);
 
-      const sourceRange = sourceSheet.getRange(savedCellAddress);
-
-      sourceRange.setCellProperties(savedCellStyles);
-
+      sourceRange.setCellProperties(savedStyles);
       selectRange.copyFrom(sourceRange, "Formats");
-
       sourceSheet.delete();
       await context.sync();
 
