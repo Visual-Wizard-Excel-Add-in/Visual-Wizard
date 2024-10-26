@@ -374,7 +374,11 @@ async function copyRangeStyle(presetName) {
   }
 }
 
-async function pasteRangeStyle(styleName) {
+async function pasteRangeStyle(presetName) {
+  const stylePresets = JSON.parse(
+    await OfficeRuntime.storage.getItem("cellStylePresets"),
+  );
+
   try {
     await Excel.run(async (context) => {
       const selectRange = context.workbook.getSelectedRange();
@@ -383,12 +387,7 @@ async function pasteRangeStyle(styleName) {
 
       await context.sync();
 
-      let cellStylePresets =
-        await OfficeRuntime.storage.getItem("cellStylePresets");
-
-      cellStylePresets = JSON.parse(cellStylePresets);
-      const savedCellStyles = cellStylePresets[styleName][0];
-      const savedCellAddress = cellStylePresets[styleName][1];
+      const [savedCellStyles, savedCellAddress] = stylePresets[presetName];
 
       if (!savedCellStyles) {
         popUpMessage("loadFail", "저장된 서식이 없습니다!");
@@ -402,16 +401,16 @@ async function pasteRangeStyle(styleName) {
       }
 
       selectRange.load(["address"]);
-      styleSheet = context.workbook.worksheets.add("StyleSheet");
+      const sourceSheet = context.workbook.worksheets.add("StyleSheet");
       await context.sync();
 
-      const sourceRange = styleSheet.getRange(savedCellAddress);
+      const sourceRange = sourceSheet.getRange(savedCellAddress);
 
       sourceRange.setCellProperties(savedCellStyles);
 
       selectRange.copyFrom(sourceRange, "Formats");
 
-      styleSheet.delete();
+      sourceSheet.delete();
       await context.sync();
     });
   } catch (error) {
