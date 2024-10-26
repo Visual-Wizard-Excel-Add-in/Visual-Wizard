@@ -381,11 +381,7 @@ async function pasteRangeStyle(presetName) {
 
   try {
     await Excel.run(async (context) => {
-      const selectRange = context.workbook.getSelectedRange();
-      let styleSheet =
-        context.workbook.worksheets.getItemOrNullObject("StyleSheet");
-
-      await context.sync();
+      await checkDuplicate();
 
       const [savedCellStyles, savedCellAddress] = stylePresets[presetName];
 
@@ -395,10 +391,7 @@ async function pasteRangeStyle(presetName) {
         throw new Error("Preset not found");
       }
 
-      if (!styleSheet.isNullObject) {
-        styleSheet.delete();
-        await context.sync();
-      }
+      const selectRange = context.workbook.getSelectedRange();
 
       selectRange.load(["address"]);
       const sourceSheet = context.workbook.worksheets.add("StyleSheet");
@@ -412,6 +405,19 @@ async function pasteRangeStyle(presetName) {
 
       sourceSheet.delete();
       await context.sync();
+
+      async function checkDuplicate() {
+        const source =
+          context.workbook.worksheets.getItemOrNullObject("StyleSheet");
+
+        await context.sync();
+
+        if (!source.isNullObject) {
+          source.delete();
+          await context.sync();
+        }
+        return source;
+      }
     });
   } catch (error) {
     popUpMessage("loadFail", error.message);
