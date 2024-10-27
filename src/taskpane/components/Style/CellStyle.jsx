@@ -1,48 +1,26 @@
-import { useEffect, useState } from "react";
 import { Button } from "@fluentui/react-components";
 
+import usePresetHandler from "../../hooks/usePresetHandler";
 import CustomDropdown from "../common/CustomDropdown";
 import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
 import { useStyles } from "../../utils/style";
-import PresetHandler from "../../classes/PresetHandler";
 import { copyRangeStyle, pasteRangeStyle } from "../../utils/cellStyleFuncs";
 
 function CellStyle() {
-  const [selectPreset, setSelectPreset] = useState("");
-  const [cellStylePresets, setCellStylePresets] = useState([]);
+  const {
+    presets,
+    selectedPreset,
+    addPresetHandler,
+    deletePresetHandler,
+    setSelectedPreset,
+  } = usePresetHandler("cellStylePresets", "셀 서식");
   const styles = useStyles();
-  const presets = new PresetHandler("cellStylePresets", "셀 서식");
-
-  useEffect(() => {
-    fetchPresets();
-
-    async function fetchPresets() {
-      setCellStylePresets(await presets.sort());
-
-      if ((await presets.sort()).length > 0 && !selectPreset) {
-        setSelectPreset((await presets.sort())[0]);
-      }
-    }
-  }, [selectPreset]);
-
-  async function newPresetHandler() {
-    setSelectPreset(await presets.add(cellStylePresets));
-    setCellStylePresets(await presets.sort());
-  }
-
-  async function deletePresetHandler() {
-    const selectIndex = cellStylePresets.indexOf(selectPreset);
-    const leftPresets = await presets.delete(selectPreset);
-
-    setCellStylePresets(leftPresets);
-    setSelectPreset(leftPresets[selectIndex]);
-  }
 
   return (
     <div className="flex items-center justify-between space-x-5">
       <div className="flex items-center w-8/12 space-x-2">
         <button
-          onClick={() => newPresetHandler()}
+          onClick={() => addPresetHandler()}
           className={styles.buttons}
           aria-label="add new preset"
           type="button"
@@ -50,24 +28,24 @@ function CellStyle() {
           <PlusIcon />
         </button>
         <CustomDropdown
-          handleValue={(value) => setSelectPreset(value)}
-          options={cellStylePresets.map((preset) => ({
+          handleValue={(value) => setSelectedPreset(value)}
+          options={presets.map((preset) => ({
             name: preset,
             value: preset,
           }))}
           placeholder="프리셋"
-          selectedValue={selectPreset}
+          selectedValue={selectedPreset}
         />
         <button
           className={styles.buttons}
-          onClick={deletePresetHandler}
+          onClick={() => deletePresetHandler()}
           aria-label="delete preset"
           type="button"
         >
           <DeleteIcon />
         </button>
         <button
-          onClick={() => copyRangeStyle(selectPreset)}
+          onClick={() => copyRangeStyle(selectedPreset)}
           className={styles.buttons}
           aria-label="save button"
           type="button"
@@ -78,7 +56,7 @@ function CellStyle() {
       <Button
         as="button"
         className="self-center w-7"
-        onClick={() => pasteRangeStyle(selectPreset)}
+        onClick={() => pasteRangeStyle(selectedPreset)}
         size="small"
       >
         적용
