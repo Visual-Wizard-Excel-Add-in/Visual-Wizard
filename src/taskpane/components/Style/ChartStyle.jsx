@@ -1,56 +1,29 @@
-import { useEffect, useState } from "react";
 import { Button } from "@fluentui/react-components";
 
+import usePresetHandler from "../../hooks/usePresetHandler";
 import CustomDropdown from "../common/CustomDropdown";
 import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
 import { useStyles } from "../../utils/style";
-import PresetHandler from "../../classes/PresetHandler";
 import {
   copyChartStylePreset,
   pasteChartStylePreset,
 } from "../../utils/chartStyleFuncs";
 
 function ChartStyle() {
-  const [selectedChartPreset, setSelectedChartPreset] = useState("");
-  const [chartStylePresets, setChartStylePresets] = useState([]);
+  const {
+    presets,
+    selectedPreset,
+    addPresetHandler,
+    deletePresetHandler,
+    setSelectedPreset,
+  } = usePresetHandler("chartStylePresets", "차트 서식");
   const styles = useStyles();
-  const presets = new PresetHandler("chartStylePresets", "차트 서식");
-
-  useEffect(() => {
-    fetchPresets();
-
-    async function fetchPresets() {
-      setChartStylePresets(await presets.sort());
-
-      if ((await presets.sort()).length > 0 && !selectedChartPreset) {
-        setSelectedChartPreset((await presets.sort())[0]);
-      }
-    }
-  }, [selectedChartPreset]);
-
-  async function newPresetHandler() {
-    const newPreset = await presets.add(chartStylePresets);
-    const newPresetList = await presets.sort();
-
-    setSelectedChartPreset(newPreset);
-    setChartStylePresets(newPresetList);
-  }
-
-  async function deletePresetHandler() {
-    const forwardPreset = (await presets.sort())[
-      chartStylePresets.indexOf(selectedChartPreset)
-    ];
-    const newPresetList = await presets.delete(selectedChartPreset);
-
-    setChartStylePresets(newPresetList);
-    setSelectedChartPreset(forwardPreset);
-  }
 
   return (
     <div className="flex items-center justify-between space-x-5">
       <div className="flex items-center w-8/12 space-x-2">
         <button
-          onClick={newPresetHandler}
+          onClick={() => addPresetHandler()}
           className={styles.buttons}
           aria-label="add new preset"
           type="button"
@@ -58,16 +31,16 @@ function ChartStyle() {
           <PlusIcon />
         </button>
         <CustomDropdown
-          handleValue={(value) => setSelectedChartPreset(value)}
-          options={chartStylePresets.map((preset) => ({
+          handleValue={(value) => setSelectedPreset(value)}
+          options={presets.map((preset) => ({
             name: preset,
             value: preset,
           }))}
           placeholder="프리셋"
-          selectedValue={selectedChartPreset}
+          selectedValue={selectedPreset}
         />
         <button
-          onClick={deletePresetHandler}
+          onClick={() => deletePresetHandler()}
           className={styles.buttons}
           aria-label="delete preset"
           type="button"
@@ -76,7 +49,7 @@ function ChartStyle() {
         </button>
         <button
           onClick={() =>
-            copyChartStylePreset("chartStylePresets", selectedChartPreset)
+            copyChartStylePreset("chartStylePresets", selectedPreset)
           }
           className={styles.buttons}
           aria-label="save button"
@@ -89,7 +62,7 @@ function ChartStyle() {
         as="button"
         className="self-center w-7"
         onClick={() =>
-          pasteChartStylePreset("chartStylePresets", selectedChartPreset)
+          pasteChartStylePreset("chartStylePresets", selectedPreset)
         }
         size="small"
       >
