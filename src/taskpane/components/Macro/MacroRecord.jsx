@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
 import { Button } from "@fluentui/react-components";
 
+import usePresetHandler from "../../hooks/usePresetHandler";
 import { useStyles } from "../../utils/style";
 import usePublicStore from "../../store/publicStore";
 import CustomDropdown from "../common/CustomDropdown";
@@ -12,53 +12,30 @@ import {
 } from "../../utils/icons";
 import { popUpMessage } from "../../utils/commonFuncs";
 import { manageRecording, macroPlay } from "../../utils/macroFuncs";
-import PresetHandler from "../../classes/PresetHandler";
 
 function MacroRecord() {
-  const [macroPresets, setMacroPresets] = useState([]);
+  const {
+    presets,
+    selectedPreset,
+    addPresetHandler,
+    deletePresetHandler,
+    setSelectedPreset,
+  } = usePresetHandler("allMacroPresets", "매크로");
   const isRecording = usePublicStore((state) => state.isRecording);
   const setIsRecording = usePublicStore((state) => state.setIsRecording);
-  const selectMacroPreset = usePublicStore((state) => state.selectMacroPreset);
   const setSelectMacroPreset = usePublicStore(
     (state) => state.setSelectMacroPreset,
   );
   const styles = useStyles();
-  const presets = new PresetHandler("allMacroPresets", "매크로");
-
-  useEffect(() => {
-    async function fetchPresets() {
-      const sortedPresets = await presets.sort();
-
-      setMacroPresets(sortedPresets);
-
-      if (sortedPresets.length > 0 && !selectMacroPreset) {
-        setSelectMacroPreset(sortedPresets[0]);
-      }
-    }
-
-    fetchPresets();
-  }, [selectMacroPreset]);
-
-  async function newPreset() {
-    setSelectMacroPreset(await presets.add(macroPresets));
-    setMacroPresets(await presets.sort());
-  }
-
-  async function handleDeletePreset() {
-    const selectIndex = macroPresets.indexOf(selectMacroPreset);
-
-    setMacroPresets(Object.keys(await presets.delete(selectMacroPreset)));
-    setSelectMacroPreset((await presets.sort())[selectIndex]);
-  }
 
   function controlMacroRecording() {
-    if (selectMacroPreset === "") {
+    if (selectedPreset === "") {
       popUpMessage("loadFail", "프리셋을 선택해주세요!");
 
       return;
     }
 
-    manageRecording(!isRecording, selectMacroPreset);
+    manageRecording(!isRecording, selectedPreset);
     setIsRecording(!isRecording);
   }
 
@@ -66,7 +43,7 @@ function MacroRecord() {
     <div className="flex items-center justify-between space-x-5">
       <div className="flex items-center w-8/12 space-x-2">
         <button
-          onClick={newPreset}
+          onClick={() => addPresetHandler()}
           className={styles.buttons}
           aria-label="add new preset"
           type="button"
@@ -74,16 +51,19 @@ function MacroRecord() {
           <PlusIcon />
         </button>
         <CustomDropdown
-          handleValue={(value) => setSelectMacroPreset(value)}
-          options={macroPresets.map((preset) => ({
+          handleValue={(value) => {
+            setSelectedPreset(value);
+            setSelectMacroPreset(value);
+          }}
+          options={presets.map((preset) => ({
             name: preset,
             value: preset,
           }))}
           placeholder="매크로"
-          selectedValue={selectMacroPreset}
+          selectedValue={selectedPreset}
         />
         <button
-          onClick={handleDeletePreset}
+          onClick={() => deletePresetHandler()}
           className={styles.buttons}
           aria-label="delete preset"
           type="button"
@@ -102,7 +82,7 @@ function MacroRecord() {
       <Button
         as="button"
         className="self-center"
-        onClick={() => macroPlay(selectMacroPreset)}
+        onClick={() => macroPlay(selectedPreset)}
         size="small"
       >
         실행
