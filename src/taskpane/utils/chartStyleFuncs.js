@@ -190,7 +190,7 @@ function applyBasicChartProperties(target, savedStyle) {
     });
   }
 
-  if (savedStyle.roundedCorners !== undefined) {
+  if (savedStyle.roundedCorners) {
     target.format.roundedCorners = savedStyle.roundedCorners;
   }
 }
