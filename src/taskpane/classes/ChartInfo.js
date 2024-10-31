@@ -61,7 +61,7 @@ class ChartInfo {
       case "Sunburst":
       case "3DPie":
       case "3DPieExploded":
-        this.defaultOptions.push("series/*");
+        this.defaultOptions.push("series/items");
         break;
 
       case "Scatter":
@@ -76,7 +76,7 @@ class ChartInfo {
           "axes/valueAxis/format/*",
           "axes/valueAxis/format/line/*",
           "axes/valueAxis/format/font/*",
-          "series/*",
+          "series/items",
         );
         break;
 
@@ -97,7 +97,7 @@ class ChartInfo {
           "axes/categoryAxis/format/font/*",
           "axes/valueAxis/format/line/*",
           "axes/valueAxis/format/font/*",
-          "series/*",
+          "series/items",
         );
         break;
 
@@ -109,13 +109,13 @@ class ChartInfo {
           "axes/valueAxis/format/*",
           "axes/valueAxis/format/line/*",
           "axes/valueAxis/format/font/*",
-          "series/*",
+          "series/items",
         );
         break;
 
       case "Map":
       case "RegionMap":
-        this.defaultOptions.push("series/*");
+        this.defaultOptions.push("series/items");
         break;
 
       case "BarClustered":
@@ -140,7 +140,7 @@ class ChartInfo {
           "axes/categoryAxis/format/font/*",
           "axes/valueAxis/format/line/*",
           "axes/valueAxis/format/font/*",
-          "series/*",
+          "series/items",
         );
         break;
 
@@ -151,7 +151,7 @@ class ChartInfo {
       case "PieExploded":
       case "PieOfPie":
       case "DoughnutExploded":
-        this.defaultOptions.push("series/*");
+        this.defaultOptions.push("series/items");
         break;
 
       default:

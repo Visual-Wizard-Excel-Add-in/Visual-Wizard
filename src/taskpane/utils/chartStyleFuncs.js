@@ -26,14 +26,14 @@ async function copyChartStyle(targetPreset, styleName) {
       selectedChart.load(chart.loadOptions);
       await context.sync();
 
-      if (chart.loadOptions.includes("series")) {
-        await makeSeriesStyles();
-      }
-
       chartStylePresets[styleName] = chart.makeChartStyle(
         selectedChart,
         chartColors,
       );
+
+      if (chart.loadOptions.includes("series/items")) {
+        await makeSeriesStyles();
+      }
 
       await OfficeRuntime.storage.setItem(
         targetPreset,
