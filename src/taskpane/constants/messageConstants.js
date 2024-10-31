@@ -24,6 +24,11 @@ const MESSAGE_LIST = {
     title: "Loaded",
     body: "데이터를 불러왔습니다.",
   },
+  info: {
+    type: "info",
+    title: "알림:",
+    body: "",
+  },
   default: {
     type: "warning",
     title: "Undefiend Error:",
