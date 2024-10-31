@@ -4,10 +4,7 @@ import usePresetHandler from "../../hooks/usePresetHandler";
 import CustomDropdown from "../common/CustomDropdown";
 import { SaveIcon, DeleteIcon, PlusIcon } from "../../utils/icons";
 import { useStyles } from "../../utils/style";
-import {
-  copyChartStylePreset,
-  pasteChartStylePreset,
-} from "../../utils/chartStyleFuncs";
+import { copyChartStyle, pasteChartStyle } from "../../utils/chartStyleFuncs";
 
 function ChartStyle() {
   const {
@@ -48,9 +45,7 @@ function ChartStyle() {
           <DeleteIcon />
         </button>
         <button
-          onClick={() =>
-            copyChartStylePreset("chartStylePresets", selectedPreset)
-          }
+          onClick={() => copyChartStyle("chartStylePresets", selectedPreset)}
           className={styles.buttons}
           aria-label="save button"
           type="button"
@@ -61,9 +56,7 @@ function ChartStyle() {
       <Button
         as="button"
         className="self-center w-7"
-        onClick={() =>
-          pasteChartStylePreset("chartStylePresets", selectedPreset)
-        }
+        onClick={() => pasteChartStyle("chartStylePresets", selectedPreset)}
         size="small"
       >
         적용

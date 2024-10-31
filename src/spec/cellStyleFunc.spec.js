@@ -8,8 +8,8 @@ import {
   pasteRangeStyle,
 } from "../taskpane/utils/cellStyleFuncs";
 import {
-  copyChartStylePreset,
-  pasteChartStylePreset,
+  copyChartStyle,
+  pasteChartStyle,
 } from "../taskpane/utils/chartStyleFuncs";
 import * as cellCommonUtils from "../taskpane/utils/commonFuncs";
 
@@ -241,7 +241,7 @@ describe("cellStyleFunc", () => {
       OfficeRuntime.storage.getItem.mockResolvedValueOnce(JSON.stringify({}));
       OfficeRuntime.storage.setItem.mockResolvedValueOnce();
 
-      await copyChartStylePreset("allChartPresets", styleName);
+      await copyChartStyle("allChartPresets", styleName);
 
       expect(OfficeRuntime.storage.setItem).toHaveBeenCalledWith(
         "allChartPresets",
@@ -250,7 +250,7 @@ describe("cellStyleFunc", () => {
     });
 
     it("should display warning for empty style name", async () => {
-      await copyChartStylePreset("allChartPresets", "");
+      await copyChartStyle("allChartPresets", "");
 
       expect(cellCommonUtils.updateState).toHaveBeenCalledWith(
         "setMessageList",
@@ -291,7 +291,7 @@ describe("cellStyleFunc", () => {
         JSON.stringify(mockPreset),
       );
 
-      await pasteChartStylePreset("allChartPresets", styleName);
+      await pasteChartStyle("allChartPresets", styleName);
 
       expect(mockChart.format.fill.setSolidColor).toHaveBeenCalledWith("red");
       expect(mockChart.legend.format.fill.setSolidColor).toHaveBeenCalledWith(
@@ -308,7 +308,7 @@ describe("cellStyleFunc", () => {
     it("should handle non-existent preset", async () => {
       OfficeRuntime.storage.getItem.mockResolvedValueOnce(JSON.stringify({}));
 
-      await pasteChartStylePreset("allChartPresets", "NonExistentStyle");
+      await pasteChartStyle("allChartPresets", "NonExistentStyle");
 
       expect(cellCommonUtils.updateState).toHaveBeenCalledWith(
         "setMessageList",

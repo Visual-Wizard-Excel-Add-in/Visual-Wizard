@@ -1,7 +1,7 @@
 import { popUpMessage } from "./commonFuncs";
 import ChartInfo from "../classes/ChartInfo";
 
-async function copyChartStylePreset(targetPreset, styleName) {
+async function copyChartStyle(targetPreset, styleName) {
   try {
     if (styleName === "") {
       popUpMessage("loadFail", "프리셋을 정확하게 선택해주세요.");
@@ -84,7 +84,7 @@ async function copyChartStylePreset(targetPreset, styleName) {
   }
 }
 
-async function pasteChartStylePreset(targetPreset, styleName) {
+async function pasteChartStyle(targetPreset, styleName) {
   if (styleName === "") {
     popUpMessage("loadFail", "프리셋을 정확하게 선택해주세요!");
 
@@ -386,4 +386,4 @@ async function applySeriesProperties(currentChart, chartStyle) {
   }
 }
 
-export { copyChartStylePreset, pasteChartStylePreset };
+export { copyChartStyle, pasteChartStyle };
