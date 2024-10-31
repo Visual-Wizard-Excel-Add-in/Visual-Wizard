@@ -157,147 +157,145 @@ async function pasteChartStyle(targetPreset, styleName) {
   }
 }
 
-function applyBasicChartProperties(currentChart, chartStyle) {
-  if (chartStyle.fill.color) {
-    currentChart.format.fill.setSolidColor(chartStyle.fill.color);
+function applyBasicChartProperties(target, savedStyle) {
+  if (savedStyle.fill.color) {
+    target.format.fill.setSolidColor(savedStyle.fill.color);
   } else {
-    currentChart.format.fill.clear();
+    target.format.fill.clear();
   }
 
-  if (chartStyle.border) {
-    if (chartStyle.border.lineStyle !== "none") {
-      if (chartStyle.border.color) {
-        currentChart.format.border.color = chartStyle.border.color;
+  if (savedStyle.border) {
+    if (savedStyle.border.lineStyle !== "none") {
+      if (savedStyle.border.color) {
+        target.format.border.color = savedStyle.border.color;
       }
 
-      if (chartStyle.border.lineStyle) {
-        currentChart.format.border.lineStyle = chartStyle.border.lineStyle;
+      if (savedStyle.border.lineStyle) {
+        target.format.border.lineStyle = savedStyle.border.lineStyle;
       }
 
-      if (chartStyle.border.weight && chartStyle.border.weight > 0) {
-        currentChart.format.border.weight = chartStyle.border.weight;
+      if (savedStyle.border.weight && savedStyle.border.weight > 0) {
+        target.format.border.weight = savedStyle.border.weight;
       }
     } else {
-      currentChart.format.border.clear();
+      target.format.border.clear();
     }
   }
 
-  if (chartStyle.font) {
-    Object.keys(chartStyle.font).forEach((key) => {
-      if (chartStyle.font[key] !== undefined) {
-        currentChart.format.font[key] = chartStyle.font[key];
+  if (savedStyle.font) {
+    Object.keys(savedStyle.font).forEach((key) => {
+      if (savedStyle.font[key] !== undefined) {
+        target.format.font[key] = savedStyle.font[key];
       }
     });
   }
 
-  if (chartStyle.roundedCorners !== undefined) {
-    currentChart.format.roundedCorners = chartStyle.roundedCorners;
+  if (savedStyle.roundedCorners !== undefined) {
+    target.format.roundedCorners = savedStyle.roundedCorners;
   }
 }
 
-function applyLegendProperties(currentChart, chartStyle) {
-  if (chartStyle.legend) {
-    if (chartStyle.legend.fill) {
-      currentChart.legend.format.fill.setSolidColor(chartStyle.legend.fill);
+function applyLegendProperties(target, savedStyle) {
+  if (savedStyle.legend) {
+    if (savedStyle.legend.fill) {
+      target.legend.format.fill.setSolidColor(savedStyle.legend.fill);
     } else {
-      currentChart.legend.format.fill.clear();
+      target.legend.format.fill.clear();
     }
 
-    if (chartStyle.legend.border) {
-      if (chartStyle.border.lineStyle !== "None") {
-        if (chartStyle.legend.border.color) {
-          currentChart.legend.format.border.color =
-            chartStyle.legend.border.color;
+    if (savedStyle.legend.border) {
+      if (savedStyle.border.lineStyle !== "None") {
+        if (savedStyle.legend.border.color) {
+          target.legend.format.border.color = savedStyle.legend.border.color;
         }
 
-        if (chartStyle.legend.border.lineStyle) {
-          currentChart.legend.format.border.lineStyle =
-            chartStyle.legend.border.lineStyle;
+        if (savedStyle.legend.border.lineStyle) {
+          target.legend.format.border.lineStyle =
+            savedStyle.legend.border.lineStyle;
         }
 
-        if (chartStyle.border.weight && chartStyle.border.weight > 0) {
-          currentChart.legend.format.border.weight =
-            chartStyle.legend.border.weight;
+        if (savedStyle.border.weight && savedStyle.border.weight > 0) {
+          target.legend.format.border.weight = savedStyle.legend.border.weight;
         }
       } else {
-        currentChart.legend.format.border.clear();
+        target.legend.format.border.clear();
       }
     }
 
-    if (chartStyle.legend.font) {
-      Object.keys(chartStyle.legend.font).forEach((key) => {
-        if (chartStyle.legend.font[key] !== undefined) {
-          currentChart.legend.format.font[key] = chartStyle.legend.font[key];
+    if (savedStyle.legend.font) {
+      Object.keys(savedStyle.legend.font).forEach((key) => {
+        if (savedStyle.legend.font[key] !== undefined) {
+          target.legend.format.font[key] = savedStyle.legend.font[key];
         }
       });
     }
 
-    if (chartStyle.legend.position) {
-      currentChart.legend.position = chartStyle.legend.position;
+    if (savedStyle.legend.position) {
+      target.legend.position = savedStyle.legend.position;
     }
   }
 }
 
-function applyPlotAreaProperties(currentChart, chartStyle) {
-  if (chartStyle.plotArea) {
-    if (chartStyle.plotArea.fill) {
-      currentChart.plotArea.format.fill.setSolidColor(chartStyle.plotArea.fill);
+function applyPlotAreaProperties(target, savedStyle) {
+  if (savedStyle.plotArea) {
+    if (savedStyle.plotArea.fill) {
+      target.plotArea.format.fill.setSolidColor(savedStyle.plotArea.fill);
     } else {
-      currentChart.plotArea.format.fill.clear();
+      target.plotArea.format.fill.clear();
     }
 
-    if (chartStyle.plotArea.border) {
-      if (chartStyle.plotArea.border.lineStyle !== "None") {
-        if (chartStyle.plotArea.border.color) {
-          currentChart.plotArea.format.border.color =
-            chartStyle.plotArea.border.color;
+    if (savedStyle.plotArea.border) {
+      if (savedStyle.plotArea.border.lineStyle !== "None") {
+        if (savedStyle.plotArea.border.color) {
+          target.plotArea.format.border.color =
+            savedStyle.plotArea.border.color;
         }
 
-        if (chartStyle.plotArea.border.lineStyle) {
-          currentChart.plotArea.format.border.lineStyle =
-            chartStyle.plotArea.border.lineStyle;
+        if (savedStyle.plotArea.border.lineStyle) {
+          target.plotArea.format.border.lineStyle =
+            savedStyle.plotArea.border.lineStyle;
         }
 
         if (
-          chartStyle.plotArea.border.weight &&
-          chartStyle.plotArea.border.weight > 0
+          savedStyle.plotArea.border.weight &&
+          savedStyle.plotArea.border.weight > 0
         ) {
-          currentChart.plotArea.format.border.weight =
-            chartStyle.plotArea.border.weight;
+          target.plotArea.format.border.weight =
+            savedStyle.plotArea.border.weight;
         }
       } else {
-        currentChart.plotArea.format.border.clear();
+        target.plotArea.format.border.clear();
       }
     }
 
-    if (chartStyle.plotArea.position === "Automatic") {
-      currentChart.plotArea.position = chartStyle.plotArea.position;
+    if (savedStyle.plotArea.position === "Automatic") {
+      target.plotArea.position = savedStyle.plotArea.position;
     } else {
-      currentChart.plotArea.height = chartStyle.plotArea.height;
-      currentChart.plotArea.left = chartStyle.plotArea.left;
-      currentChart.plotArea.top = chartStyle.plotArea.top;
-      currentChart.plotArea.width = chartStyle.plotArea.width;
-      currentChart.plotArea.insideHeight = chartStyle.plotArea.insideHeight;
-      currentChart.plotArea.insideLeft = chartStyle.plotArea.insideLeft;
-      currentChart.plotArea.insideTop = chartStyle.plotArea.insideTop;
-      currentChart.plotArea.insideWidth = chartStyle.plotArea.insideWidth;
+      target.plotArea.height = savedStyle.plotArea.height;
+      target.plotArea.left = savedStyle.plotArea.left;
+      target.plotArea.top = savedStyle.plotArea.top;
+      target.plotArea.width = savedStyle.plotArea.width;
+      target.plotArea.insideHeight = savedStyle.plotArea.insideHeight;
+      target.plotArea.insideLeft = savedStyle.plotArea.insideLeft;
+      target.plotArea.insideTop = savedStyle.plotArea.insideTop;
+      target.plotArea.insideWidth = savedStyle.plotArea.insideWidth;
     }
   }
 }
 
-function applyAxisProperties(currentChart, chartStyle) {
-  if (chartStyle.axes) {
-    if (chartStyle.axes.categoryAxis && currentChart.axes.categoryAxis) {
+function applyAxisProperties(target, savedStyle) {
+  if (savedStyle.axes) {
+    if (savedStyle.axes.categoryAxis && target.axes.categoryAxis) {
       applySingleAxisProperties(
-        currentChart.axes.categoryAxis,
-        chartStyle.axes.categoryAxis,
+        target.axes.categoryAxis,
+        savedStyle.axes.categoryAxis,
       );
     }
 
-    if (chartStyle.axes.valueAxis && currentChart.axes.valueAxis) {
+    if (savedStyle.axes.valueAxis && target.axes.valueAxis) {
       applySingleAxisProperties(
-        currentChart.axes.valueAxis,
-        chartStyle.axes.valueAxis,
+        target.axes.valueAxis,
+        savedStyle.axes.valueAxis,
       );
     }
   }
@@ -331,36 +329,36 @@ function applySingleAxisProperties(axis, axisStyle) {
   }
 }
 
-async function applySeriesProperties(currentChart, chartStyle) {
-  if (chartStyle.series && currentChart.series) {
-    await currentChart.series.load("items");
-    await currentChart.context.sync();
+async function applySeriesProperties(target, savedStyle) {
+  if (savedStyle.series && target.series) {
+    await target.series.load("items");
+    await target.context.sync();
 
-    const seriesArray = Array.isArray(chartStyle.series)
-      ? chartStyle.series
-      : Object.values(chartStyle.series);
+    const seriesArray = Array.isArray(savedStyle.series)
+      ? savedStyle.series
+      : Object.values(savedStyle.series);
 
     for (
       let index = 0;
-      index < Math.min(seriesArray.length, currentChart.series.items.length);
+      index < Math.min(seriesArray.length, target.series.items.length);
       index += 1
     ) {
-      const series = currentChart.series.items[index];
+      const series = target.series.items[index];
 
       if (series) {
         series.load(["format/fill", "format/line"]);
       }
     }
 
-    await currentChart.context.sync();
+    await target.context.sync();
 
     for (
       let index = 0;
-      index < Math.min(seriesArray.length, currentChart.series.items.length);
+      index < Math.min(seriesArray.length, target.series.items.length);
       index += 1
     ) {
       const seriesStyle = seriesArray[index];
-      const series = currentChart.series.items[index];
+      const series = target.series.items[index];
 
       if (seriesStyle.format) {
         if (seriesStyle.format.fill) {
