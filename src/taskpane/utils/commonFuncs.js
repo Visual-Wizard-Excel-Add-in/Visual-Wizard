@@ -198,7 +198,7 @@ async function addOnSelectionChange(sheetId, func) {
 }
 
 function popUpMessage(purpose = "default", option = "") {
-  const message = MESSAGE_LIST[purpose];
+  const message = { ...MESSAGE_LIST[purpose] };
 
   message.body += `\n${option}`;
 

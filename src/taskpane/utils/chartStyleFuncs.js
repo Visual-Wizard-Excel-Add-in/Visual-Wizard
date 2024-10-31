@@ -51,9 +51,6 @@ async function copyChartStyle(targetPreset, styleName) {
       }
 
       async function makeSeriesStyles() {
-        selectedChart.series.load("items");
-        await context.sync();
-
         chart.chartStyle.series = [];
 
         for (let i = 0; i < selectedChart.series.items.length; i += 1) {
