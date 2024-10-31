@@ -324,13 +324,18 @@ function applyAxisProperties(target, savedStyle) {
 function applySingleAxisProperties(axis, axisStyle) {
   if (axisStyle.format) {
     if (axisStyle.format.line.lineStyle !== "None") {
-      if (axisStyle.format.line) {
-        axis.format.line.color = axisStyle.format.line.color;
-        axis.format.line.lineStyle = axisStyle.format.line.style;
+      const { color, style, weight } = axisStyle.format.line;
 
-        if (axisStyle.format.line.weight > 0) {
-          axis.format.line.weight = axisStyle.format.line.weight;
-        }
+      if (color) {
+        axis.format.line.color = color;
+      }
+
+      if (style) {
+        axis.format.line.lineStyle = style;
+      }
+
+      if (weight > 0) {
+        axis.format.line.weight = weight;
       }
     } else {
       axis.format.line.clear();
