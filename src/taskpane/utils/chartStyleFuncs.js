@@ -291,18 +291,17 @@ function applyPlotAreaProperties(target, savedStyle) {
 
 function applyAxisProperties(target, savedStyle) {
   if (savedStyle.axes) {
-    if (savedStyle.axes.categoryAxis && target.axes.categoryAxis) {
-      applySingleAxisProperties(
-        target.axes.categoryAxis,
-        savedStyle.axes.categoryAxis,
-      );
+    const { categoryAxis: targetCategory, valueAxis: targetValue } =
+      target.axes;
+    const { categoryAxis: savedCategory, valueAxis: savedValue } =
+      savedStyle.axes;
+
+    if (savedCategory && targetCategory) {
+      applySingleAxisProperties(targetCategory, savedCategory);
     }
 
-    if (savedStyle.axes.valueAxis && target.axes.valueAxis) {
-      applySingleAxisProperties(
-        target.axes.valueAxis,
-        savedStyle.axes.valueAxis,
-      );
+    if (savedValue && targetValue) {
+      applySingleAxisProperties(targetValue, savedValue);
     }
   }
 }
