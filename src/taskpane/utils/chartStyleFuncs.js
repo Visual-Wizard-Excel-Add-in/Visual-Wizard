@@ -165,7 +165,7 @@ function applyBasicChartProperties(target, savedStyle) {
   }
 
   if (savedStyle.border) {
-    if (savedStyle.border.lineStyle !== "none") {
+    if (savedStyle.border.lineStyle !== "None") {
       if (savedStyle.border.color) {
         target.format.border.color = savedStyle.border.color;
       }
