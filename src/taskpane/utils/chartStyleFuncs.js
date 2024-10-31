@@ -108,17 +108,17 @@ async function pasteChartStyle(targetPreset, styleName) {
         return;
       }
 
-      const chartStyle = chartStylePresets[styleName];
+      const savedStyle = chartStylePresets[styleName];
 
-      if (!chartStyle) {
+      if (!savedStyle) {
         popUpMessage("loadFail", "해당 프리셋을 찾을 수 없습니다.");
 
         return;
       }
 
       if (
-        chartStyle.chartType &&
-        currentChart.chartType !== chartStyle.chartType
+        savedStyle.chartType &&
+        currentChart.chartType !== savedStyle.chartType
       ) {
         popUpMessage(
           "loadFail",
@@ -126,13 +126,13 @@ async function pasteChartStyle(targetPreset, styleName) {
         );
       }
 
-      applyBasicChartProperties(currentChart, chartStyle);
-      applyLegendProperties(currentChart, chartStyle);
-      applyPlotAreaProperties(currentChart, chartStyle);
-      applyAxisProperties(currentChart, chartStyle);
+      applyBasicChartProperties(currentChart, savedStyle);
+      applyLegendProperties(currentChart, savedStyle);
+      applyPlotAreaProperties(currentChart, savedStyle);
+      applyAxisProperties(currentChart, savedStyle);
 
-      if (chartStyle.series && currentChart.series) {
-        await applySeriesProperties(currentChart, chartStyle);
+      if (savedStyle.series && currentChart.series) {
+        await applySeriesProperties(currentChart, savedStyle);
       }
 
       await context.sync();
