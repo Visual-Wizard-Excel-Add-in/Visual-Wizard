@@ -54,19 +54,34 @@ async function copyChartStyle(targetPreset, styleName) {
         chart.chartStyle.series = [];
 
         for (let i = 0; i < selectedChart.series.items.length; i += 1) {
-          const series = selectedChart.series.items[i];
+          try {
+            const series = selectedChart.series.items[i];
+            const color = series.format.fill.getSolidColor();
 
-          series.load(["format/fill", "format/line"]);
-          await context.sync();
+            series.load(["format/line", "*"]);
+            await context.sync();
 
-          chart.chartStyle.series.push(series);
+            chart.chartStyle.series.push({
+              line: series.format.line,
+              fill: color.value,
+            });
+          } catch (error) {
+            popUpMessage("default", "단색 속성만 저장 가능합니다");
+
+            const series = selectedChart.series.items[i];
+
+            series.load(["format/line", "*"]);
+            await context.sync();
+
+            chart.chartStyle.series.push({ line: series.format.line });
+          }
         }
       }
     });
   } catch (error) {
     popUpMessage("saveFail", error.message);
 
-    throw new Error(error.message, error.stack);
+    throw new Error(error);
   }
 
   async function loadStorage() {
@@ -336,58 +351,35 @@ function applySingleAxisProperties(axis, axisStyle) {
 
 async function applySeriesProperties(target, savedStyle) {
   if (savedStyle.series && target.series) {
-    await target.series.load("items");
-    await target.context.sync();
-
-    const seriesArray = Array.isArray(savedStyle.series)
-      ? savedStyle.series
-      : Object.values(savedStyle.series);
-
-    for (
-      let index = 0;
-      index < Math.min(seriesArray.length, target.series.items.length);
-      index += 1
-    ) {
-      const series = target.series.items[index];
-
-      if (series) {
-        series.load(["format/fill", "format/line"]);
-      }
-    }
-
+    target.series.load("items");
     await target.context.sync();
 
     for (
-      let index = 0;
-      index < Math.min(seriesArray.length, target.series.items.length);
-      index += 1
+      let i = 0;
+      i < Math.min(savedStyle.series.length, target.series.items.length);
+      i += 1
     ) {
-      const seriesStyle = seriesArray[index];
-      const series = target.series.items[index];
+      const seriesStyle = savedStyle.series[i];
+      const series = target.series.items[i];
 
-      if (seriesStyle.format) {
-        if (seriesStyle.format.fill) {
-          if (seriesStyle.format.fill.color) {
-            series.format.fill.setSolidColor(seriesStyle.format.fill.color);
-          } else {
-            series.format.fill.clear();
-          }
+      if (seriesStyle) {
+        if (seriesStyle.fill) {
+          series.format.fill.setSolidColor(seriesStyle.fill);
         }
 
-        if (seriesStyle.format.line.style !== "None") {
-          if (seriesStyle.format.line.color) {
-            series.format.line.color = seriesStyle.format.line.color;
+        if (seriesStyle.lineStyle !== "None") {
+          const { color, lineStyle, weight } = seriesStyle.line;
+
+          if (color) {
+            series.format.line.color = color;
           }
 
-          if (seriesStyle.format.line.style) {
-            series.format.line.lineStyle = seriesStyle.format.line.style;
+          if (lineStyle) {
+            series.format.line.lineStyle = lineStyle;
           }
 
-          if (
-            seriesStyle.format.line.weight &&
-            seriesStyle.format.line.weight > 0
-          ) {
-            series.format.line.weight = seriesStyle.format.line.weight;
+          if (weight > 0) {
+            series.format.line.weight = weight;
           }
         } else {
           series.format.line.clear();
