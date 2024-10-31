@@ -100,7 +100,7 @@ async function pasteChartStyle(targetPreset, styleName) {
       currentChart.load("chartType");
       await context.sync();
 
-      let chartStylePresets = await OfficeRuntime.storage.getItem(targetPreset);
+      const chartStylePresets = await loadStorage();
 
       if (!chartStylePresets) {
         popUpMessage("loadFail", "프리셋 목록을 불러오는데 실패했습니다.");
@@ -108,7 +108,6 @@ async function pasteChartStyle(targetPreset, styleName) {
         return;
       }
 
-      chartStylePresets = JSON.parse(chartStylePresets);
       const chartStyle = chartStylePresets[styleName];
 
       if (!chartStyle) {
@@ -144,6 +143,16 @@ async function pasteChartStyle(targetPreset, styleName) {
     popUpMessage("workFail", "차트 서식 적용에 실패하였습니다.");
 
     throw new Error(error);
+  }
+
+  async function loadStorage() {
+    const loadedPresets = await OfficeRuntime.storage.getItem(targetPreset);
+
+    if (!loadedPresets) {
+      return null;
+    }
+
+    return JSON.parse(loadedPresets);
   }
 }
 
