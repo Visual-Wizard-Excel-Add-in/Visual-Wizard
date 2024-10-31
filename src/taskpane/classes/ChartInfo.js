@@ -161,12 +161,9 @@ class ChartInfo {
     return this.defaultOptions;
   }
 
-  makeChartStyle(
-    selectedChart,
-    chartFillColor,
-    legendFillColor,
-    plotAreaFillColor,
-  ) {
+  makeChartStyle(selectedChart, chartColors) {
+    const { chartColor, legendColor, plotAreaColor } = chartColors;
+
     this.chartStyle = {
       chartType: selectedChart.chartType,
       font: {
@@ -179,7 +176,7 @@ class ChartInfo {
       },
       roundedCorners: selectedChart.format.roundedCorners,
       fill: {
-        color: chartFillColor.value,
+        color: chartColor.value,
       },
       border: {
         lineStyle: selectedChart.format.border.lineStyle,
@@ -187,7 +184,7 @@ class ChartInfo {
         weight: selectedChart.format.border.weight,
       },
       plotArea: {
-        fill: plotAreaFillColor.value,
+        fill: plotAreaColor.value,
         border: {
           lineStyle: selectedChart.plotArea.format.border.lineStyle,
           color: selectedChart.plotArea.format.border.color,
@@ -204,7 +201,7 @@ class ChartInfo {
         insideWidth: selectedChart.plotArea.insideWidth,
       },
       legend: {
-        fill: legendFillColor.value,
+        fill: legendColor.value,
         font: {
           name: selectedChart.legend.format.font.name,
           size: selectedChart.legend.format.font.size,

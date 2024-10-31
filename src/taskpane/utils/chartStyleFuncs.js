@@ -21,14 +21,9 @@ async function copyChartStyle(targetPreset, styleName) {
       await context.sync();
 
       const chart = new ChartInfo(selectedChart.chartType);
+      const chartColors = getChartColors();
 
       selectedChart.load(chart.loadOptions);
-
-      const chartFillColor = selectedChart.format.fill.getSolidColor();
-      const legendFillColor = selectedChart.legend.format.fill.getSolidColor();
-      const plotAreaFillColor =
-        selectedChart.plotArea.format.fill.getSolidColor();
-
       await context.sync();
 
       if (chart.loadOptions.includes("series")) {
@@ -37,9 +32,7 @@ async function copyChartStyle(targetPreset, styleName) {
 
       chartStylePresets[styleName] = chart.makeChartStyle(
         selectedChart,
-        chartFillColor,
-        legendFillColor,
-        plotAreaFillColor,
+        chartColors,
       );
 
       await OfficeRuntime.storage.setItem(
@@ -48,6 +41,14 @@ async function copyChartStyle(targetPreset, styleName) {
       );
 
       popUpMessage("saveSuccess");
+
+      function getChartColors() {
+        return {
+          chartColor: selectedChart.format.fill.getSolidColor(),
+          legendColor: selectedChart.legend.format.fill.getSolidColor(),
+          plotAreaColor: selectedChart.plotArea.format.fill.getSolidColor(),
+        };
+      }
 
       async function makeSeriesStyles() {
         selectedChart.series.load("items");
