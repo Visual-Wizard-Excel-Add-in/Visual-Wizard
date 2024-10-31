@@ -2,13 +2,13 @@ import { popUpMessage } from "./commonFuncs";
 import ChartInfo from "../classes/ChartInfo";
 
 async function copyChartStyle(targetPreset, styleName) {
+  if (styleName === "") {
+    popUpMessage("loadFail", "프리셋을 정확하게 선택해주세요.");
+
+    return;
+  }
+
   try {
-    if (styleName === "") {
-      popUpMessage("loadFail", "프리셋을 정확하게 선택해주세요.");
-
-      return;
-    }
-
     await Excel.run(async (context) => {
       const chartStylePresets = await loadStorage(targetPreset);
       const selectedChart = context.workbook.getActiveChart();
@@ -142,6 +142,8 @@ async function pasteChartStyle(targetPreset, styleName) {
     });
   } catch (error) {
     popUpMessage("workFail", "차트 서식 적용에 실패하였습니다.");
+
+    throw new Error(error);
   }
 }
 
