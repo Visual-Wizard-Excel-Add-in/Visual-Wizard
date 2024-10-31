@@ -66,8 +66,6 @@ async function copyChartStyle(targetPreset, styleName) {
               fill: color.value,
             });
           } catch (error) {
-            popUpMessage("default", "단색 속성만 저장 가능합니다");
-
             const series = selectedChart.series.items[i];
 
             series.load(["format/line", "*"]);
@@ -76,6 +74,8 @@ async function copyChartStyle(targetPreset, styleName) {
             chart.chartStyle.series.push({ line: series.format.line });
           }
         }
+
+        popUpMessage("info", "도형은 단색만 저장 가능합니다");
       }
     });
   } catch (error) {
