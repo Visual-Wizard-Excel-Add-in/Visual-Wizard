@@ -186,7 +186,7 @@ function applyBasicChartProperties(target, savedStyle) {
 
   if (savedStyle.font) {
     Object.keys(savedStyle.font).forEach((key) => {
-      if (savedStyle.font[key] !== undefined) {
+      if (savedStyle.font[key]) {
         target.format.font[key] = savedStyle.font[key];
       }
     });
@@ -227,7 +227,7 @@ function applyLegendProperties(target, savedStyle) {
 
     if (savedStyle.legend.font) {
       Object.keys(savedStyle.legend.font).forEach((key) => {
-        if (savedStyle.legend.font[key] !== undefined) {
+        if (savedStyle.legend.font[key]) {
           target.legend.format.font[key] = savedStyle.legend.font[key];
         }
       });
@@ -316,7 +316,7 @@ function applySingleAxisProperties(axis, axisStyle) {
 
     if (axisStyle.format.font) {
       Object.keys(axisStyle.format.font).forEach((key) => {
-        if (axisStyle.format.font[key] !== undefined)
+        if (axisStyle.format.font[key])
           axis.format.font[key] = axisStyle.format.font[key];
       });
     }
