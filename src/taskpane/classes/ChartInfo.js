@@ -265,6 +265,8 @@ class ChartInfo {
         },
       };
     }
+
+    return this.chartStyle;
   }
 }
 
