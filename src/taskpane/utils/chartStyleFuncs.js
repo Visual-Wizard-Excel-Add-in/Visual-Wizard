@@ -116,22 +116,22 @@ async function pasteChartStyle(targetPreset, styleName) {
         return;
       }
 
-      if (
-        savedStyle.chartType &&
-        currentChart.chartType !== savedStyle.chartType
-      ) {
+      if (currentChart.chartType !== savedStyle.chartType) {
         popUpMessage(
           "loadFail",
           "차트 타입이 다릅니다. 일부 스타일이 적용되지 않을 수 있습니다.",
         );
       }
 
-      applyBasicChartProperties(currentChart, savedStyle);
-      applyLegendProperties(currentChart, savedStyle);
-      applyPlotAreaProperties(currentChart, savedStyle);
-      applyAxisProperties(currentChart, savedStyle);
+      const applyFuncs = [
+        applyBasicChartProperties,
+        applyLegendProperties,
+        applyPlotAreaProperties,
+        applyAxisProperties,
+      ];
 
       if (savedStyle.series && currentChart.series) {
+      applyFuncs.forEach((func) => func(currentChart, savedStyle));
         await applySeriesProperties(currentChart, savedStyle);
       }
 
