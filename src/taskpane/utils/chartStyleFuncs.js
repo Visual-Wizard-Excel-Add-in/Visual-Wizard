@@ -269,14 +269,22 @@ function applyPlotAreaProperties(target, savedStyle) {
     if (savedStyle.plotArea.position === "Automatic") {
       target.plotArea.position = savedStyle.plotArea.position;
     } else {
-      target.plotArea.height = savedStyle.plotArea.height;
-      target.plotArea.left = savedStyle.plotArea.left;
-      target.plotArea.top = savedStyle.plotArea.top;
-      target.plotArea.width = savedStyle.plotArea.width;
-      target.plotArea.insideHeight = savedStyle.plotArea.insideHeight;
-      target.plotArea.insideLeft = savedStyle.plotArea.insideLeft;
-      target.plotArea.insideTop = savedStyle.plotArea.insideTop;
-      target.plotArea.insideWidth = savedStyle.plotArea.insideWidth;
+      const positions = [
+        "height",
+        "left",
+        "top",
+        "width",
+        "insideHeight",
+        "insideLeft",
+        "insideTop",
+        "insideWidth",
+      ];
+
+      const sourceStyle = Object.fromEntries(
+        positions.map((position) => [position, savedStyle.plotArea[position]]),
+      );
+
+      Object.assign(target.plotArea, sourceStyle);
     }
   }
 }
