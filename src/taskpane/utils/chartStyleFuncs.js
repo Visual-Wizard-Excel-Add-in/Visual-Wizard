@@ -130,8 +130,9 @@ async function pasteChartStyle(targetPreset, styleName) {
         applyAxisProperties,
       ];
 
-      if (savedStyle.series && currentChart.series) {
       applyFuncs.forEach((func) => func(currentChart, savedStyle));
+
+      if (savedStyle.series) {
         await applySeriesProperties(currentChart, savedStyle);
       }
 
