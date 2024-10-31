@@ -166,16 +166,18 @@ function applyBasicChartProperties(target, savedStyle) {
 
   if (savedStyle.border) {
     if (savedStyle.border.lineStyle !== "None") {
-      if (savedStyle.border.color) {
-        target.format.border.color = savedStyle.border.color;
+      const { color, lineStyle, weight } = savedStyle.border;
+
+      if (color) {
+        target.format.border.color = color;
       }
 
-      if (savedStyle.border.lineStyle) {
-        target.format.border.lineStyle = savedStyle.border.lineStyle;
+      if (lineStyle) {
+        target.format.border.lineStyle = lineStyle;
       }
 
-      if (savedStyle.border.weight && savedStyle.border.weight > 0) {
-        target.format.border.weight = savedStyle.border.weight;
+      if (weight > 0) {
+        target.format.border.weight = weight;
       }
     } else {
       target.format.border.clear();
@@ -205,17 +207,18 @@ function applyLegendProperties(target, savedStyle) {
 
     if (savedStyle.legend.border) {
       if (savedStyle.border.lineStyle !== "None") {
-        if (savedStyle.legend.border.color) {
-          target.legend.format.border.color = savedStyle.legend.border.color;
+        const { color, lineStyle, weight } = savedStyle.legend.border;
+
+        if (color) {
+          target.legend.format.border.color = color;
         }
 
-        if (savedStyle.legend.border.lineStyle) {
-          target.legend.format.border.lineStyle =
-            savedStyle.legend.border.lineStyle;
+        if (lineStyle) {
+          target.legend.format.border.lineStyle = lineStyle;
         }
 
-        if (savedStyle.border.weight && savedStyle.border.weight > 0) {
-          target.legend.format.border.weight = savedStyle.legend.border.weight;
+        if (weight > 0) {
+          target.legend.format.border.weight = weight;
         }
       } else {
         target.legend.format.border.clear();
@@ -246,22 +249,17 @@ function applyPlotAreaProperties(target, savedStyle) {
 
     if (savedStyle.plotArea.border) {
       if (savedStyle.plotArea.border.lineStyle !== "None") {
-        if (savedStyle.plotArea.border.color) {
-          target.plotArea.format.border.color =
-            savedStyle.plotArea.border.color;
+        const { color, lineStyle, weight } = savedStyle.plotArea.border;
+        if (color) {
+          target.plotArea.format.border.color = color;
         }
 
-        if (savedStyle.plotArea.border.lineStyle) {
-          target.plotArea.format.border.lineStyle =
-            savedStyle.plotArea.border.lineStyle;
+        if (lineStyle) {
+          target.plotArea.format.border.lineStyle = lineStyle;
         }
 
-        if (
-          savedStyle.plotArea.border.weight &&
-          savedStyle.plotArea.border.weight > 0
-        ) {
-          target.plotArea.format.border.weight =
-            savedStyle.plotArea.border.weight;
+        if (weight > 0) {
+          target.plotArea.format.border.weight = weight;
         }
       } else {
         target.plotArea.format.border.clear();
