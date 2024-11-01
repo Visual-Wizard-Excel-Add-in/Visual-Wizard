@@ -1,10 +1,10 @@
-import usePublicStore from "../../store/publicStore";
+import useTotalStore from "../../store/useTotalStore";
 import FeatureTab from "../common/FeatureTab";
 import Validation from "./Validation";
 import FormulaTest from "./FormulaTest";
 
 function Validity() {
-  const [openTab, setOpenTab] = usePublicStore((state) => [
+  const [openTab, setOpenTab] = useTotalStore((state) => [
     state.openTab,
     state.setOpenTab,
   ]);

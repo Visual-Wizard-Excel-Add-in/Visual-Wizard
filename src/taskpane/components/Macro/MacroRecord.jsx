@@ -3,7 +3,7 @@ import { Button } from "@fluentui/react-components";
 
 import usePresetHandler from "../../hooks/usePresetHandler";
 import { useStyles } from "../../utils/style";
-import usePublicStore from "../../store/publicStore";
+import useTotalStore from "../../store/useTotalStore";
 import CustomDropdown from "../common/CustomDropdown";
 import {
   DeleteIcon,
@@ -22,9 +22,9 @@ function MacroRecord() {
     deletePresetHandler,
     setSelectedPreset,
   } = usePresetHandler("allMacroPresets", "매크로");
-  const isRecording = usePublicStore((state) => state.isRecording);
-  const setIsRecording = usePublicStore((state) => state.setIsRecording);
-  const setSelectMacroPreset = usePublicStore(
+  const isRecording = useTotalStore((state) => state.isRecording);
+  const setIsRecording = useTotalStore((state) => state.setIsRecording);
+  const setSelectMacroPreset = useTotalStore(
     (state) => state.setSelectMacroPreset,
   );
   const styles = useStyles();

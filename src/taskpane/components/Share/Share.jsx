@@ -1,9 +1,9 @@
-import usePublicStore from "../../store/publicStore";
+import useTotalStore from "../../store/useTotalStore";
 import FeatureTab from "../common/FeatureTab";
 import Extraction from "./Extraction";
 
 function Share() {
-  const [openTab, setOpenTab] = usePublicStore((state) => [
+  const [openTab, setOpenTab] = useTotalStore((state) => [
     state.openTab,
     state.setOpenTab,
   ]);

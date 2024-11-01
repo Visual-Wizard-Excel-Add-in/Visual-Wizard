@@ -3,14 +3,14 @@ import { Button } from "@fluentui/react-components";
 import ActionDetails from "./ActionDetails";
 import MacroNoticeBar from "./MacroNoticeBar";
 
-import usePublicStore from "../../store/publicStore";
+import useTotalStore from "../../store/useTotalStore";
 import { popUpMessage } from "../../utils/commonFuncs";
 
 function MacroSetting() {
   const [storedMacro, setStoredMacro] = useState([]);
   const [modifiedActions, setModifiedActions] = useState({});
   const [isShowNoticeBar, setIsShowNoticeBar] = useState(true);
-  const selectMacroPreset = usePublicStore((state) => state.selectMacroPreset);
+  const selectMacroPreset = useTotalStore((state) => state.selectMacroPreset);
 
   useEffect(() => {
     async function fetchMacroPresets() {

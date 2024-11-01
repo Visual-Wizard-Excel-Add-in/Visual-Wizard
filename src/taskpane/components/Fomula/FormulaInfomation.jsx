@@ -1,11 +1,11 @@
 import { Link, Divider } from "@fluentui/react-components";
 
 import FORMULA_EXPLANATION from "../../constants/formulaConstants";
-import usePublicStore from "../../store/publicStore";
+import useTotalStore from "../../store/useTotalStore";
 import { useStyles } from "../../utils/style";
 
 function FormulaInformation() {
-  const cellFunctions = usePublicStore((state) => state.cellFunctions);
+  const cellFunctions = useTotalStore((state) => state.cellFunctions);
   const styles = useStyles();
 
   return (

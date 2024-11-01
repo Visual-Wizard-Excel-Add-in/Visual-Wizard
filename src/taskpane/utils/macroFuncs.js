@@ -1,6 +1,6 @@
 import { extractCellStyle, restoreCellStyle } from "./cellStyleFuncs";
 import { selectRangeValues, popUpMessage, removeHandler } from "./commonFuncs";
-import useHandlerStore from "../store/handlerStore";
+import useTotalStore from "../store/useTotalStore";
 
 const actions = [];
 
@@ -59,7 +59,7 @@ async function manageRecording(isRecording, presetName) {
       Object.keys(handlers).forEach((handler) => {
         const eventHandler = handlers[handler];
 
-        useHandlerStore
+        useTotalStore
           .getState()
           [
             eventHandler.setter
@@ -70,7 +70,7 @@ async function manageRecording(isRecording, presetName) {
     async function removeEventHandler() {
       const requests = Object.keys(handlers).map((handler) => {
         return removeHandler(
-          useHandlerStore.getState()[handler],
+          useTotalStore.getState()[handler],
           handlers[handler].setter,
         );
       });

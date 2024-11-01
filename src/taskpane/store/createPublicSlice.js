@@ -1,6 +1,4 @@
-import { create } from "zustand";
-
-const usePublicStore = create((set) => ({
+const createPubliceSlice = (set) => ({
   category: "Formula",
   setCategory: (selectedCategory) => set({ category: selectedCategory }),
 
@@ -52,6 +50,6 @@ const usePublicStore = create((set) => ({
   selectMacroPreset: "",
   setSelectMacroPreset: (selectedMacroPreset) =>
     set({ selectMacroPreset: selectedMacroPreset }),
-}));
+});
 
-export default usePublicStore;
+export default createPubliceSlice;

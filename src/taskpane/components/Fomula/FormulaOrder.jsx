@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 
-import usePublicStore from "../../store/publicStore";
+import useTotalStore from "../../store/useTotalStore";
 import FormulaOrderDetail from "./FormulaOrderDetail";
 import CustomPopover from "../common/CustomPopover";
 import { parseFormulaSteps } from "../../utils/formulaFuncs";
 import { popUpMessage } from "../../utils/commonFuncs";
 
 function FormulaOrder() {
-  const cellFormula = usePublicStore((state) => state.cellFormula);
-  const formulaSteps = usePublicStore((state) => state.formulaSteps);
-  const setFormulaSteps = usePublicStore((state) => state.setFormulaSteps);
+  const cellFormula = useTotalStore((state) => state.cellFormula);
+  const formulaSteps = useTotalStore((state) => state.formulaSteps);
+  const setFormulaSteps = useTotalStore((state) => state.setFormulaSteps);
 
   useEffect(() => {
     try {

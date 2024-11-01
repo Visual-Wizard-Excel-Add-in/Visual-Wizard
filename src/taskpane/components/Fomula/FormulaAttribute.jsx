@@ -1,17 +1,17 @@
 import { Switch } from "@fluentui/react-components";
 import { useCallback, useEffect, useState } from "react";
 
-import usePublicStore from "../../store/publicStore";
+import useTotalStore from "../../store/useTotalStore";
 import { targetCellValue } from "../../utils/commonFuncs";
 import { highlightingCell } from "../../utils/cellStyleFuncs";
 
 function FormulaAttribute() {
-  const cellArguments = usePublicStore((state) => state.cellArguments);
-  const cellAddress = usePublicStore((state) => state.cellAddress);
-  const cellValue = usePublicStore((state) => state.cellValue);
-  const cellFunctions = usePublicStore((state) => state.cellFunctions);
-  const isHighlight = usePublicStore((state) => state.isHighlight);
-  const setIsHighlight = usePublicStore((state) => state.setIsHighlight);
+  const cellArguments = useTotalStore((state) => state.cellArguments);
+  const cellAddress = useTotalStore((state) => state.cellAddress);
+  const cellValue = useTotalStore((state) => state.cellValue);
+  const cellFunctions = useTotalStore((state) => state.cellFunctions);
+  const isHighlight = useTotalStore((state) => state.isHighlight);
+  const setIsHighlight = useTotalStore((state) => state.setIsHighlight);
   const [argsWithValue, setArgsWithValue] = useState("");
 
   const convertUnit = useCallback((value) => {

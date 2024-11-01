@@ -1,10 +1,9 @@
-import usePublicStore from "../store/publicStore";
-import useHandlerStore from "../store/handlerStore";
+import useTotalStore from "../store/useTotalStore";
 import CellInfo from "../classes/CellInfo";
 import MESSAGE_LIST from "../constants/messageConstants";
 
 function updateState(setStateFunc, newValue) {
-  usePublicStore.getState()[setStateFunc](newValue);
+  useTotalStore.getState()[setStateFunc](newValue);
 }
 
 async function removeHandler(handler, setter) {
@@ -15,7 +14,7 @@ async function removeHandler(handler, setter) {
         await context.sync();
       });
 
-      useHandlerStore.getState()[setter](null);
+      useTotalStore.getState()[setter](null);
     }
   } catch (error) {
     throw new Error(error);
@@ -100,7 +99,7 @@ async function updateCellInfo() {
   });
 
   function isStateChanged(cellValue, state) {
-    return cellValue !== usePublicStore.getState()[state];
+    return cellValue !== useTotalStore.getState()[state];
   }
 }
 
@@ -180,7 +179,7 @@ async function selectRangeValues() {
 }
 
 async function addOnSelectionChange(sheetId, func) {
-  const existHandler = useHandlerStore.getState().selectionChangeHandler;
+  const existHandler = useTotalStore.getState().selectionChangeHandler;
 
   if (existHandler) {
     removeHandler(existHandler, "setSelectionChangeHandler");
@@ -193,7 +192,7 @@ async function addOnSelectionChange(sheetId, func) {
     const newHandler = sheet.onSelectionChanged.add(func);
     await context.sync();
 
-    useHandlerStore.getState().setSelectionChangeHandler(newHandler);
+    useTotalStore.getState().setSelectionChangeHandler(newHandler);
   });
 }
 

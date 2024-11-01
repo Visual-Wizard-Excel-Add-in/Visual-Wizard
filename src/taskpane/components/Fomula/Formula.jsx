@@ -1,12 +1,12 @@
 import FeatureTab from "../common/FeatureTab";
-import usePublicStore from "../../store/publicStore";
+import useTotalStore from "../../store/useTotalStore";
 import FormulaInformation from "./FormulaInfomation";
 import FormulaAttribute from "./FormulaAttribute";
 import FormulaOrder from "./FormulaOrder";
 
 function Fomula() {
-  const setOpenTab = usePublicStore((state) => state.setOpenTab);
-  const openTab = usePublicStore((state) => state.openTab);
+  const setOpenTab = useTotalStore((state) => state.setOpenTab);
+  const openTab = useTotalStore((state) => state.openTab);
   const features = [
     {
       name: "정보",

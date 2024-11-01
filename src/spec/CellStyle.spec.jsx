@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 
 import CellStyle from "../taskpane/components/Style/CellStyle";
-import usePublicStore from "../taskpane/store/publicStore";
+import createPubliceSlice from "../taskpane/store/createPublicSlice";
 import {
   copyRangeStyle,
   pasteRangeStyle,
@@ -34,7 +34,7 @@ describe("CellStyle", () => {
       setSelectedStylePreset: vi.fn(),
     };
 
-    usePublicStore.mockReturnValue(mockStore);
+    createPubliceSlice.mockReturnValue(mockStore);
   });
 
   it("should create a new style preset", async () => {

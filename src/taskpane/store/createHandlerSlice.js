@@ -1,6 +1,4 @@
-import { create } from "zustand";
-
-const useHandlerStore = create((set) => ({
+const createHandlerSlice = (set) => ({
   selectionChangeHandler: null,
   setSelectionChangeHandler: (handler) =>
     set({ selectionChangeHandler: handler }),
@@ -20,6 +18,6 @@ const useHandlerStore = create((set) => ({
 
   formatChangedHandler: null,
   setFormatChangedHandler: (handler) => set({ formatChangedHandler: handler }),
-}));
+});
 
-export default useHandlerStore;
+export default createHandlerSlice;

@@ -1,7 +1,7 @@
 import { render, screen, waitFor, act } from "@testing-library/react";
 
 import App from "../taskpane/components/App";
-import usePublicStore from "../taskpane/store/publicStore";
+import createPubliceSlice from "../taskpane/store/createPublicSlice";
 
 global.Office = {
   onReady: vi.fn(),
@@ -53,7 +53,7 @@ describe("App", () => {
       messageList: [],
     };
 
-    usePublicStore.mockImplementation(() => mockStore);
+    createPubliceSlice.mockImplementation(() => mockStore);
   });
 
   it("should render Formula features when the Formula category is selected", () => {

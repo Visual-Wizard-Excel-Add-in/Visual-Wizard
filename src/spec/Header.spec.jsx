@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 
 import Header from "../taskpane/components/Header";
-import usePublicStore from "../taskpane/store/publicStore";
+import createPubliceSlice from "../taskpane/store/createPublicSlice";
 
 vi.mock("../taskpane/utils/store", () => ({
   default: vi.fn(),
@@ -12,7 +12,7 @@ describe("Header", () => {
   const mockSetOpenTab = vi.fn();
 
   beforeEach(() => {
-    usePublicStore.mockReturnValue({
+    createPubliceSlice.mockReturnValue({
       setCategory: mockSetCategory,
       setOpenTab: mockSetOpenTab,
     });

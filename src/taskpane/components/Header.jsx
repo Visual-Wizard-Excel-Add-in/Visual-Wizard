@@ -1,12 +1,12 @@
 import { Tab, TabList } from "@fluentui/react-components";
 
-import usePublicStore from "../store/publicStore";
+import useTotalStore from "../store/useTotalStore";
 import { useStyles } from "../utils/style";
 
 function Header() {
   const styles = useStyles();
-  const setCategory = usePublicStore((state) => state.setCategory);
-  const setOpenTab = usePublicStore((state) => state.setOpenTab);
+  const setCategory = useTotalStore((state) => state.setCategory);
+  const setOpenTab = useTotalStore((state) => state.setOpenTab);
 
   const selectCategory = (event, data) => {
     setCategory(data.value);

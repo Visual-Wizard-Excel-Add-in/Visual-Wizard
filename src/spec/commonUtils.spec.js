@@ -1,5 +1,5 @@
 import { vi, describe, it, expect, beforeEach } from "vitest";
-import usePublicStore from "../taskpane/store/publicStore";
+import createPubliceSlice from "../taskpane/store/createPublicSlice";
 
 const mockExcel = {
   run: vi.fn(),
@@ -61,7 +61,7 @@ describe("commonFuncs", () => {
     commonFuncs = await vi.importMock("../taskpane/utils/commonFuncs");
     validateFuncs = await vi.importMock("../taskpane/utils/validateFuncs");
 
-    usePublicStore.getState.mockReturnValue(mockSetState);
+    createPubliceSlice.getState.mockReturnValue(mockSetState);
   });
 
   describe("splitCellAddress", () => {
@@ -242,7 +242,7 @@ describe("commonFuncs", () => {
     beforeEach(() => {
       vi.resetAllMocks();
 
-      const mockUseStore = usePublicStore;
+      const mockUseStore = createPubliceSlice;
 
       mockUseStore.getState.mockReturnValue(mockSetState);
     });

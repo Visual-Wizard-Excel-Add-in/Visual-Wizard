@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef } from "react";
 
-import usePublicStore from "../store/publicStore";
+import useTotalStore from "../store/useTotalStore";
 import Header from "./Header";
 import Formula from "./Fomula/Formula";
 import Style from "./Style/Style";
@@ -13,10 +13,10 @@ import CustomMessageBar from "./common/CustomMessageBar";
 
 function App() {
   const globalSheetChangeHandler = useRef(null);
-  const category = usePublicStore((state) => state.category);
-  const sheetId = usePublicStore((state) => state.sheetId);
-  const setSheetId = usePublicStore((state) => state.setSheetId);
-  const messageList = usePublicStore((state) => state.messageList);
+  const category = useTotalStore((state) => state.category);
+  const sheetId = useTotalStore((state) => state.sheetId);
+  const setSheetId = useTotalStore((state) => state.setSheetId);
+  const messageList = useTotalStore((state) => state.messageList);
   const styles = useStyles();
 
   const categories = {

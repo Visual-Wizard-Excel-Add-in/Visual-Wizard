@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 
 import FormulaTest from "../taskpane/components/Validate/FormulaTest";
-import usePublicStore from "../taskpane/store/publicStore";
+import createPubliceSlice from "../taskpane/store/createPublicSlice";
 import { extractReferenceCells } from "../taskpane/utils/commonFuncs";
 import { evaluateTestFormula } from "../taskpane/utils/validateFuncs";
 import {
@@ -32,7 +32,7 @@ vi.mock("../taskpane/utils/cellFormulaFunc", () => ({
 
 describe("FormulaTest", () => {
   beforeEach(() => {
-    usePublicStore.mockReturnValue({
+    createPubliceSlice.mockReturnValue({
       cellFormula: "=SUM(A1:B1)",
       cellValue: "3",
       cellArguments: ["A1:B1"],

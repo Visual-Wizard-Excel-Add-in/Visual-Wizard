@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 
 import FormulaOrder from "../taskpane/components/Fomula/FormulaOrder";
-import usePublicStore from "../taskpane/store/publicStore";
+import createPubliceSlice from "../taskpane/store/createPublicSlice";
 import { parseFormulaSteps } from "../taskpane/utils/formulaFuncs";
 
 vi.mock("../taskpane/utils/store", () => ({
@@ -15,7 +15,7 @@ vi.mock("../taskpane/utils/cellFormulaFunc", () => ({
 
 describe("FormulaOrder", () => {
   beforeEach(() => {
-    usePublicStore.mockReturnValue({
+    createPubliceSlice.mockReturnValue({
       cellFormula: "=IF(SUM(A1:B1)>AVERAGE(A1:C1),1,2)",
       formulaSteps: [
         { address: "A1", functionName: "AVERAGE" },
@@ -27,7 +27,7 @@ describe("FormulaOrder", () => {
   });
 
   it("If select cell has no formula, Should show notice message.", () => {
-    usePublicStore.mockReturnValue({
+    createPubliceSlice.mockReturnValue({
       cellFormula: "",
       formulaSteps: [],
       setFormulaSteps: vi.fn(),
@@ -50,7 +50,7 @@ describe("FormulaOrder", () => {
   });
 
   it("cellFormula is change, parseFormulaStpes should called.", () => {
-    usePublicStore.mockReturnValue({
+    createPubliceSlice.mockReturnValue({
       cellFormula: "",
       formulaSteps: [],
       setFormulaSteps: vi.fn(),
@@ -72,7 +72,7 @@ describe("FormulaOrder", () => {
       trueValue: "1",
     };
 
-    usePublicStore.mockReturnValue({
+    createPubliceSlice.mockReturnValue({
       formulaSteps: [step],
       setFormulaSteps: vi.fn(),
     });

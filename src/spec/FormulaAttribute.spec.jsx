@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 
 import FormulaAttribute from "../taskpane/components/Fomula/FormulaAttribute";
-import usePublicStore from "../taskpane/store/publicStore";
+import createPubliceSlice from "../taskpane/store/createPublicSlice";
 import { highlightingCell } from "../taskpane/utils/cellStyleFuncs";
 
 vi.mock("../taskpane/utils/store", () => ({
@@ -19,7 +19,7 @@ describe("FormulaAttribute", () => {
     mockSetIsCellHighlighting = vi.fn();
     mockCellFunctions = [];
 
-    usePublicStore.mockReturnValue({
+    createPubliceSlice.mockReturnValue({
       isCellHighlighting: false,
       setIsCellHighlighting: mockSetIsCellHighlighting,
       cellFunctions: mockCellFunctions,
@@ -31,7 +31,7 @@ describe("FormulaAttribute", () => {
   it("should enable the highlight button when cellFunctions is not empty", () => {
     mockCellFunctions = ["function1", "function2"];
 
-    usePublicStore.mockReturnValue({
+    createPubliceSlice.mockReturnValue({
       isCellHighlighting: false,
       setIsCellHighlighting: mockSetIsCellHighlighting,
       cellFunctions: mockCellFunctions,
@@ -49,7 +49,7 @@ describe("FormulaAttribute", () => {
   it("When toggle the highlight button, should call highlightingCell function", () => {
     mockCellFunctions = ["function1", "function2"];
 
-    usePublicStore.mockReturnValue({
+    createPubliceSlice.mockReturnValue({
       isCellHighlighting: false,
       setIsCellHighlighting: mockSetIsCellHighlighting,
       cellFunctions: mockCellFunctions,
