@@ -28,18 +28,10 @@ function MacroSetting() {
   }, [selectMacroPreset]);
 
   const applyChanges = async () => {
-    const updatedActions = storedMacro.map((action, index) => {
-      const modifiedAction = modifiedActions[index] || {};
+    const updatedActions = storedMacro.map((action, index) =>
+      modifyChanges(index, action),
+    );
 
-      return {
-        ...action,
-        ...modifiedAction,
-        details: {
-          ...action.details,
-          ...modifiedAction.details,
-        },
-      };
-    });
 
     setStoredMacro(updatedActions);
 
@@ -58,6 +50,19 @@ function MacroSetting() {
       JSON.stringify(allMacroPresets),
     );
   };
+
+  function modifyChanges(index, action) {
+    const modifiedAction = modifiedActions[index] || {};
+
+    return {
+      ...action,
+      ...modifiedAction,
+      details: {
+        ...action.details,
+        ...modifiedAction.details,
+      },
+    };
+  }
 
   return (
     <>
