@@ -4,6 +4,7 @@ import ActionDetails from "./ActionDetails";
 import MacroNoticeBar from "./MacroNoticeBar";
 
 import usePublicStore from "../../store/publicStore";
+import { popUpMessage } from "../../utils/commonFuncs";
 
 function MacroSetting() {
   const [storedMacro, setStoredMacro] = useState([]);
@@ -49,6 +50,8 @@ function MacroSetting() {
       "allMacroPresets",
       JSON.stringify(allMacroPresets),
     );
+
+    popUpMessage("saveSuccess", "변경사항이 적용됐습니다");
   };
 
   function modifyChanges(index, action) {
