@@ -9,8 +9,22 @@ import {
 } from "../../utils/chartTypeUtils";
 
 function ActionDetails({ action, index, setModifiedActions }) {
+  return (
+    <div key={`${action.type}-${index}`}>
+      <ActionContents
+        action={action}
+        index={index}
+        setModifiedActions={setModifiedActions}
+      />
+      <Divider className="my-2" appearance="strong" />
+    </div>
+  );
+}
+
+export default ActionDetails;
+
+function ActionContents({ action, index, setModifiedActions }) {
   const [selectChartType, setSelectChartType] = useState("");
-  let actionContent = null;
 
   function getMergedRange(act) {
     let mergedRange = "";
@@ -47,7 +61,7 @@ function ActionDetails({ action, index, setModifiedActions }) {
 
   switch (action.type) {
     case "WorksheetChanged":
-      actionContent = (
+      return (
         <div className="mb-3">
           <p className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
             {index + 1}. 셀 내용 변경
@@ -70,26 +84,23 @@ function ActionDetails({ action, index, setModifiedActions }) {
           </p>
         </div>
       );
-      break;
 
     case "WorksheetFormatChanged":
-      actionContent = (
+      return (
         <span className="text-base font-bold bg-green-500 bg-opacity-20">
           {index + 1}. 셀 서식 변경
         </span>
       );
-      break;
 
     case "TableChanged":
-      actionContent = (
+      return (
         <span className="text-base font-bold bg-green-500 bg-opacity-20">
           {index + 1}. 테이블 변경
         </span>
       );
-      break;
 
     case "ChartAdded":
-      actionContent = (
+      return (
         <div>
           <p className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
             {index + 1}. 차트 추가
@@ -119,10 +130,9 @@ function ActionDetails({ action, index, setModifiedActions }) {
           </div>
         </div>
       );
-      break;
 
     case "TableAdded":
-      actionContent = (
+      return (
         <div>
           <div className="mb-2 text-base font-bold bg-green-500 bg-opacity-20">
             {index + 1}. 표 추가
@@ -136,18 +146,8 @@ function ActionDetails({ action, index, setModifiedActions }) {
           </div>
         </div>
       );
-      break;
 
     default:
-      return "지원하지 않는 형식의 기록입니다.";
+      return <p>지원하지 않는 형식의 기록입니다.</p>;
   }
-
-  return (
-    <div key={`${action.type}-${index}`}>
-      {actionContent}
-      <Divider className="my-2" appearance="strong" />
-    </div>
-  );
 }
-
-export default ActionDetails;
