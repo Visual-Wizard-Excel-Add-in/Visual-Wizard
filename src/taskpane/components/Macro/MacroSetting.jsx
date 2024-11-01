@@ -32,23 +32,16 @@ function MacroSetting() {
     const updatedActions = storedMacro.map((action, index) =>
       modifyChanges(index, action),
     );
+    const savedPresets =
+      JSON.parse(await OfficeRuntime.storage.getItem("allMacroPresets")) || {};
 
+    savedPresets[selectMacroPreset].actions = updatedActions;
 
     setStoredMacro(updatedActions);
 
-    let allMacroPresets =
-      await OfficeRuntime.storage.getItem("allMacroPresets");
-    allMacroPresets = allMacroPresets ? JSON.parse(allMacroPresets) : {};
-
-    if (!allMacroPresets[selectMacroPreset]) {
-      allMacroPresets[selectMacroPreset] = { actions: [] };
-    }
-
-    allMacroPresets[selectMacroPreset].actions = updatedActions;
-
     await OfficeRuntime.storage.setItem(
       "allMacroPresets",
-      JSON.stringify(allMacroPresets),
+      JSON.stringify(savedPresets),
     );
 
     popUpMessage("saveSuccess", "변경사항이 적용됐습니다");
