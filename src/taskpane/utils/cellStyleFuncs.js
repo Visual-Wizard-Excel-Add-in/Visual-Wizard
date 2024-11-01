@@ -262,23 +262,18 @@ async function highlightingCell(isHighlight, resultCell) {
     if (isHighlight) {
       await storeCellStyle(resultCell, "allCellStyles", isHighlight);
 
-      await Promise.allSettled(
-        argsAddress.map(async (address) => {
-          await storeCellStyle(address, "allCellStyles", isHighlight);
-        }),
-      );
+      for (const address of argsAddress) {
+        await storeCellStyle(address, "allCellStyles", isHighlight);
+      }
 
       await highlightArgCells();
-
       highlightResultCell();
     } else {
       await restoreCellStyle(resultCell, "allCellStyles", isHighlight);
 
-      await Promise.allSettled(
-        argsAddress.map(async (address) => {
-          await restoreCellStyle(address, "allCellStyles", isHighlight);
-        }),
-      );
+      for (const address of argsAddress) {
+        await restoreCellStyle(address, "allCellStyles", isHighlight);
+      }
     }
 
     await context.sync();
