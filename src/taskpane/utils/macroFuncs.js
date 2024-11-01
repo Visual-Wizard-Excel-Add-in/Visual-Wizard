@@ -35,20 +35,24 @@ async function manageRecording(isRecording, presetName) {
       },
     };
 
+    const allMacroPresets = await getStorage("allMacroPresets");
+
     if (isRecording) {
       addHandler();
 
-      const allMacroPresets = await getStorage("allMacroPresets");
-      allMacroPresets[presetName] = { actions: [] };
+      allMacroPresets[presetName] = { actions: [], cellStyles: {} };
 
-      await setStorage("allMacroPresets", allMacroPresets);
-
-      await context.sync();
+      await setStorage(allMacroPresets);
     } else {
       await removeEventHandler();
 
-      await saveMacro(presetName);
+      allMacroPresets[presetName].actions = actions;
+
+      await setStorage(allMacroPresets);
+      popUpMessage("saveSuccess", "매크로를 기록했습니다.");
     }
+
+    await context.sync();
 
     function addHandler() {
       Object.keys(MACRO_HANDLERS).forEach((handler) => {
@@ -73,14 +77,17 @@ async function manageRecording(isRecording, presetName) {
       await Promise.allSettled(requests);
     }
 
-    async function getStorage(data) {
-      const storageData = await OfficeRuntime.storage.getItem(data);
-
-      return storageData ? JSON.parse(storageData) : {};
+    async function getStorage() {
+      return (
+        JSON.parse(await OfficeRuntime.storage.getItem("allMacroPresets")) || {}
+      );
     }
 
-    async function setStorage(key, data) {
-      await OfficeRuntime.storage.setItem(key, JSON.stringify(data));
+    async function setStorage(data) {
+      await OfficeRuntime.storage.setItem(
+        "allMacroPresets",
+        JSON.stringify(data),
+      );
     }
   }).catch((error) => {
     popUpMessage("workFail", `녹화를 시작할 수 없습니다. ${error.message}`);
@@ -161,29 +168,6 @@ async function onWorksheetChanged(event, presetName) {
 
       return await extractCellStyle(context, cell);
     });
-  }
-}
-
-async function saveMacro(presetName) {
-  try {
-    let allMacroPresets =
-      await OfficeRuntime.storage.getItem("allMacroPresets");
-    allMacroPresets = allMacroPresets ? JSON.parse(allMacroPresets) : {};
-
-    if (!allMacroPresets[presetName].actions) {
-      allMacroPresets[presetName] = { actions: [], cellStyles: {} };
-    }
-
-    allMacroPresets[presetName].actions = actions;
-
-    await OfficeRuntime.storage.setItem(
-      "allMacroPresets",
-      JSON.stringify(allMacroPresets),
-    );
-
-    popUpMessage("saveSuccess", "매크로를 기록했습니다.");
-  } catch (error) {
-    popUpMessage("saveFail", `매크로 기록에 실패했습니다. ${error.message}`);
   }
 }
 
@@ -393,4 +377,4 @@ async function applyTableAdded(context, action) {
   await context.sync();
 }
 
-export { manageRecording, macroPlay, saveMacro };
+export { manageRecording, macroPlay };
