@@ -9,91 +9,93 @@ async function manageRecording(isRecording, presetName) {
     popUpMessage("loadFail", "프리셋을 정확하게 선택해주세요!");
   }
 
-  await Excel.run(async (context) => {
-    const sheet = context.workbook.worksheets.getActiveWorksheet();
-    const { tables } = context.workbook;
-    const MACRO_HANDLERS = {
-      tableChangedHandler: {
-        target: tables.onChanged,
-        setter: "setTableChangedHandler",
-      },
-      chartAddedHandler: {
-        target: sheet.charts.onAdded,
-        setter: "setTableAddedHandler",
-      },
-      tableAddedHandler: {
-        target: sheet.tables.onAdded,
-        setter: "setChartAddedHandler",
-      },
-      formatChangedHandler: {
-        target: sheet.onFormatChanged,
-        setter: "setFormatChangedHandler",
-      },
-      worksheetChangedHandler: {
-        target: sheet.onChanged,
-        setter: "setWorksheetChangedHandler",
-      },
-    };
+  try {
+    await Excel.run(async (context) => {
+      const sheet = context.workbook.worksheets.getActiveWorksheet();
+      const { tables } = context.workbook;
+      const MACRO_HANDLERS = {
+        tableChangedHandler: {
+          target: tables.onChanged,
+          setter: "setTableChangedHandler",
+        },
+        chartAddedHandler: {
+          target: sheet.charts.onAdded,
+          setter: "setTableAddedHandler",
+        },
+        tableAddedHandler: {
+          target: sheet.tables.onAdded,
+          setter: "setChartAddedHandler",
+        },
+        formatChangedHandler: {
+          target: sheet.onFormatChanged,
+          setter: "setFormatChangedHandler",
+        },
+        worksheetChangedHandler: {
+          target: sheet.onChanged,
+          setter: "setWorksheetChangedHandler",
+        },
+      };
 
-    const allMacroPresets = await getStorage("allMacroPresets");
+      const allMacroPresets = await getStorage("allMacroPresets");
 
-    if (isRecording) {
-      addHandler();
+      if (isRecording) {
+        addHandler(MACRO_HANDLERS);
 
-      allMacroPresets[presetName] = { actions: [], cellStyles: {} };
+        allMacroPresets[presetName] = { actions: [], cellStyles: {} };
 
-      await setStorage(allMacroPresets);
-    } else {
-      await removeEventHandler();
+        await setStorage(allMacroPresets);
+      } else {
+        await removeEventHandler(MACRO_HANDLERS);
 
-      allMacroPresets[presetName].actions = actions;
+        allMacroPresets[presetName].actions = actions;
 
-      await setStorage(allMacroPresets);
-      popUpMessage("saveSuccess", "매크로를 기록했습니다.");
-    }
+        await setStorage(allMacroPresets);
+        popUpMessage("saveSuccess", "매크로를 기록했습니다.");
+      }
 
-    await context.sync();
-
-    function addHandler() {
-      Object.keys(MACRO_HANDLERS).forEach((handler) => {
-        const eventHandler = MACRO_HANDLERS[handler];
-
-        useTotalStore
-          .getState()
-          [
-            eventHandler.setter
-          ](eventHandler.target.add((event) => onWorksheetChanged(event, presetName)));
-      });
-    }
-
-    async function removeEventHandler() {
-      const requests = Object.keys(MACRO_HANDLERS).map((handler) => {
-        return removeHandler(
-          useTotalStore.getState()[handler],
-          MACRO_HANDLERS[handler].setter,
-        );
-      });
-
-      await Promise.allSettled(requests);
-    }
-
-    async function getStorage() {
-      return (
-        JSON.parse(await OfficeRuntime.storage.getItem("allMacroPresets")) || {}
-      );
-    }
-
-    async function setStorage(data) {
-      await OfficeRuntime.storage.setItem(
-        "allMacroPresets",
-        JSON.stringify(data),
-      );
-    }
-  }).catch((error) => {
+      await context.sync();
+    });
+  } catch (error) {
     popUpMessage("workFail", `녹화를 시작할 수 없습니다. ${error.message}`);
 
     throw new Error(error.message);
-  });
+  }
+
+  function addHandler(MACRO_HANDLERS) {
+    Object.keys(MACRO_HANDLERS).forEach((handler) => {
+      const eventHandler = MACRO_HANDLERS[handler];
+
+      useTotalStore
+        .getState()
+        [
+          eventHandler.setter
+        ](eventHandler.target.add((event) => onWorksheetChanged(event, presetName)));
+    });
+  }
+
+  async function removeEventHandler(MACRO_HANDLERS) {
+    const requests = Object.keys(MACRO_HANDLERS).map((handler) => {
+      return removeHandler(
+        useTotalStore.getState()[handler],
+        MACRO_HANDLERS[handler].setter,
+      );
+    });
+
+    await Promise.allSettled(requests);
+  }
+
+  async function getStorage() {
+    return (
+      JSON.parse(await OfficeRuntime.storage.getItem("allMacroPresets")) || {}
+    );
+  }
+
+  async function setStorage(data) {
+    await OfficeRuntime.storage.setItem(
+      "allMacroPresets",
+      JSON.stringify(data),
+    );
+  }
 }
 
 async function onWorksheetChanged(event, presetName) {
