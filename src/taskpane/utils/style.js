@@ -75,7 +75,7 @@ const useStyles = makeStyles({
     fontWeight: "bolder",
   },
   messageBarGroup: {
-    position: "absolute",
+    position: "fixed",
     display: "flex",
     width: "90%",
     zIndex: "2",
