@@ -12,30 +12,25 @@ async function manageRecording(isRecording, presetName) {
   await Excel.run(async (context) => {
     const sheet = context.workbook.worksheets.getActiveWorksheet();
     const { tables } = context.workbook;
-    const handlers = {
+    const MACRO_HANDLERS = {
       tableChangedHandler: {
-        target: tables,
-        eventName: "onChanged",
+        target: tables.onChanged,
         setter: "setTableChangedHandler",
       },
       chartAddedHandler: {
-        target: sheet.charts,
-        eventName: "onAdded",
+        target: sheet.charts.onAdded,
         setter: "setTableAddedHandler",
       },
       tableAddedHandler: {
-        target: sheet.tables,
-        eventName: "onAdded",
+        target: sheet.tables.onAdded,
         setter: "setChartAddedHandler",
       },
       formatChangedHandler: {
-        target: sheet,
-        eventName: "onFormatChanged",
+        target: sheet.onFormatChanged,
         setter: "setFormatChangedHandler",
       },
       worksheetChangedHandler: {
-        target: sheet,
-        eventName: "onChanged",
+        target: sheet.onChanged,
         setter: "setWorksheetChangedHandler",
       },
     };
@@ -56,22 +51,22 @@ async function manageRecording(isRecording, presetName) {
     }
 
     function addHandler() {
-      Object.keys(handlers).forEach((handler) => {
-        const eventHandler = handlers[handler];
+      Object.keys(MACRO_HANDLERS).forEach((handler) => {
+        const eventHandler = MACRO_HANDLERS[handler];
 
         useTotalStore
           .getState()
           [
             eventHandler.setter
-          ](eventHandler.target[eventHandler.eventName].add((event) => onWorksheetChanged(event, presetName)));
+          ](eventHandler.target.add((event) => onWorksheetChanged(event, presetName)));
       });
     }
 
     async function removeEventHandler() {
-      const requests = Object.keys(handlers).map((handler) => {
+      const requests = Object.keys(MACRO_HANDLERS).map((handler) => {
         return removeHandler(
           useTotalStore.getState()[handler],
-          handlers[handler].setter,
+          MACRO_HANDLERS[handler].setter,
         );
       });
 
