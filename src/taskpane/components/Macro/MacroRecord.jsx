@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button } from "@fluentui/react-components";
 
 import usePresetHandler from "../../hooks/usePresetHandler";
@@ -28,6 +29,10 @@ function MacroRecord() {
   );
   const styles = useStyles();
 
+  useEffect(() => {
+    setSelectMacroPreset(selectedPreset);
+  }, [selectedPreset]);
+
   function controlMacroRecording() {
     if (selectedPreset === "") {
       popUpMessage("loadFail", "프리셋을 선택해주세요!");
@@ -53,7 +58,6 @@ function MacroRecord() {
         <CustomDropdown
           handleValue={(value) => {
             setSelectedPreset(value);
-            setSelectMacroPreset(value);
           }}
           options={presets.map((preset) => ({
             name: preset,
