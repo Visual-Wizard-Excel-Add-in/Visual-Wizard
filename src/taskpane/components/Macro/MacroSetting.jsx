@@ -13,12 +13,12 @@ function MacroSetting() {
 
   useEffect(() => {
     async function fetchMacroPresets() {
-      const data = await OfficeRuntime.storage.getItem("allMacroPresets");
+      const loadedData = JSON.parse(
+        await OfficeRuntime.storage.getItem("allMacroPresets"),
+      );
 
-      if (data) {
-        const parsedData = JSON.parse(data);
-
-        setStoredMacro(parsedData[selectMacroPreset]?.actions || []);
+      if (loadedData) {
+        setStoredMacro(loadedData[selectMacroPreset]?.actions || []);
       } else {
         setStoredMacro([]);
       }
