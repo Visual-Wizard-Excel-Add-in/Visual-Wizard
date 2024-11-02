@@ -126,9 +126,7 @@ async function onChartAdded(action) {
 
 async function onTableAdded(action) {
   try {
-    let tableAttributes = [];
-
-    await Excel.run(async (context) => {
+    return await Excel.run(async (context) => {
       const sheet = context.workbook.worksheets.getActiveWorksheet();
       const table = sheet.tables.getItem(action.tableId);
       const tableRange = table.getRange();
@@ -138,10 +136,9 @@ async function onTableAdded(action) {
       await context.sync();
 
       const { showHeaders } = table;
-      tableAttributes = [tableRange.address.split("!")[1], showHeaders];
-    });
 
-    return tableAttributes;
+      return [tableRange.address.split("!")[1], showHeaders];
+    });
   } catch (error) {
     popUpMessage("saveFail", `매크로 기록에 실패했습니다. ${error.message}`);
 
