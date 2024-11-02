@@ -135,46 +135,35 @@ async function macroPlay(presetName) {
       }
 
       for (const action of presetData.actions) {
-        await replayRecords(action);
+        await replayRecords(action, context);
       }
 
       await context.sync();
-
-      async function replayRecords(action) {
-        switch (action.type) {
-          case "WorksheetChanged":
-            await applyWorksheetChange(context, action);
-            break;
-
-          case "WorksheetFormatChanged":
-            await restoreCellStyle(
-              action.address,
-              "allMacroPresets",
-              false,
-              action.cellStyle,
-            );
-            break;
-
-          case "TableChanged":
-            await applyTableChange(context, action);
-            break;
-
-          case "ChartAdded":
-            await applyChartAdded(context, action);
-            break;
-
-          case "TableAdded":
-            await applyTableAdded(context, action);
-            break;
-
-          default:
-            popUpMessage("workFail", "지원하지 않는 형식의 기록입니다.");
-            break;
-        }
-      }
     });
   } catch (error) {
     popUpMessage("workFail", "지원하는 타입의 기록인지 확인해주세요.");
+  }
+
+  async function replayRecords(action, context) {
+    const applyFuncs = {
+      WorksheetChanged: () => applyWorksheetChange(context, action),
+      WorksheetFormatChanged: () =>
+        restoreCellStyle(
+          action.address,
+          "allMacroPresets",
+          false,
+          action.cellStyle,
+        ),
+      TableChanged: () => applyTableChange(context, action),
+      ChartAdded: () => applyChartAdded(context, action),
+      TableAdded: () => applyTableAdded(context, action),
+    };
+
+    if (applyFuncs[action.type]) {
+      await applyFuncs[action.type]();
+    } else {
+      popUpMessage("workFail", "지원하지 않는 형식의 기록입니다.");
+    }
   }
 }
 
