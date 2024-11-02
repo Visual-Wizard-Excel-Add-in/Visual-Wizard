@@ -1,7 +1,7 @@
 import { restoreCellStyle } from "./cellStyleFuncs";
 import { updateState, popUpMessage, removeHandler } from "./commonFuncs";
 import useTotalStore from "../store/useTotalStore";
-import MacroAction from "../classes/MacroActions";
+import MacroAction from "../classes/MacroAction";
 
 const actions = [];
 
