@@ -211,11 +211,14 @@ async function applyChartAdded(context, action) {
   }
 
   const chart = sheet.charts.add(action.chartType, sheet.getRange(mergedRange));
+  const source = {
+    top: action.position.top,
+    left: action.position.left,
+    height: action.size.height,
+    width: action.size.width,
+  };
 
-  chart.top = action.position.top;
-  chart.left = action.position.left;
-  chart.height = action.size.height;
-  chart.width = action.size.width;
+  Object.assign(chart, source);
 
   await context.sync();
 }
