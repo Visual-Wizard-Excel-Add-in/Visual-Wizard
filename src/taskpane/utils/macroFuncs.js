@@ -185,20 +185,18 @@ async function applyWorksheetChange(context, action) {
 
 async function applyTableChange(context, action) {
   const sheet = context.workbook.worksheets.getActiveWorksheet();
+  const isEditValue =
+    action.changeType === "RangeEdited" &&
+    action.details &&
+    action.details.valueAfter;
 
-  switch (action.changeType) {
-    case "RangeEdited":
-      if (action.details && action.details.valueAfter) {
-        const range = sheet.getRange(action.address);
-        range.values = [[action.details.valueAfter]];
+  if (isEditValue) {
+    const range = sheet.getRange(action.address);
+    range.values = [[action.details.valueAfter]];
 
-        await context.sync();
-      }
-      break;
-
-    default:
-      popUpMessage("loadFail", "지원하지 않는 표 이벤트입니다.");
-      break;
+    await context.sync();
+  } else {
+    popUpMessage("loadFail", "지원하지 않는 표 이벤트입니다.");
   }
 }
 
