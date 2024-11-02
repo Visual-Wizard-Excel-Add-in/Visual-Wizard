@@ -157,9 +157,9 @@ async function targetCellValue(targetCell) {
     const [[numberFormat]] = cell.numberFormat;
 
     return (
-      numberFormat?.includes("yy") ||
-      numberFormat.includes("dd") ||
-      numberFormat.includes("mm")
+      numberFormat.includes("yy") ||
+      numberFormat.includes("mm") ||
+      numberFormat.includes("dd")
     );
   }
 }
