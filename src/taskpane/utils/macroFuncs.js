@@ -1,6 +1,7 @@
 import { extractCellStyle, restoreCellStyle } from "./cellStyleFuncs";
 import { selectRangeValues, popUpMessage, removeHandler } from "./commonFuncs";
 import useTotalStore from "../store/useTotalStore";
+import MacroAction from "../classes/MacroActions";
 
 const actions = [];
 
@@ -69,7 +70,7 @@ async function manageRecording(isRecording, presetName) {
         .getState()
         [
           eventHandler.setter
-        ](eventHandler.target.add((event) => onWorksheetChanged(event, presetName)));
+        ](eventHandler.target.add((event) => onWorksheetChanged(event)));
     });
   }
 
@@ -98,163 +99,20 @@ async function manageRecording(isRecording, presetName) {
   }
 }
 
-async function onWorksheetChanged(event, presetName) {
-  let allMacroPresets = await OfficeRuntime.storage.getItem("allMacroPresets");
-
-  allMacroPresets = allMacroPresets ? JSON.parse(allMacroPresets) : {};
-
-  if (!allMacroPresets[presetName].actions) {
-    allMacroPresets[presetName] = { actions: [], cellStyles: {} };
-  }
-
-  const action = { type: event.type };
-
+async function onWorksheetChanged(event) {
   try {
-    await recordAction();
+    const action = new MacroAction(event);
+
+    if (action.chartType === "Unknown") {
+      popUpMessage("loadFail", "매크로 설정에서 차트 타입을 변경해주세요.");
+    }
+
+    actions.push(action);
   } catch (error) {
     popUpMessage(
       "workFail",
       `기록 중 예상치 못한 에러가 발생했습니다. ${error.message}`,
     );
-  }
-
-  if (action.chartType === "Unknown") {
-    popUpMessage("loadFail", "매크로 설정에서 차트 타입을 변경해주세요.");
-  }
-
-  actions.push(action);
-
-  async function recordAction() {
-    switch (event.type) {
-      case "WorksheetChanged":
-        action.address = event.address;
-        action.details = {
-          value: event.details
-            ? event.details.valueAfter
-            : await selectRangeValues(),
-        };
-        break;
-
-      case "WorksheetFormatChanged":
-        action.address = event.address;
-        action.cellStyle = await recordCellStyle();
-        break;
-
-      case "TableChanged":
-        action.tableId = event.tableId;
-        action.changeType = event.changeType;
-        action.address = event.address;
-        action.details = event.details;
-        break;
-
-      case "ChartAdded":
-        action.chartId = event.chartId;
-        await onChartAdded(action);
-        break;
-
-      case "TableAdded":
-        action.tableId = event.tableId;
-        [action.address, action.showHeaders] = await onTableAdded(action);
-        break;
-
-      default:
-        popUpMessage("loadFail", "지원하지 않는 형식입니다.");
-        break;
-    }
-  }
-
-  async function recordCellStyle() {
-    return await Excel.run(async (context) => {
-      const sheet = context.workbook.worksheets.getActiveWorksheet();
-      const cell = sheet.getRange(event.address);
-
-      return await extractCellStyle(context, cell);
-    });
-  }
-}
-
-async function onChartAdded(action) {
-  try {
-    await Excel.run(async (context) => {
-      const sheet = context.workbook.worksheets.getActiveWorksheet();
-      const chart = sheet.charts.getItem(action.chartId);
-      const dataRange = [];
-
-      chart.load([
-        "top",
-        "left",
-        "height",
-        "width",
-        "series/items",
-        "chartType",
-      ]);
-
-      await context.sync();
-
-      if (chart.chartType) {
-        for (let i = 0; i < chart.series.count; i += 1) {
-          const series = chart.series.getItemAt(i);
-          let valuesDataSource;
-
-          try {
-            valuesDataSource = series.getDimensionDataSourceString("Values");
-          } catch (error) {
-            try {
-              series.load("values");
-              await context.sync();
-
-              valuesDataSource = { value: series.values.address };
-            } catch (innerError) {
-              valuesDataSource = { value: "Unknown" };
-            }
-          }
-
-          await context.sync();
-
-          dataRange.push({
-            address: valuesDataSource.value.split("!")[1],
-          });
-        }
-      } else {
-        popUpMessage("workFail", "매크로 설정에서 차트 타입을 변경해주세요.");
-      }
-
-      action.chartType = chart.chartType || "Unknown";
-      action.position = { top: chart.top, left: chart.left };
-      action.size = { height: chart.height, width: chart.width };
-      action.dataRange = dataRange.map((range) => range.address);
-
-      return action;
-    });
-  } catch (error) {
-    popUpMessage("saveFail", `매크로 기록에 실패했습니다. ${error.message}`);
-
-    throw new Error(error.message);
-  }
-}
-
-async function onTableAdded(action) {
-  try {
-    let tableAttributes = [];
-
-    await Excel.run(async (context) => {
-      const sheet = context.workbook.worksheets.getActiveWorksheet();
-      const table = sheet.tables.getItem(action.tableId);
-      const tableRange = table.getRange();
-
-      tableRange.load("address");
-      table.load("showHeaders");
-      await context.sync();
-
-      const { showHeaders } = table;
-      tableAttributes = [tableRange.address.split("!")[1], showHeaders];
-    });
-
-    return tableAttributes;
-  } catch (error) {
-    popUpMessage("saveFail", `매크로 기록에 실패했습니다. ${error.message}`);
-
-    throw new Error(error.message);
   }
 }
 
