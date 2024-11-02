@@ -202,15 +202,10 @@ async function applyTableChange(context, action) {
 
 async function applyChartAdded(context, action) {
   const sheet = context.workbook.worksheets.getActiveWorksheet();
-  let mergedRange = null;
-
-  if (action.dataRange[0].includes(":")) {
-    mergedRange = `${action.dataRange[0].split(":")[0]}:${action.dataRange[action.dataRange.length - 1].split(":")[1]}`;
-  } else {
-    mergedRange = `${action.dataRange[0]}:${action.dataRange[action.dataRange.length - 1]}`;
-  }
-
-  const chart = sheet.charts.add(action.chartType, sheet.getRange(mergedRange));
+  const chart = sheet.charts.add(
+    action.chartType,
+    sheet.getRange(mergedRange()),
+  );
   const source = {
     top: action.position.top,
     left: action.position.left,
@@ -221,6 +216,18 @@ async function applyChartAdded(context, action) {
   Object.assign(chart, source);
 
   await context.sync();
+
+  function mergedRange() {
+    let result = null;
+
+    if (action.dataRange[0].includes(":")) {
+      result = `${action.dataRange[0].split(":")[0]}:${action.dataRange[action.dataRange.length - 1].split(":")[1]}`;
+    } else {
+      result = `${action.dataRange[0]}:${action.dataRange[action.dataRange.length - 1]}`;
+    }
+
+    return result;
+  }
 }
 
 async function applyTableAdded(context, action) {
