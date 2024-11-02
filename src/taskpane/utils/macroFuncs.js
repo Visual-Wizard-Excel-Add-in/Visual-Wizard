@@ -1,4 +1,5 @@
 import { restoreCellStyle } from "./cellStyleFuncs";
+import { updateState, popUpMessage, removeHandler } from "./commonFuncs";
 import useTotalStore from "../store/useTotalStore";
 import MacroAction from "../classes/MacroActions";
 
@@ -63,13 +64,12 @@ async function manageRecording(isRecording, presetName) {
 
   function addHandler(MACRO_HANDLERS) {
     Object.keys(MACRO_HANDLERS).forEach((handler) => {
-      const eventHandler = MACRO_HANDLERS[handler];
+      const { setter, target } = MACRO_HANDLERS[handler];
 
-      useTotalStore
-        .getState()
-        [
-          eventHandler.setter
-        ](eventHandler.target.add((event) => onWorksheetChanged(event)));
+      updateState(
+        setter,
+        target.add((event) => onWorksheetChanged(event)),
+      );
     });
   }
 
