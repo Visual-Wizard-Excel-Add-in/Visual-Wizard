@@ -475,7 +475,7 @@ https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/f8efe0428e399de
 
 위상 정렬 알고리즘이란 비순환하며 순서가 정해져 있는 작업을 차례대로 수행해야할 때 그 순서를 정해주는 알고리즘입니다,
 
-`Progress Graph` 클래스에 등록 된 `Node`들을 `Queue`방식으로 선입선출로 조회하고, 방문 여부를 기록하여 의존성을 참조하며 파싱합니다.
+`Progress Graph` 클래스에 등록 된 `Node`들을 `Queue`방식으로 선입선출로 조회하고, 방문 여부를 기록하여 의존성을 참조하며 파싱합니다.
 
 https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/f8efe0428e399de5f12be26ad0b0b7a56692cf2f/src/taskpane/classes/ProgressGraph.js#L25-L46
 
@@ -500,6 +500,8 @@ https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/f8efe0428e399de
 VBA로 매크로 녹화를 시작하는 것은 프로그래밍적으로 녹화 기능을 켜는 것과 사용자가 직접 인터페이스상으로 "매크로 녹화" 버튼을 클릭하는 것을 다르게 취급합니다. Excel은 보안상의 이유로 프로그래밍 방식의 입력 모니터링을 제한하는 것을 발견했습니다.
 
 #### 1-3. 해결방안
+
+- **매크로 녹화**
   
 정식 매크로 기능을 사용할 수 없으므로, `Office JS`만을 활용하여 매크로 기능을 구현했습니다.<br/>
 이를 위해 다음과 같은 이벤트에 감지 및 기록 함수를 등록하였습니다.
@@ -510,8 +512,67 @@ VBA로 매크로 녹화를 시작하는 것은 프로그래밍적으로 녹화 �
 - **표 내용 변경 이벤트**: 변경된 표의 데이터 원본과 변경 내역을 기록합니다.
 - **차트 추가 이벤트**: 생성된 차트의 데이터 원본과 차트 타입을 기록합니다.
   
-  API가 지원하는 변경 감지 이벤트가 한정적이기 때문에 기존 정식 매크로 기능을 완벽히 구현할 순 없었지만, Excel 사용자가 주로 사용하는 변경 내역을 감지하고 순서대로 기록하여, 사용자가 조작한 내역을 재생할 수 있도록 구현하여 해결할 수 있었습니다.
-</details>
+API가 지원하는 변경 감지 이벤트가 한정적이기 때문에 기존 정식 매크로 기능을 완벽히 구현할 순 없었지만, Excel 사용자가 주로 사용하는 변경 내역을 감지하고 순서대로 기록하여, 사용자가 조작한 내역을 재생할 수 있도록 구현하였습니다.
+
+각 사용자 변경 사항 감지 이벤트들에 해당 핸들러들을 등록하고, 녹화가 종료됐을시, 해당 `context`를 유지한 채 핸들러 해제를 호출하기 위해 `Zustand` 전역 상태로 관리합니다.
+
+https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/c6cb3ee5bcf6ebe3cf06b07c4fd8c848fda7aa62/src/taskpane/utils/macroFuncs.js#L17-L38
+
+이후, 각 이벤트 변경 사항을 감지하여 사용자의 입력 및 변경 사항을 배열에 순차적으로 기록합니다.
+해당 기록 내용을 `JSON`화 하여 `OfficeStorage`에 각 프리셋 명 하위에 저장하여, 후에 사용자가 선택한 프리셋 별로 재생이 가능합니다.
+
+**예시)**
+```JS
+// 이해를 돕기 위해 추상화한 내용입니다.
+const userActions = ["시트 변경(A4셀에 1입력)", "차트 생성(데이터 원본: A1 ~ A4셀)", "시트 서식 변경(A4셀 노란색 배경)", "Etc".]
+```
+
+```JS
+{
+    "매크로1": {
+        "actions": [
+            {
+                "type": "WorksheetChanged",
+                "address": "D12",
+                "details": {
+                    "value": 1
+                }
+            }, {
+                "type": "WorksheetFormatChanged",
+                "address": "D12:F12",
+                "cellStyle": [
+                    [
+                        {
+                            "format": {
+                                "@odata.type": "Microsoft.ExcelServices.CellPropertiesFormatInternal",
+                                "wrapText": false,
+                                "textOrientation": 0,
+                                "readingOrder": "Context",
+                                "horizontalAlignment": "General",
+...
+```
+
+사용자가 녹화를 종료하면, 등록된 모든 핸들러를 즉시 해제합니다.
+전역 상태로 등록한 핸들러를 불러와 해당 각 핸들러의 `context`를 통해 해제합니다.
+이후, 메모리 참조 해제를 위해 전역 상태에 명시적으로 `null`을 할당합니다.
+
+https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/c6cb3ee5bcf6ebe3cf06b07c4fd8c848fda7aa62/src/taskpane/utils/macroFuncs.js#L76-L85
+https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/c6cb3ee5bcf6ebe3cf06b07c4fd8c848fda7aa62/src/taskpane/utils/commonFuncs.js#L9-L22
+
+- **매크로 재생**
+
+사용자가 프리셋을 선택한 후, '실행' 버튼을 클릭하면 해당 프리셋에 저장된 사용자 매크로 녹화 배열을 순차적으로 수행합니다.
+사용자가 녹화한 변경 내역을 순서대로 모두 현재 시트에 입력 및 생성하며, 예외 상황이 발생할 경우 팝업 메시지로 에러 사항을 안내합니다.
+
+https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/c6cb3ee5bcf6ebe3cf06b07c4fd8c848fda7aa62/src/taskpane/utils/macroFuncs.js#L118-L145
+
+- **매크로 내용 변경**
+
+녹화한 내용을 리스트 형태로 표시하여, 변경을 지원하는 사항(셀 입력, 차트 추가, 표 추가) 중 사용자가 희망하는 값으로 변경합니다.
+
+<img widht="300" alt="macroSetting" src="https://github.com/user-attachments/assets/b9a61d74-6503-4509-89e5-6ade1073fd76"/>
+
+이후 사용자 녹화된 내용은 입력한 변경값으로 영구적으로 바뀌며, '실행'시 변경된 내용으로 동일하게 매크로 재생됩니다.
 
 <br/>
 
