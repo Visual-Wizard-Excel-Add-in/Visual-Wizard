@@ -63,7 +63,6 @@ async function onChartAdded(action) {
     await Excel.run(async (context) => {
       const sheet = context.workbook.worksheets.getActiveWorksheet();
       const chart = sheet.charts.getItem(action.chartId);
-      const dataRange = [];
 
       chart.load([
         "top",
@@ -76,33 +75,11 @@ async function onChartAdded(action) {
 
       await context.sync();
 
-      if (chart.chartType) {
-        for (let i = 0; i < chart.series.count; i += 1) {
-          const series = chart.series.getItemAt(i);
-          let valuesDataSource;
-
-          try {
-            valuesDataSource = series.getDimensionDataSourceString("Values");
-          } catch (error) {
-            try {
-              series.load("values");
-              await context.sync();
-
-              valuesDataSource = { value: series.values.address };
-            } catch (innerError) {
-              valuesDataSource = { value: "Unknown" };
-            }
-          }
-
-          await context.sync();
-
-          dataRange.push({
-            address: valuesDataSource.value.split("!")[1],
-          });
-        }
-      } else {
+      if (!chart.chartType) {
         popUpMessage("workFail", "매크로 설정에서 차트 타입을 변경해주세요.");
       }
+
+      const dataRange = await getChartSource(chart, context);
 
       action.chartType = chart.chartType || "Unknown";
       action.position = { top: chart.top, left: chart.left };
@@ -115,6 +92,35 @@ async function onChartAdded(action) {
     popUpMessage("saveFail", `매크로 기록에 실패했습니다. ${error.message}`);
 
     throw new Error(error.message);
+  }
+
+  async function getChartSource(chart, context) {
+    const result = [];
+
+    for (let i = 0; i < chart.series.count; i += 1) {
+      const series = chart.series.getItemAt(i);
+      let chartSource = null;
+
+      try {
+        chartSource = series.getDimensionDataSourceString("Values");
+        await context.sync();
+      } catch (error) {
+        try {
+          series.load("values");
+          await context.sync();
+
+          chartSource = { value: series.values.address };
+        } catch (innerError) {
+          chartSource = { value: "Unknown" };
+        }
+      }
+
+      result.push({
+        address: chartSource.value.split("!")[1],
+      });
+    }
+
+    return result;
   }
 }
 
