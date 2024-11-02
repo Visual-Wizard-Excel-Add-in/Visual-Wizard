@@ -1,5 +1,4 @@
-import { extractCellStyle, restoreCellStyle } from "./cellStyleFuncs";
-import { selectRangeValues, popUpMessage, removeHandler } from "./commonFuncs";
+import { restoreCellStyle } from "./cellStyleFuncs";
 import useTotalStore from "../store/useTotalStore";
 import MacroAction from "../classes/MacroActions";
 
