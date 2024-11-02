@@ -118,15 +118,15 @@ async function onWorksheetChanged(event) {
 async function macroPlay(presetName) {
   try {
     await Excel.run(async (context) => {
-      const allMacroPresets =
-        await OfficeRuntime.storage.getItem("allMacroPresets");
+      const savedPresets = JSON.parse(
+        await OfficeRuntime.storage.getItem("allMacroPresets"),
+      );
 
-      if (!allMacroPresets) {
+      if (!savedPresets) {
         throw new Error("No macros found.");
       }
 
-      const parsedPresets = JSON.parse(allMacroPresets);
-      const presetData = parsedPresets[presetName];
+      const presetData = savedPresets[presetName];
 
       if (!presetData || !presetData.actions) {
         throw new Error(`No actions found for preset: ${presetName}`);
