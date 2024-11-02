@@ -129,7 +129,9 @@ async function macroPlay(presetName) {
       const presetData = savedPresets[presetName];
 
       if (!presetData || !presetData.actions) {
-        throw new Error(`No actions found for preset: ${presetName}`);
+        popUpMessage("loadFail", "녹회된 내용이 없습니다");
+
+        return;
       }
 
       for (const action of presetData.actions) {
