@@ -171,12 +171,14 @@ async function applyWorksheetChange(context, action) {
   if (action.details && action.details.value) {
     const sheet = context.workbook.worksheets.getActiveWorksheet();
     const range = sheet.getRange(action.address);
+    const isRangeValue = typeof action.details.value === "object";
 
-    if (typeof action.details.value === "object") {
+    if (isRangeValue) {
       range.values = action.details.value;
     } else {
       range.values = [[action.details.value]];
     }
+
     await context.sync();
   }
 }
