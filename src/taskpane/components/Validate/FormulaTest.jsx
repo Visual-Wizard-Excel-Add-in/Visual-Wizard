@@ -14,7 +14,10 @@ function FormulaTest() {
   const cellAddress = useTotalStore((state) => state.cellAddress);
 
   useEffect(() => {
-    const fetchArgs = async () => {
+    fetchArgs();
+    setTestResult(null);
+
+    function fetchArgs() {
       if (cellFormula) {
         const pureArgs = cellArguments.map((cellArg) => {
           const isSameSheet =
@@ -27,9 +30,6 @@ function FormulaTest() {
       } else {
         setArgs([]);
       }
-
-    fetchArgs();
-    setTestResult(null);
     }
   }, [cellFormula]);
 
