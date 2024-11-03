@@ -37,7 +37,7 @@ function FormulaTest() {
     setInputValues((prevState) => ({ ...prevState, [arg]: value }));
   }
 
-  const handleExecute = async () => {
+  async function handleExecute() {
     let newFormula = cellFormula;
 
     Object.entries(inputValues).forEach(([arg, value]) => {
@@ -47,7 +47,7 @@ function FormulaTest() {
     const result = await evaluateTestFormula(newFormula);
 
     setTestResult(result);
-  };
+  }
 
   return (
     <div>
@@ -74,7 +74,7 @@ function FormulaTest() {
         </p>
       ))}
       <div className="flex justify-center mt-2">
-        <Button onClick={handleExecute} size="small">
+        <Button onClick={() => handleExecute()} size="small">
           실행
         </Button>
       </div>
