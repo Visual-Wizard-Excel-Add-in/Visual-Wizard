@@ -10,11 +10,6 @@ function Validation() {
 
   useEffect(() => {
     let selectionChangeHandler = null;
-    const fetchLastCellAddress = async () => {
-      const address = await getLastCellAddress();
-
-      setLastCell(address);
-    };
 
     fetchLastCellAddress();
 
@@ -26,14 +21,24 @@ function Validation() {
       await context.sync();
     });
 
-    return async () => {
-      await Excel.run(selectionChangeHandler.context, async (context) => {
-        selectionChangeHandler.remove();
-        await context.sync();
-      });
+    return removeFetchHandler;
 
-      selectionChangeHandler = null;
-    };
+    async function fetchLastCellAddress() {
+      const address = await getLastCellAddress();
+
+      setLastCell(address);
+    }
+
+    async function removeFetchHandler() {
+      if (selectionChangeHandler) {
+        await Excel.run(selectionChangeHandler.context, async (context) => {
+          selectionChangeHandler.remove();
+          await context.sync();
+        });
+
+        selectionChangeHandler = null;
+      }
+    }
   }, []);
 
   const highlightError = async () => {
