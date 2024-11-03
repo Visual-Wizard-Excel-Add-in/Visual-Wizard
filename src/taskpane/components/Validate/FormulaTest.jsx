@@ -17,20 +17,20 @@ function FormulaTest() {
     const fetchArgs = async () => {
       if (cellFormula) {
         const pureArgs = cellArguments.map((cellArg) => {
-          if (cellArg.split("!")[0] === cellAddress.split("!")[0]) {
-            return cellArg.split("!")[1];
-          }
-          return cellArg;
+          const isSameSheet =
+            cellArg.split("!")[0] === cellAddress.split("!")[0];
+
+          return isSameSheet ? cellArg.split("!")[1] : cellArg;
         });
 
         setArgs(pureArgs);
       } else {
         setArgs([]);
       }
-    };
 
     fetchArgs();
     setTestResult(null);
+    }
   }, [cellFormula]);
 
   function handleInputChange(arg, value) {
