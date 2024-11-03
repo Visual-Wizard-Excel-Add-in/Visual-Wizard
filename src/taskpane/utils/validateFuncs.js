@@ -42,9 +42,7 @@ async function getLastCellAddress() {
 
 async function evaluateTestFormula(newFormula) {
   try {
-    let testResult = "";
-
-    await Excel.run(async (context) => {
+    return await Excel.run(async (context) => {
       const { workbook } = context;
       const originSheet = workbook.worksheets.getActiveWorksheet();
 
@@ -62,36 +60,21 @@ async function evaluateTestFormula(newFormula) {
 
       const originSheetName = originSheet.name;
       const testSheet = workbook.worksheets.add("TestSheet");
-      const sheetRefFormula = newFormula
-        .split(",")
-        .map((segment) => {
-          return segment.replace(
-            /((?:[^!]+!)?\$?[A-Z]+\$?\d+(?::\$?[A-Z]+\$?\d+)?)/g,
-            (match) => {
-              if (match.includes("!")) {
-                return match;
-              }
-
-              return `${originSheetName}!${match}`;
-            },
-          );
-        })
-        .join(",");
-
+      const formula = connectSheetRef(originSheetName);
       const formulaRange = testSheet.getRange("A1");
 
-      formulaRange.formulas = [[sheetRefFormula]];
+      formulaRange.formulas = [[formula]];
 
       formulaRange.load("values");
       await context.sync();
 
-      [[testResult]] = formulaRange.values;
+      const testResult = [[formulaRange.values]];
 
       testSheet.delete();
       await context.sync();
-    });
 
-    return new Intl.NumberFormat("ko-KR").format(testResult);
+      return new Intl.NumberFormat("ko-KR").format(testResult);
+    });
   } catch (e) {
     popUpMessage(
       "workFail",
@@ -99,6 +82,24 @@ async function evaluateTestFormula(newFormula) {
     );
 
     return null;
+  }
+
+  function connectSheetRef(originSheetName) {
+    return newFormula
+      .split(",")
+      .map((segment) => {
+        const addressRegExp =
+          /((?:[^!]+!)?\$?[A-Z]+\$?\d+(?::\$?[A-Z]+\$?\d+)?)/g;
+
+        return segment.replace(addressRegExp, (match) => {
+          if (match.includes("!")) {
+            return match;
+          }
+
+          return `${originSheetName}!${match}`;
+        });
+      })
+      .join(",");
   }
 }
 
