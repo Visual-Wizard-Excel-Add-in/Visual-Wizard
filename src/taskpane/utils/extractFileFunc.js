@@ -1,30 +1,20 @@
 import { popUpMessage } from "./commonFuncs";
 
 async function executeFunction(selectedOption) {
+  const optionSheetName = "SelectExtract";
+  const completeSheetName = "TriggerComplete";
+
   try {
     Excel.run(async (context) => {
-      const optionSheetName = "SelectExtract";
-      const completeSheetName = "TriggerComplete";
-      let optionSheet =
-        context.workbook.worksheets.getItemOrNullObject(optionSheetName);
-      let completeSheet =
-        context.workbook.worksheets.getItemOrNullObject(completeSheetName);
+      await checkRemainTrigger(context);
 
-      await context.sync();
-
-      if (!optionSheet.isNullObject || !completeSheet.isNullObject) {
-        optionSheet?.delete();
-        completeSheet?.delete();
-        await context.sync();
-      }
-
-      optionSheet = context.workbook.worksheets.add(optionSheetName);
-
+      const optionSheet = context.workbook.worksheets.add(optionSheetName);
       const targetRange = optionSheet.getRange("A1");
 
       targetRange.values = [[`${selectedOption}`]];
 
-      completeSheet = context.workbook.worksheets.add(completeSheetName);
+      const completeSheet = context.workbook.worksheets.add(completeSheetName);
+
       await context.sync();
 
       setTimeout(async () => {
@@ -35,6 +25,25 @@ async function executeFunction(selectedOption) {
     });
   } catch (error) {
     popUpMessage("workFail", error.message);
+  }
+
+  async function checkRemainTrigger(context) {
+    const optionSheet =
+      context.workbook.worksheets.getItemOrNullObject(optionSheetName);
+    const completeSheet =
+      context.workbook.worksheets.getItemOrNullObject(completeSheetName);
+
+    await context.sync();
+
+    if (!optionSheet.isNullObject) {
+      optionSheet.delete();
+    }
+
+    if (!completeSheet.isNullObject) {
+      completeSheet.delete();
+    }
+
+    await context.sync();
   }
 }
 export default executeFunction;
