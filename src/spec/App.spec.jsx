@@ -1,129 +1,97 @@
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
+import { OfficeMockObject } from "office-addin-mock";
 
 import App from "../taskpane/components/App";
-import createPubliceSlice from "../taskpane/store/createPublicSlice";
+
+const mockData = {
+  context: {
+    workbook: {
+      worksheets: {
+        id: "sheetName",
+        getActiveWorksheet: function () {
+          return {
+            load: function () {},
+          };
+        },
+        onActivated: {
+          add: function () {},
+        },
+      },
+    },
+  },
+  run: async function (callback) {
+    await callback(this.context);
+  },
+  BorderWeight: {
+    thick: "thick",
+  },
+  BorderLineStyle: {
+    continuous: "continuous",
+  },
+};
 
 global.Office = {
   onReady: vi.fn(),
 };
 
-global.Excel = {
-  run: async (callback) => {
-    await callback({
-      workbook: {
-        worksheets: {
-          onActivated: {
-            add: vi.fn(),
-          },
-          getActiveWorksheet: () => ({
-            load: vi.fn(),
-            id: "1",
-          }),
-        },
-      },
-      sync: vi.fn(),
-    });
-  },
-};
-
-class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-}
-
-global.ResizeObserver = ResizeObserver;
-
-vi.mock("../taskpane/utils/store");
+global.Excel = new OfficeMockObject(mockData);
 
 describe("App", () => {
-  let mockStore;
-
-  beforeEach(() => {
-    mockStore = {
-      category: "Formula",
-      setCategory: vi.fn((newCategory) => {
-        mockStore.category = newCategory;
-      }),
-      setOpenTab: vi.fn(),
-      openTab: [],
-      sheetId: "1",
-      setSheetId: vi.fn(),
-      activeSheetId: vi.fn(),
-      messageList: [],
-    };
-
-    createPubliceSlice.mockImplementation(() => mockStore);
-  });
-
-  it("should render Formula features when the Formula category is selected", () => {
-    render(<App />);
+  it("가장 초기 화면에서는 수식 카테고리의 기능들이 표시돼야한다.", async () => {
+    await act(async () => render(<App />));
 
     expect(screen.getByText("정보")).toBeInTheDocument();
     expect(screen.getByText("참조")).toBeInTheDocument();
     expect(screen.getByText("순서")).toBeInTheDocument();
   });
 
-  it("should render Style features when the Style category is set", async () => {
+  it("서식 카테고리를 클릭할 경우, 서식 기능들이 표시돼야한다", async () => {
     await act(async () => {
-      mockStore.setCategory("Style");
+      render(<App />);
     });
 
-    render(<App />);
+    const styleTab = screen.getAllByText("서식", { exact: true });
 
-    await waitFor(
-      () => {
-        expect(screen.getByText("셀 서식")).toBeInTheDocument();
-        expect(screen.getByText("차트 서식")).toBeInTheDocument();
-      },
-      { timeout: 2000 },
-    );
+    await userEvent.click(styleTab[0]);
+
+    expect(screen.getByText("셀 서식")).toBeInTheDocument();
+    expect(screen.getByText("차트 서식")).toBeInTheDocument();
   });
 
-  it("should render Macro features when the Macro category is set", async () => {
+  it("매크로 카테고리를 클릭할 경우, 매크로 기능들이 표시돼야한다", async () => {
     await act(async () => {
-      mockStore.setCategory("Macro");
+      render(<App />);
     });
 
-    render(<App />);
+    const styleTab = screen.getAllByText("매크로", { exact: true });
 
-    await waitFor(
-      () => {
-        expect(screen.getByText("매크로 녹화")).toBeInTheDocument();
-        expect(screen.getByText("매크로 설정")).toBeInTheDocument();
-      },
-      { timeout: 2000 },
-    );
+    await userEvent.click(styleTab[0]);
+
+    expect(screen.getByText("매크로 녹화")).toBeInTheDocument();
+    expect(screen.getByText("매크로 설정")).toBeInTheDocument();
   });
 
-  it("should render Validate features when the Validate category is set", async () => {
+  it("유효성 카테고리를 클릭할 경우, 유효성 기능들이 표시돼야한다", async () => {
     await act(async () => {
-      mockStore.setCategory("Validate");
+      render(<App />);
     });
 
-    render(<App />);
+    const styleTab = screen.getAllByText("유효성", { exact: true });
 
-    await waitFor(
-      () => {
-        expect(screen.getByText("유효성 검사")).toBeInTheDocument();
-        expect(screen.getByText("수식 테스트")).toBeInTheDocument();
-      },
-      { timeout: 2000 },
-    );
+    await userEvent.click(styleTab[0]);
+
+    expect(screen.getByText("유효성 검사")).toBeInTheDocument();
+    expect(screen.getByText("수식 테스트")).toBeInTheDocument();
   });
 
-  it("should render Share features when the Share category is set", async () => {
-    await act(async () => {
-      mockStore.setCategory("Share");
-    });
+  it("공유하기 카테고리를 클릭할 경우, 공유하기 기능들이 표시돼야한다", async () => {
+    await act(async () => render(<App />));
 
-    render(<App />);
+    const styleTab = screen.getAllByText("공유하기", { exact: true });
 
-    await waitFor(
-      () => {
-        expect(screen.getByText("추출하기")).toBeInTheDocument();
-      },
-      { timeout: 2000 },
-    );
+    await userEvent.click(styleTab[0]);
+
+    expect(screen.getByText("추출하기")).toBeInTheDocument();
   });
 });
