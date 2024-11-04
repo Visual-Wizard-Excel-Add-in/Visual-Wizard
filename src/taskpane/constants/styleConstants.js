@@ -45,23 +45,23 @@ const HIGHLIGHT_STYLES = {
   borders: {
     bottom: {
       color: "red",
-      weight: Excel.BorderWeight.thick,
-      style: Excel.BorderLineStyle.continuous,
+      weight: "Thick",
+      style: "Continuous",
     },
     top: {
       color: "red",
-      weight: Excel.BorderWeight.thick,
-      style: Excel.BorderLineStyle.continuous,
+      weight: "Thick",
+      style: "Continuous",
     },
     left: {
       color: "red",
-      weight: Excel.BorderWeight.thick,
-      style: Excel.BorderLineStyle.continuous,
+      weight: "Thick",
+      style: "Continuous",
     },
     right: {
       color: "red",
-      weight: Excel.BorderWeight.thick,
-      style: Excel.BorderLineStyle.continuous,
+      weight: "Thick",
+      style: "Continuous",
     },
   },
 };
