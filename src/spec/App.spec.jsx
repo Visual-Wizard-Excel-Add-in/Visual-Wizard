@@ -35,7 +35,7 @@ global.Office = {
   onReady: vi.fn(),
 };
 
-global.Excel = new OfficeMockObject(mockData);
+vi.stubGlobal("Excel", new OfficeMockObject(mockData));
 
 describe("App", () => {
   it("가장 초기 화면에서는 수식 카테고리의 기능들이 표시돼야한다.", async () => {
