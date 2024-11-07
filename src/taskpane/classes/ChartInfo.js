@@ -3,15 +3,24 @@ class ChartInfo {
     this.type = chartType;
     this.defaultOptions = [
       "format/roundedCorners",
-      "format/font/*",
-      "format/border/*",
-      "plotArea/format/border/*",
-      "plotArea/format/*",
-      "plotArea/*",
-      "legend/*",
-      "legend/format/*",
-      "legend/format/font/*",
-      "legend/format/border/*",
+      "format/font",
+      "format/border",
+      "plotArea/position",
+      "plotArea/format/border",
+      "plotArea/format",
+      "plotArea/height",
+      "plotArea/left",
+      "plotArea/top",
+      "plotArea/width",
+      "plotArea/insideHeight",
+      "plotArea/insideLeft",
+      "plotArea/insideTop",
+      "plotArea/insideWidth",
+      "legend",
+      "legend/format",
+      "legend/format/font",
+      "legend/format/border",
+      "legend/position",
     ];
     this.chartStyle = null;
   }
@@ -43,14 +52,16 @@ class ChartInfo {
       case "3DBarStacked":
       case "3DBarStacked100":
         this.defaultOptions.push(
-          "axes/categoryAxis/*",
-          "axes/valueAxis/*",
-          "axes/categoryAxis/format/*",
-          "axes/valueAxis/format/*",
-          "axes/categoryAxis/format/line/*",
-          "axes/categoryAxis/format/font/*",
-          "axes/valueAxis/format/line/*",
-          "axes/valueAxis/format/font/*",
+          "axes/categoryAxis",
+          "axes/valueAxis",
+          "axes/categoryAxis/format",
+          "axes/valueAxis/format",
+          "axes/categoryAxis/position",
+          "axes/valueAxis/position",
+          "axes/categoryAxis/format/line",
+          "axes/categoryAxis/format/font",
+          "axes/valueAxis/format/line",
+          "axes/valueAxis/format/font",
           "series/items",
         );
         break;
@@ -72,10 +83,10 @@ class ChartInfo {
       case "XyscatterSmooth":
       case "XyscatterSmoothNoMarkers":
         this.defaultOptions.push(
-          "axes/valueAxis/*",
-          "axes/valueAxis/format/*",
-          "axes/valueAxis/format/line/*",
-          "axes/valueAxis/format/font/*",
+          "axes/valueAxis",
+          "axes/valueAxis/format",
+          "axes/valueAxis/format/line",
+          "axes/valueAxis/format/font",
           "series/items",
         );
         break;
@@ -89,14 +100,14 @@ class ChartInfo {
       case "SurfaceTopViewWireframe":
       case "SurfaceWireframe":
         this.defaultOptions.push(
-          "axes/categoryAxis/*",
-          "axes/valueAxis/*",
-          "axes/categoryAxis/format/*",
-          "axes/valueAxis/format/*",
-          "axes/categoryAxis/format/line/*",
-          "axes/categoryAxis/format/font/*",
-          "axes/valueAxis/format/line/*",
-          "axes/valueAxis/format/font/*",
+          "axes/categoryAxis",
+          "axes/valueAxis",
+          "axes/categoryAxis/format",
+          "axes/valueAxis/format",
+          "axes/categoryAxis/format/line",
+          "axes/categoryAxis/format/font",
+          "axes/valueAxis/format/line",
+          "axes/valueAxis/format/font",
           "series/items",
         );
         break;
@@ -105,10 +116,10 @@ class ChartInfo {
       case "RadarFilled":
       case "RadarMarkers":
         this.defaultOptions.push(
-          "axes/valueAxis/*",
-          "axes/valueAxis/format/*",
-          "axes/valueAxis/format/line/*",
-          "axes/valueAxis/format/font/*",
+          "axes/valueAxis",
+          "axes/valueAxis/format",
+          "axes/valueAxis/format/line",
+          "axes/valueAxis/format/font",
           "series/items",
         );
         break;
@@ -132,14 +143,14 @@ class ChartInfo {
       case "PyramidBarStacked100":
       case "BarOfPie":
         this.defaultOptions.push(
-          "axes/categoryAxis/*",
-          "axes/categoryAxis/format/*",
-          "axes/valueAxis/*",
-          "axes/valueAxis/format/*",
-          "axes/categoryAxis/format/line/*",
-          "axes/categoryAxis/format/font/*",
-          "axes/valueAxis/format/line/*",
-          "axes/valueAxis/format/font/*",
+          "axes/categoryAxis",
+          "axes/categoryAxis/format",
+          "axes/valueAxis",
+          "axes/valueAxis/format",
+          "axes/categoryAxis/format/line",
+          "axes/categoryAxis/format/font",
+          "axes/valueAxis/format/line",
+          "axes/valueAxis/format/font",
           "series/items",
         );
         break;
