@@ -23,11 +23,11 @@ const mockData = {
       range: {
         address: "Sheet!A1",
         format: {},
-        getCellProperties: function () {
+        getCellProperties: vi.fn(function () {
           return {
             value: mockStyle,
           };
-        },
+        }),
         setCellProperties: vi.fn(
           (source) => (mockData.context.workbook.range.format = source),
         ),
@@ -37,10 +37,8 @@ const mockData = {
         return this.range;
       },
       worksheets: {
-        add: function () {
-          return mockData.context.workbook.worksheet;
-        },
-        getItemOrNullObject: function (sheetName) {
+        add: vi.fn(() => mockData.context.workbook.worksheet),
+        getItemOrNullObject: vi.fn((sheetName) => {
           if ("StyleSheet" === sheetName) {
             return {
               ...mockData.context.workbook.worksheet,
@@ -49,20 +47,18 @@ const mockData = {
           }
 
           return { isNullObject: true };
-        },
+        }),
       },
       worksheet: {
-        delete: function () {},
-        setCellRange: function () {},
-        getRange: function () {
-          return mockData.context.workbook.range;
-        },
+        delete: vi.fn(),
+        setCellRange: vi.fn(),
+        getRange: vi.fn(() => mockData.context.workbook.range),
       },
     },
   },
-  run: async function (callback) {
+  run: vi.fn(async function (callback) {
     await callback(this.context);
-  },
+  }),
 };
 
 async function loadStorage() {
