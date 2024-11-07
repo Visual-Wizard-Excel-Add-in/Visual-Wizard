@@ -1,122 +1,118 @@
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  act,
-} from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import { userEvent } from "@testing-library/user-event";
+import { OfficeMockObject } from "office-addin-mock";
 
 import CellStyle from "../taskpane/components/Style/CellStyle";
-import createPubliceSlice from "../taskpane/store/createPublicSlice";
-import {
-  copyRangeStyle,
-  pasteRangeStyle,
-} from "../taskpane/utils/cellStyleFuncs";
-import { addPreset, deletePreset } from "../taskpane/utils/commonFuncs";
+import { mockStyle, savedStyle } from "./test-constants";
 
-vi.mock("../taskpane/utils/store");
-vi.mock("../taskpane/utils/cellCommonUtils");
-vi.mock("../taskpane/utils/cellStyleFunc");
-
-global.OfficeRuntime = {
+const OfficeRuntimeMock = {
   storage: {
-    getItem: vi.fn().mockResolvedValue("{}"),
-    setItem: vi.fn().mockResolvedValue(),
+    _storage: {},
+    getItem: vi.fn(async (key) =>
+      JSON.stringify(OfficeRuntimeMock.storage._storage[key] || {}),
+    ),
+    setItem: vi.fn(async (key, value) => {
+      OfficeRuntimeMock.storage._storage[key] = JSON.parse(value);
+    }),
   },
 };
 
+const mockData = {
+  context: {
+    workbook: {
+      range: {
+        address: "Sheet!A1",
+        format: {},
+        getCellProperties: function () {
+          return {
+            value: mockStyle,
+          };
+        },
+        setCellProperties: vi.fn(
+          (source) => (mockData.context.workbook.range.format = source),
+        ),
+        copyFrom: vi.fn(),
+      },
+      getSelectedRange: function () {
+        return this.range;
+      },
+      worksheets: {
+        add: function () {
+          return mockData.context.workbook.worksheet;
+        },
+        getItemOrNullObject: function (sheetName) {
+          if ("StyleSheet" === sheetName) {
+            return {
+              ...mockData.context.workbook.worksheet,
+              isNullObject: false,
+            };
+          }
+
+          return { isNullObject: true };
+        },
+      },
+      worksheet: {
+        delete: function () {},
+        setCellRange: function () {},
+        getRange: function () {
+          return mockData.context.workbook.range;
+        },
+      },
+    },
+  },
+  run: async function (callback) {
+    await callback(this.context);
+  },
+};
+
+async function loadStorage() {
+  return JSON.parse(await OfficeRuntime.storage.getItem("cellStylePresets"));
+}
+
+vi.stubGlobal("Excel", new OfficeMockObject(mockData));
+vi.stubGlobal("OfficeRuntime", OfficeRuntimeMock);
+
 describe("CellStyle", () => {
-  let mockStore;
-
-  beforeEach(() => {
-    mockStore = {
-      selectedStylePreset: "",
-      setSelectedStylePreset: vi.fn(),
-    };
-
-    createPubliceSlice.mockReturnValue(mockStore);
-  });
-
-  it("should create a new style preset", async () => {
-    addPreset.mockResolvedValue();
-
+  it("프리셋 '+'버튼 클릭 시, 프리셋이 추가되어야 한다.", async () => {
     render(<CellStyle />);
 
-    await act(async () => {
-      fireEvent.click(screen.getByLabelText("plus"));
-    });
+    await userEvent.click(screen.getByLabelText("add new preset"));
 
-    await waitFor(() => {
-      expect(addPreset).toHaveBeenCalledWith("cellStylePresets", "셀 서식1");
-    });
-
-    await waitFor(() => {
-      expect(mockStore.setSelectedStylePreset).toHaveBeenCalledWith("셀 서식1");
-    });
+    expect(screen.getByText("셀 서식1")).toBeInTheDocument();
   });
 
-  it("should create a new preset with incremented number if '셀 서식1' already exists", async () => {
-    OfficeRuntime.storage.getItem.mockResolvedValue(
-      JSON.stringify({ "셀 서식1": {}, "셀 서식2": {} }),
+  it("프리셋이 이미 존재할 경우, 프리셋을 추가할 경우 숫자가 1 증가해야합니다.", async () => {
+    render(<CellStyle />);
+
+    await userEvent.click(screen.getByLabelText("add new preset"));
+
+    expect(screen.getByText("셀 서식2")).toBeInTheDocument();
+  });
+
+  it("프리셋을 삭제할 수 있어야한다", async () => {
+    render(<CellStyle />);
+
+    await userEvent.click(screen.getByLabelText("delete preset"));
+
+    expect(await loadStorage()).toStrictEqual({ "셀 서식2": {} });
+  });
+
+  it("현재 서식을 저장할 수 있어야 한다.", async () => {
+    render(<CellStyle />);
+
+    await userEvent.click(screen.getByLabelText("add new preset"));
+    await userEvent.click(screen.getByLabelText("save button"));
+
+    expect(await loadStorage()).toStrictEqual(savedStyle);
+  });
+
+  it("선택한 셀 서식 적용 시, 올바른 서식이 불러와져야 한다", async () => {
+    render(<CellStyle />);
+
+    await userEvent.click(screen.getByLabelText("paste button"));
+
+    expect(mockData.context.workbook.range.format).toStrictEqual(
+      savedStyle["셀 서식1"][0],
     );
-
-    render(<CellStyle />);
-
-    await waitFor(() => {
-      expect(OfficeRuntime.storage.getItem).toHaveBeenCalledWith(
-        "cellStylePresets",
-      );
-    });
-
-    fireEvent.click(screen.getByLabelText("plus"));
-
-    await waitFor(() => {
-      expect(addPreset).toHaveBeenCalledWith("cellStylePresets", "셀 서식3");
-    });
-
-    await waitFor(() => {
-      expect(mockStore.setSelectedStylePreset).toHaveBeenCalledWith("셀 서식3");
-    });
-  });
-
-  it("should handle preset deletion", async () => {
-    deletePreset.mockResolvedValue();
-    mockStore.selectedStylePreset = "셀 서식1";
-
-    render(<CellStyle />);
-
-    fireEvent.click(screen.getByLabelText("delete"));
-
-    await waitFor(() => {
-      expect(deletePreset).toHaveBeenCalledWith("cellStylePresets", "셀 서식1");
-      expect(mockStore.setSelectedStylePreset).toHaveBeenCalledWith("");
-      expect(OfficeRuntime.storage.getItem).toHaveBeenCalledWith(
-        "cellStylePresets",
-      );
-    });
-  });
-
-  it("should save the current style preset", async () => {
-    render(<CellStyle />);
-
-    fireEvent.click(screen.getByLabelText("save"));
-
-    await waitFor(() => {
-      expect(copyRangeStyle).toHaveBeenCalledWith(
-        mockStore.selectedStylePreset,
-      );
-    });
-  });
-
-  it("should load the selected style preset", async () => {
-    mockStore.selectedStylePreset = "셀 서식1";
-
-    render(<CellStyle />);
-
-    fireEvent.click(screen.getByText("적용"));
-
-    await waitFor(() => {
-      expect(pasteRangeStyle).toHaveBeenCalledWith("셀 서식1");
-    });
   });
 });
