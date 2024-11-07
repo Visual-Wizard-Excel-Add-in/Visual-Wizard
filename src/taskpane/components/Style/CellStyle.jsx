@@ -58,6 +58,7 @@ function CellStyle() {
         className="self-center w-7"
         onClick={() => pasteRangeStyle(selectedPreset)}
         size="small"
+        aria-label="paste button"
       >
         적용
       </Button>
