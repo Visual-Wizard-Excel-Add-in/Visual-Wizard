@@ -60,7 +60,16 @@
       - [2-2. 위상 정렬 알고리즘 구현](#2-2-위상-정렬-알고리즘-구현)
   - [**🚨 트러블 슈팅**](#-트러블-슈팅)
     - [1. 매크로 녹화 기능 구현 이슈](#1-매크로-녹화-기능-구현-이슈)
+      - [트러블 사안](#트러블-사안)
+      - [발생 원인](#발생-원인)
+      - [해결방안](#해결방안)
+        - [매크로 녹화](#매크로-녹화)
+        - [매크로 재생](#매크로-재생)
+        - [매크로 내용 변경](#매크로-내용-변경)
     - [2. 추출하기 기능 구현 이슈](#2-추출하기-기능-구현-이슈)
+      - [트러블 사안](#트러블-사안)
+      - [발생 원인](#발생-원인)
+      - [해결방안](#해결방안)
   - [**⌛️ 회고**](#️-회고)
 
 <br/>
@@ -487,7 +496,11 @@ https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/f8efe0428e399de
 
 ### 1. 매크로 녹화 기능 구현 이슈
 
-#### 1-1. 트러블 사안
+#### 트러블 사안
+
+<table>
+<tr>
+<td>
 
 > [!NOTE]
 > Excel 정식 매크로 녹화 기능: 사용자의 조작 내용을 **VBA(Visual Basic Application)** 코드로, 자동으로 변환하여 기록하는 기능입니다.
@@ -495,13 +508,29 @@ https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/f8efe0428e399de
 기존안은 Add-in과 `VBA`로 Excel Application의 매크로 녹화 기능을 작동시켜 Excel 정식 매크로 기능을 바탕으로 트리거 역할을 하는 기능을 만드는 것이었습니다.
 초기에 의도한 대로 매크로 녹화 기능을 작동시키는 데 성공하였지만, 사용자가 인터페이스를 직접 클릭하지 않는 이상 `VBA` 코드 녹화가 진행되지 않는다는 문제점에 봉착했습니다.
 
-#### 1-2. 발생 원인
+</td>
+</tr>
+</table>
+
+#### 발생 원인
+
+<table>
+<tr>
+<td>
 
 VBA로 매크로 녹화를 시작하는 것은 프로그래밍적으로 녹화 기능을 켜는 것과 사용자가 직접 인터페이스상으로 "매크로 녹화" 버튼을 클릭하는 것을 다르게 취급합니다. Excel은 보안상의 이유로 프로그래밍 방식의 입력 모니터링을 제한하는 것을 발견했습니다.
 
-#### 1-3. 해결방안
+</td>
+</tr>
+</table>
 
-- **매크로 녹화**
+#### 해결방안
+
+<table>
+<tr>
+<td>
+
+##### 매크로 녹화
   
 정식 매크로 기능을 사용할 수 없으므로, `Office JS`만을 활용하여 매크로 기능을 구현했습니다.<br/>
 이를 위해 다음과 같은 이벤트에 감지 및 기록 함수를 등록하였습니다.
@@ -559,14 +588,74 @@ const userActions = ["시트 변경(A4셀에 1입력)", "차트 생성(데이터
 https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/c6cb3ee5bcf6ebe3cf06b07c4fd8c848fda7aa62/src/taskpane/utils/macroFuncs.js#L76-L85
 https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/c6cb3ee5bcf6ebe3cf06b07c4fd8c848fda7aa62/src/taskpane/utils/commonFuncs.js#L9-L22
 
-- **매크로 재생**
+<br/>
+
+---
+
+##### 매크로 재생
 
 사용자가 프리셋을 선택한 후, '실행' 버튼을 클릭하면 해당 프리셋에 저장된 사용자 매크로 녹화 배열을 순차적으로 수행합니다.
 사용자가 녹화한 변경 내역을 순서대로 모두 현재 시트에 입력 및 생성하며, 예외 상황이 발생할 경우 팝업 메시지로 에러 사항을 안내합니다.
 
 https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/c6cb3ee5bcf6ebe3cf06b07c4fd8c848fda7aa62/src/taskpane/utils/macroFuncs.js#L118-L145
 
-- **매크로 내용 변경**
+**Strategy 패턴 아이디어로 액션 타입별 실행 분기를 단순화**
+
+재생 시 `action.type`에 따라 호출할 함수를 분기하는 부분을, `if-else if` 대신 **키-함수 매핑** 방식으로 바꿨습니다.
+
+| 구분 | 설명 | 복잡도 |
+|------|------|--------|
+| 개선 전 | `action.type`마다 `if` / `else if`로 분기하여 `applyWorksheetChange`, `restoreCellStyle` 등 호출 | O(N) |
+| 개선 후 | `action.type`을 키로 하는 객체에 실행 함수를 매핑하고, 키로 직접 접근하여 호출 | O(1) |
+
+**개선 전 (if - else)**
+
+```js
+async function replayRecords(action, context) {
+  if (action.type === "WorksheetChanged") {
+    await applyWorksheetChange(context, action);
+  } else if (action.type === "WorksheetFormatChanged") {
+    await restoreCellStyle(...);
+  } else if (action.type === "TableChanged") {
+    await applyTableChange(context, action);
+  }
+  // ... 반복
+}
+```
+
+**개선 후 (Key : Func)**
+
+```js
+async function replayRecords(action, context) {
+  const applyFuncs = {
+    WorksheetChanged: () => applyWorksheetChange(context, action),
+    WorksheetFormatChanged: () => restoreCellStyle(...),
+    TableChanged: () => applyTableChange(context, action),
+    ChartAdded: () => applyChartAdded(context, action),
+    TableAdded: () => applyTableAdded(context, action),
+  };
+
+  if (applyFuncs[action.type]) {
+    await applyFuncs[action.type]();
+  } else {
+    // 지원하지 않는 타입 공통 에러 처리
+  }
+}
+```
+
+**개선의 이점**
+
+- 액션의 `type`을 키로 사용해 실행 함수를 매핑하여, Strategy 패턴을 함수형으로 적용했습니다.
+- 새로운 `type` 추가 시, 매핑 객체에 키-함수 쌍만 추가하면 되어 영향 범위가 최소화되고 확장이 쉽습니다.
+- 타입별로 전략이 분리되어 있어, 전략 단위로 테스트·수정이 가능합니다.
+- `if-else` 선형 분기(O(N))를 키 접근(O(1))으로 바꿔 분기 비용과 가독성을 개선했습니다.
+- 지원하지 않는 타입은 매핑에 없으므로 한 곳에서 공통 에러 처리로 처리합니다.
+
+<br/>
+
+---
+
+##### 매크로 내용 변경
 
 녹화한 내용을 리스트 형태로 표시하여, 변경을 지원하는 사항(셀 입력, 차트 추가, 표 추가) 중 사용자가 희망하는 값으로 변경합니다.
 
@@ -576,19 +665,44 @@ https://github.com/Visual-Wizard-Excel-Add-in/Visual-Wizard/blob/c6cb3ee5bcf6ebe
 
 <br/>
 
+
+</td>
+</tr>
+</table>
+
 ### 2. 추출하기 기능 구현 이슈
 
-#### 2-1. 트러블 사안
+#### 트러블 사안
+
+<table>
+<tr>
+<td>
 
 기존안은 `Office JS`의 `Outlook API`를 동시에 이용하여, 사용자가 희망하는 범위의 내용을 첨부파일로서 메일로 전송하는 편의 기능이었습니다.
 하지만, Excel 내에서 Outlook을 실행시키거나 통신하는 것이 불가능하다는 문제를 깨달아 기획을 변경하게 됐습니다.
 
-#### 2-2. 발생 원인
+</td>
+</tr>
+</table>
+
+#### 발생 원인
+
+<table>
+<tr>
+<td>
 
 Add-in은 클라이언트 측에서 실행되는 JavaScript로 구동되기 때문에, 무분별한 접근이 가능할 경우 발생할 보안 문제를 예방하기 위해 지원하는 기능이 제한되어 있습니다.
 또한, Office JS API는 여전히 발전 중인 새로운 기술로, 현재 점진적으로 API를 확장해 나가고 있는 상황입니다.
 
-#### 2-3. 해결방안
+</td>
+</tr>
+</table>
+
+#### 해결방안
+
+<table>
+<tr>
+<td>
   
   1. 초기 기획 의도 유지<br/>
      기획 의도가 메인 타겟인 사무직 분들의 특정 부분을 메일로 요청받을 경우의 불편을 해소하기 위함이었던 만큼, 해당 불편함을 다른 방도로 해소하기 위해 사용자가 희망하는 범위를 새로운 Excel 통합 문서로 추출하는 기능으로 변경했습니다.
@@ -630,6 +744,10 @@ Add-in은 클라이언트 측에서 실행되는 JavaScript로 구동되기 때�
   
   이처럼 두 가지 프로그래밍 언어를 병용하여 사용하는 방식으로 해당 문제를 해결할 수 있었습니다.
 </details>
+
+</td>
+</tr>
+</table>
 
 <br/>
 
